@@ -30,3 +30,22 @@
 *.exe
 *.out
 *.app
+
+# vim temporary files
+*~
+*.swp
+*.swo
+
+# ignore these folders
+build/
+**/bin/
+
+#idea created files
+.idea/
+./java/.idea/
+./cpp/.idea/
+*.iml
+
+# Custom
+cmake-build-debug-*/*
+cpp/build/*

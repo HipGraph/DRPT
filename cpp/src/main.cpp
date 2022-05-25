@@ -1,5 +1,6 @@
 #include "dmrpt/io/file_reader.hpp"
 #include "dmrpt/io/image_reader.hpp"
+#include "dmrpt/math/matrix_multiply.hpp"
 #include <vector>
 #include <mpi.h>
 #include <string>
@@ -18,13 +19,23 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    FileReader fileReader = FileReader(rank);
-    vector <string> vec = fileReader.
-            parseFileNames(folderPath);
-    vector <string> splittedVales = fileReader.getMyFileNames(vec, size);
-    ImageReader imageReader;
-    vector <vector<long>> imagedatas = imageReader.readImages(splittedVales);
-    cout << "Rank " << rank << " Size of  imagesdata " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
+//    FileReader fileReader = FileReader(rank);
+//    vector <string> vec = fileReader.
+//            parseFileNames(folderPath);
+//    vector <string> splittedVales = fileReader.getMyFileNames(vec, size);
+//    ImageReader imageReader;
+//    vector <vector<long>> imagedatas = imageReader.readImages(splittedVales);
+//    cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
+
+    MathOp mathOp;
+//    double *A, *B;
+//    mathOp.multiply_mat(A, B);
+    double * A =  mathOp.build_sparse_projection_matrix(rank,size,8,2,0.8);
+    for (int i = 0; i < 16; i++)
+        printf("%lf ", A[i]);
+    printf("\n");
+    free(A);
+    MPI_Finalize();
 
 }
 

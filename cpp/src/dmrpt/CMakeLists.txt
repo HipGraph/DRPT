@@ -5,6 +5,9 @@ add_library(
         dmrpt SHARED
         io/file_reader.cpp
         io/image_reader.cpp
+        math/matrix_multiply.cpp
 )
-target_link_libraries(dmrpt ${OpenCV_LIBS} )
+target_link_libraries(dmrpt ${OpenCV_LIBS})
+target_link_libraries(dmrpt ${OpenBLAS_CXX_LIBRARIES})
+target_link_libraries(dmrpt ${MPI_CXX_LIBRARIES})
 

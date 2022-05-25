@@ -6,11 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_COMPILER  "/usr/local/opt/llvm/bin/clang++")
 set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include -fopenmp")
-set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
-set(CMAKE_MODULE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
-set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
-set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include -fopenmp  -I/usr/local/opt/openblas/include")
+set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
+set(CMAKE_MODULE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
+set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
+set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
 SET (CMAKE_AR      "/usr/local/opt/llvm/bin/llvm-ar")
 set(OpenCV_DIR /Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/opencv/install/lib/cmake/opencv4)
 
@@ -31,6 +31,18 @@ find_package( OpenCV REQUIRED )
 message(STATUS "OPENCV include  dir: ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OPENCV libs  dir: ${OpenCV_LIBS}")
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+
+set(OpenBLAS_DIR "/usr/local/opt/openblas/lib/cmake/openblas")
+message("Finding openBLAS")
+find_package(OpenBLAS REQUIRED)
+set(OpenBLAS_CXX_INCLUDE_PATH "/usr/local/opt/openblas/include")
+set(OpenBLAS_CXX_LIBRARIES "/usr/local/opt/openblas/lib/libopenblas.dylib")
+message(STATUS "OpenBLAS include dir: ${OpenBLAS_CXX_INCLUDE_PATH}")
+message(STATUS "OpenBLAS libs: ${OpenBLAS_CXX_LIBRARIES}")
+
+include_directories( ${OpenBLAS_CXX_INCLUDE_PATH})
+
 
 
 #try_compile(HAS_FS "${CMAKE_BINARY_DIR}/temp"
@@ -58,3 +70,4 @@ add_subdirectory(src/dmrpt)
 
 target_link_libraries(distributed_mrpt dmrpt)
 target_link_libraries(distributed_mrpt ${MPI_CXX_LIBRARIES})
+

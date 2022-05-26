@@ -11,9 +11,10 @@ using namespace std;
 namespace dmrpt{
     class MathOp{
     public:
-        double* multiply_mat(vector<vector<double>> A, vector<vector<double>> B);
+        double* multiply_mat(double *A, double *B, int A_rows, int B_cols,int A_cols,int alpha);
         double* build_sparse_local_random_matrix(int rows, int cols, float density);
         double* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density);
+        double * convert_to_row_major_format(vector<vector<double>> data);
 
     };
 }

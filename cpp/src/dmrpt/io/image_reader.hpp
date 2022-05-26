@@ -10,8 +10,8 @@ using namespace std;
 namespace dmrpt{
     class ImageReader {
       public:
-        vector<long> readImage(string path);
-        vector<vector<long>> readImages(vector<string> imagePaths);
+        vector<double> readImage(string path);
+        vector<vector<double>> readImages(vector<string> imagePaths);
       };
 }
 

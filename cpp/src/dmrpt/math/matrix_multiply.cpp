@@ -11,18 +11,15 @@
 using namespace std;
 
 
-double *dmrpt::MathOp::multiply_mat(vector <vector<double>> A, vector <vector<double>> B) {
-    int i = 0;
-    double E[6] = {1.0, 2.0, 1.0, -3.0, 4.0, -1.0};
-    double G[6] = {1.0, 2.0, 1.0, -3.0, 4.0, -1.0};
-    double K[9] = {.5, .5, .5, .5, .5, .5, .5, .5, .5};
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, 3, 3, 2, 1, E, 3, G, 3, 2, K, 3);
+double *dmrpt::MathOp::multiply_mat(double *A, double *B, int A_rows, int B_cols,int A_cols,int alpha) {
+    int result_size = A_cols*B_cols;
+    double *result = (double *) malloc(sizeof (double )*result_size);
+    for(int k=0;k<result_size;k++){
+        result[k]=1;
+    }
+    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, A, A_cols, B, B_cols, 0.0, result, B_cols);
 
-    for (i = 0; i < 9; i++)
-        printf("%lf ", K[i]);
-    printf("\n");
-    double *F;
-    return F;
+   return result;
 }
 
 double *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, float density) {
@@ -41,16 +38,17 @@ double *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, floa
     for (int j = 0; j < rows; ++j) {
         for (int i = 0; i < cols; ++i) {
             if (uni_dist(gen) > density) {
-                A[j * cols + i] = 0.0;
+                A[i+ j*cols] = 0.0;
             } else {
-                A[j * cols + i] = (double) norm_dist(gen);
+                A[i+ j*cols] = (double) norm_dist(gen);
             }
         }
     }
     return A;
 }
 
-double *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_size, int total_dimension, int levels, float density) {
+double *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_size, int total_dimension, int levels,
+                                                      float density) {
 
     double *global_project_matrix;
     int local_rows;
@@ -62,44 +60,65 @@ double *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_size, 
     }
     double *local_sparse_matrix = this->build_sparse_local_random_matrix(local_rows, levels, density);
 
-    global_project_matrix = (double *)malloc(sizeof(double) * total_dimension * levels);
+    global_project_matrix = (double *) malloc(sizeof(double) * total_dimension * levels);
 
 
     int my_start, my_end;
     if (rank < world_size - 1) {
-        my_start = rank* length*levels;
-        my_end = my_start+ length*levels - 1;
+        my_start = rank * length * levels;
+        my_end = my_start + length * levels - 1;
     } else if (rank == world_size - 1) {
-        my_start = rank* length*levels;
-        my_end = total_dimension*levels - 1;
+        my_start = rank * length * levels;
+        my_end = total_dimension * levels - 1;
     }
 
-    for(int i=my_start;i<=my_end;i++){
-        global_project_matrix[i] =local_sparse_matrix[i-my_start];
+    for (int i = my_start; i <= my_end; i++) {
+        global_project_matrix[i] = local_sparse_matrix[i - my_start];
     }
 
-    int my_total = local_rows*levels;
+    int my_total = local_rows * levels;
 
     int *counts = new int[world_size];
-    int *disps  = new int[world_size];
+    int *disps = new int[world_size];
 
-    for (int i=0; i<world_size-1; i++)
-        counts[i] = length*levels;
-    counts[world_size-1] = total_dimension*levels - length*levels*(world_size-1);
+    for (int i = 0; i < world_size - 1; i++)
+        counts[i] = length * levels;
+    counts[world_size - 1] = total_dimension * levels - length * levels * (world_size - 1);
 
     disps[0] = 0;
-    for (int i=1; i<world_size; i++)
-        disps[i] = disps[i-1] + counts[i-1];
+    for (int i = 1; i < world_size; i++)
+        disps[i] = disps[i - 1] + counts[i - 1];
 
     MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_DOUBLE,
                    global_project_matrix, counts, disps, MPI_DOUBLE, MPI_COMM_WORLD);
 
-    delete [] disps;
-    delete [] counts;
+    delete[] disps;
+    delete[] counts;
     free(local_sparse_matrix);
 
     return global_project_matrix;
 
+}
+
+double *dmrpt::MathOp::convert_to_row_major_format(vector <vector<double>> data) {
+    int cols = data.size();
+    int rows = data[0].size();
+    int total_size = cols * rows;
+
+    double *arr = (double *) malloc(sizeof(double) * total_size);
+    for (int i = 0; i < rows;  i++) {
+        for (int j = 0; j < cols;  j++) {
+            arr[j + i * cols] = 0.0;
+        }
+    }
+
+    for (int i = 0; i < rows;  i++) {
+        for (int j = 0; j < cols;  j++) {
+           arr[j + i * cols] = data[j][i];
+        }
+
+    }
+    return arr;
 }
 
 

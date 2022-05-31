@@ -11,15 +11,16 @@
 using namespace std;
 
 
-double *dmrpt::MathOp::multiply_mat(double *A, double *B, int A_rows, int B_cols,int A_cols,int alpha) {
-    int result_size = A_cols*B_cols;
-    double *result = (double *) malloc(sizeof (double )*result_size);
-    for(int k=0;k<result_size;k++){
-        result[k]=1;
+double *dmrpt::MathOp::multiply_mat(double *A, double *B, int A_rows, int B_cols, int A_cols, int alpha) {
+    int result_size = A_cols * B_cols;
+    double *result = (double *) malloc(sizeof(double) * result_size);
+    for (int k = 0; k < result_size; k++) {
+        result[k] = 1;
     }
-    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, A, A_cols, B, B_cols, 0.0, result, B_cols);
+    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, A, A_cols, B, B_cols, 0.0,
+                result, B_cols);
 
-   return result;
+    return result;
 }
 
 double *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, float density) {
@@ -38,9 +39,9 @@ double *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, floa
     for (int j = 0; j < rows; ++j) {
         for (int i = 0; i < cols; ++i) {
             if (uni_dist(gen) > density) {
-                A[i+ j*cols] = 0.0;
+                A[i + j * cols] = 0.0;
             } else {
-                A[i+ j*cols] = (double) norm_dist(gen);
+                A[i + j * cols] = (double) norm_dist(gen);
             }
         }
     }
@@ -106,19 +107,177 @@ double *dmrpt::MathOp::convert_to_row_major_format(vector <vector<double>> data)
     int total_size = cols * rows;
 
     double *arr = (double *) malloc(sizeof(double) * total_size);
-    for (int i = 0; i < rows;  i++) {
-        for (int j = 0; j < cols;  j++) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
             arr[j + i * cols] = 0.0;
         }
     }
 
-    for (int i = 0; i < rows;  i++) {
-        for (int j = 0; j < cols;  j++) {
-           arr[j + i * cols] = data[j][i];
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            arr[j + i * cols] = data[j][i];
         }
 
     }
     return arr;
+}
+
+double *dmrpt::MathOp::distributed_mean(double *data, int local_rows, int local_cols, int total_elements,
+                                        dmrpt::StorageFormat format, int rank) {
+    int size = local_rows * local_cols;
+    double *sums = (double *) malloc(sizeof(double) * local_cols);
+    double *gsums = (double *) malloc(sizeof(double) * local_cols);
+    for (int i = 0; i < local_cols; i++) {
+        sums[i] = 0.0;
+    }
+    if (format == dmrpt::StorageFormat::RAW) {
+        for (int i = 0; i < local_cols; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < local_rows; j++) {
+                sum = sum + data[i + j * local_cols];
+            }
+            sums[i] = sum;
+        }
+    }
+    MPI_Allreduce(sums, gsums, local_cols, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    for (int i = 0; i < local_cols; i++) {
+        gsums[i] = gsums[i] / total_elements;
+    }
+    free(sums);
+    return gsums;
+}
+
+double *dmrpt::MathOp::distributed_variance(double *data, int local_rows, int local_cols, int total_elements,
+                                            dmrpt::StorageFormat format, int rank) {
+    double *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
+    int size = local_rows * local_cols;
+    double *var = (double *) malloc(sizeof(double) * local_cols);
+    double *gvariance = (double *) malloc(sizeof(double) * local_cols);
+    for (int i = 0; i < local_cols; i++) {
+        var[i] = 0.0;
+    }
+    if (format == dmrpt::StorageFormat::RAW) {
+        for (int i = 0; i < local_cols; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < local_rows; j++) {
+                double diff = (data[i + j * local_cols] - means[i]);
+                sum = sum + (diff * diff);
+            }
+            var[i] = sum;
+        }
+    }
+    MPI_Allreduce(var, gvariance, local_cols, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    for (int i = 0; i < local_cols; i++) {
+        gvariance[i] = gvariance[i] / (total_elements - 1);
+//        cout<<"Rank "<<rank<<"Variance "<< gvariance[i]<<" "<<endl;
+    }
+    free(means);
+    return gvariance;
+}
+
+
+double *
+dmrpt::MathOp::distributed_median(double *data, int local_rows, int local_cols, int total_elements, int no_of_bins,
+                                  dmrpt::StorageFormat format, int rank) {
+    double *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
+    double *variance = this->distributed_variance(data, local_rows, local_cols, total_elements, format, rank);
+    double *medians = (double *)malloc(sizeof (double )*local_cols);
+    int size = local_rows * local_cols;
+
+    int std1 = 4, std2 = 2, std3 = 1;
+
+    if (format == dmrpt::StorageFormat::RAW) {
+
+        for (int i = 0; i < 1 ; i++) {
+            double mu = means[i];
+            double sigma = variance[i];
+            double val = 0.0;
+            int factor = (int) ceil(no_of_bins * 1.0 / (std1 + std2 + std3));
+
+            vector<double> distribution(2 * factor * (std1 + std2 + std3) + 2, 0);
+
+            vector<int> frequency(2 * factor * (std1 + std2 + std3) + 2, 0);
+
+            int start1 = factor * (std1 + std2 + std3);
+            double step1 = sigma / (2 * pow(2, std1 * factor) - 2);
+
+            for (int k = start1, j = 1; k < start1 + std1 * factor; k++, j++) {
+                double rate = j * step1;
+                distribution[k] = mu + rate;
+                distribution[start1 - j] = mu - rate;
+            }
+
+            int start2 = start1 + std1 * factor;
+            int rstart2 = start1 - std1 * factor;
+            double step2 = sigma / (2 * pow(2, std2 * factor) - 2);
+
+            for (int k = start2, j = 1; k < start2 + std2 * factor; k++, j++) {
+                double rate = sigma + j * step2;
+                distribution[k] = mu + rate;
+                distribution[rstart2 - j] = mu - rate;
+            }
+
+            int start3 = start2 + std2 * factor;
+            int rstart3 = rstart2 - std2 * factor;
+            double step3 = sigma / (2 * pow(2, std3 * factor) - 2);
+
+            for (int k = start3, j = 1; k < start3 + std3 * factor; k++, j++) {
+                double rate = 2 * sigma + j * step3;
+                distribution[k] = mu + rate;
+                distribution[rstart3 - j] = mu - rate;
+            }
+
+
+            for (int k = 0; k < local_rows; k++) {
+                int flag = 1;
+                for (int j = 1; j < 2 * no_of_bins + 2; j++) {
+                    double dval = data[i+ k * local_cols];
+                    if (distribution[j - 1] < dval && distribution[j] >= dval) {
+                        flag = 0;
+                        frequency[j] += 1;
+                    }
+                }
+                if (flag) {
+                    frequency[0] += 1;
+                }
+            }
+
+            int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
+            int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
+            for (int k = 0; k < distribution.size(); k++) {
+                freqarray[k] = frequency[k];
+                gfrequency[k] = 0;
+            }
+
+            MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+            double cfreq = 0;
+            double cper = 0;
+            int selected_index = -1;
+            for (int k = 1; k < distribution.size(); k++) {
+                cfreq += gfrequency[k];
+                cper += gfrequency[k]*100/total_elements;
+                if (cper > 50) {
+                    selected_index = k;
+                    break;
+                }
+            }
+
+            int count = gfrequency[selected_index];
+
+            double median = distribution[selected_index-1] +
+                    ((total_elements/2-(cfreq-count))/count)*(distribution[selected_index]-distribution[selected_index-1]);
+            medians[i]=median;
+
+            free(gfrequency);
+            free(freqarray);
+
+        }
+    }
+
+    return medians;
 }
 
 

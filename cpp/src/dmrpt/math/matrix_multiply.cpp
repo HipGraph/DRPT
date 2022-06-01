@@ -188,11 +188,17 @@ dmrpt::MathOp::distributed_median(double *data, int local_rows, int local_cols, 
 
     int std1 = 4, std2 = 2, std3 = 1;
 
+    for(int k=0;k<local_cols;k++){
+        medians[k]=INFINITY;
+    }
+
     if (format == dmrpt::StorageFormat::RAW) {
 
-        for (int i = 0; i < 1 ; i++) {
+        for (int i = 0; i < local_cols ; i++) {
             double mu = means[i];
             double sigma = variance[i];
+            sigma = sqrt(sigma);
+            cout<<"Col "<<i<<" mean "<<mu<< " variance "<<sigma<<endl;
             double val = 0.0;
             int factor = (int) ceil(no_of_bins * 1.0 / (std1 + std2 + std3));
 
@@ -251,7 +257,15 @@ dmrpt::MathOp::distributed_median(double *data, int local_rows, int local_cols, 
                 gfrequency[k] = 0;
             }
 
+
+
             MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+//            for(int k=0;k<distribution.size();k++){
+//                if (rank==0) {
+//                    cout << "k "<<k<<" distribution " << distribution[k] << " Frequency " << gfrequency[k] << endl;
+//                }
+//            }
 
             double cfreq = 0;
             double cper = 0;
@@ -267,8 +281,9 @@ dmrpt::MathOp::distributed_median(double *data, int local_rows, int local_cols, 
 
             int count = gfrequency[selected_index];
 
+
             double median = distribution[selected_index-1] +
-                    ((total_elements/2-(cfreq-count))/count)*(distribution[selected_index]-distribution[selected_index-1]);
+                    ((total_elements/2-(cfreq-count))/count)*(distribution[selected_index]- distribution[selected_index-1]);
             medians[i]=median;
 
             free(gfrequency);

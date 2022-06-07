@@ -1,12 +1,14 @@
 #include "dmrpt/io/file_reader.hpp"
 #include "dmrpt/io/image_reader.hpp"
 #include "dmrpt/math/matrix_multiply.hpp"
+#include "dmrpt/algo/drpt.hpp"
 #include <vector>
 #include <mpi.h>
 #include <string>
 #include <omp.h>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 using namespace dmrpt;
@@ -33,7 +35,8 @@ int main(int argc, char *argv[]) {
 
     int rows = imagedatas[0].size();
     int cols = imagedatas.size();
-    int tree_levels = 8;
+    int tree_levels =  (int) log2(cols);
+
     double *imdataArr = mathOp.convert_to_row_major_format(imagedatas);
 
     double *B = mathOp.build_sparse_projection_matrix(rank, size, rows, tree_levels, 0.8);
@@ -46,9 +49,9 @@ int main(int argc, char *argv[]) {
     ofstream fout(filename);
     if(fout.is_open())
     {
-        for(int k=0;k<cols;k++){
-            for (int i = 1; i < 2; i++)
-                fout << P[i+k*tree_levels] << ' ';
+        for(int k=0;k<rows;k++){
+            for (int i = 1; i < cols; i++)
+                fout << imdataArr[i+k*cols] << ' ';
             fout<<endl;
         }
     }
@@ -60,21 +63,36 @@ int main(int argc, char *argv[]) {
 //    double *array3 = (double *) malloc(sizeof(double) * 4);
 //    double *array4 = (double *) malloc(sizeof(double) * 4);
 
-//    double array1[6] = {1,3,10,20,14,25};
+    double array1[45] = {1, 3,4, 6,10, 7,34,20, 11,14,14, 17,25,4,48,1, 3,4, 6,10, 7,34,20, 11,14,14, 17,25,4,48,1, 3,4, 6,10, 7,34,20, 11,14,14, 17,25,4,48};
 //    double array2[6] = {30,50,25,50,56,24};
 //    double array3[6] = {10,25,50,34,45,25};
 //    double array4[6] = {7,1,53,16,56,35};
 
 
-    double *medians = mathOp.distributed_median(P, cols, tree_levels, cols * size, 28, dmrpt::StorageFormat::RAW, rank);
-    for (int i = 0; i < tree_levels; ++i) {
-        std::cout << "rank " << rank << " gmedian " << medians[i] << std::endl;
-    }
+//    double *medians = mathOp.distributed_median(P, cols, tree_levels, cols * size, 28, dmrpt::StorageFormat::RAW, rank);
+//    for (int i = 0; i < tree_levels; ++i) {
+//        std::cout << "rank " << rank << " gmedian " << medians[i] << std::endl;
+//    }
+
+    DRPT drpt = DRPT(P, cols, tree_levels, dmrpt::StorageFormat::RAW);
+
+    drpt.grow_local_tree(rank);
+
+    vector<vector<double>> queries;
+    queries.push_back(imagedatas[1]);
+
+    double *querArr = mathOp.convert_to_row_major_format(queries);
+
+    // P= X.R
+    double *querP = mathOp.multiply_mat(querArr, B, rows, tree_levels, 1, 1.0);
+
+
+    drpt.query(querP,rank);
 
     free(imdataArr);
     free(B);
     free(P);
-    free(medians);
+//    free(medians);
 
     MPI_Finalize();
 

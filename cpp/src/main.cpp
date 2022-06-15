@@ -79,15 +79,21 @@ int main(int argc, char *argv[]) {
     drpt.grow_local_tree(rank);
 
     vector<vector<double>> queries;
+    queries.push_back(imagedatas[0]);
     queries.push_back(imagedatas[1]);
+    queries.push_back(imagedatas[2]);
 
     double *querArr = mathOp.convert_to_row_major_format(queries);
 
     // P= X.R
-    double *querP = mathOp.multiply_mat(querArr, B, rows, tree_levels, 1, 1.0);
+    double *querP = mathOp.multiply_mat(querArr, B, rows, tree_levels, 3, 1.0);
 
+    double *quer;
+    if(rank==0){
+        quer= querP;
+    }
 
-    drpt.query(querP,rank);
+    drpt.batchQuery(imagedatas,B,100,dmrpt::StorageFormat::RAW,rank,0);
 
     free(imdataArr);
     free(B);

@@ -30,14 +30,16 @@ namespace dmrpt {
         void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
                                 int depth, int i, int rank);
 
-        vector<vector<double>> query(double *queryP, int rank);
+        vector<vector<double>> query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat, int rank);
+
+        vector<vector<double>> batchQuery(vector <vector<double>> queries, double *P, int batch_size, dmrpt::StorageFormat storageFormat,
+                                          int myRank, int initialRank);
 
         void count_leaf_sizes(int datasize, int level,  int depth,std::vector<int> &out_leaf_sizes);
 
         void count_first_leaf_indices(std::vector<int> &indices, int datasize, int depth);
 
         void count_first_leaf_indices_all(std::vector<std::vector<int>> &indices, int datasize, int depth_max);
-
 
         int getTreeDepth();
     };

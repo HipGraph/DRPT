@@ -12,7 +12,7 @@
 
 using namespace std;
 
-dmrpt::DRPT::DRPT(double *projected_matrix, int rows, int cols, dmrpt::StorageFormat storageFormat) {
+dmrpt::DRPT::DRPT(double *projected_matrix, int rows, int cols, vector<vector<double>> original_data, dmrpt::StorageFormat storageFormat) {
     this->tree_depth = cols;
     this->rows = rows;
     this->cols = cols;
@@ -20,6 +20,7 @@ dmrpt::DRPT::DRPT(double *projected_matrix, int rows, int cols, dmrpt::StorageFo
     this->projected_matrix = projected_matrix;
     this->data = vector < vector < double >> (cols);
     this->indices = vector<int>(rows);
+    this->original_data = original_data;
 
 }
 
@@ -116,14 +117,14 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 
 }
 
-vector <vector<double>>
+vector <vector<int>>
 dmrpt::DRPT::query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat, int rank) {
 
 
-    vector <vector<double>> vec;
+    vector <vector<int>> vec(no_datapoints);
 
     if (storageFormat == dmrpt::StorageFormat::RAW) {
-#pragma  omp parallel for
+       #pragma  omp parallel for
         for (int j = 0; j < no_datapoints; ++j) {
             int idx = 0;
             for (int i = 0; i < this->tree_depth; ++i) {
@@ -143,14 +144,10 @@ dmrpt::DRPT::query(double *queryP, int no_datapoints, dmrpt::StorageFormat stora
 
             int leaf_begin = this->leaf_first_indices[selected_leaf];
             int leaf_end = this->leaf_first_indices[selected_leaf + 1];
-
+            vec[j] = vector<int>();
             for (int k = leaf_begin; k < leaf_end; ++k) {
                 int orginal_data_index = this->indices[k];
-                cout << " Rank " << rank << " leaf " << selected_leaf << " idx " << idx << " k " << k
-                     << " selected value "
-                     << orginal_data_index << " tree depth " << this->tree_depth
-                     << " data point " << j
-                     << endl;
+                vec[j].push_back(orginal_data_index);
             }
         }
     }
@@ -161,7 +158,7 @@ dmrpt::DRPT::query(double *queryP, int no_datapoints, dmrpt::StorageFormat stora
 
 vector <vector<double>>
 dmrpt::DRPT::batchQuery(vector <vector<double>> queries, double *P, int batch_size, dmrpt::StorageFormat storageFormat,
-                        int myRank, int initialRank) {
+                        int myRank, int initialRank, int world_size) {
     int total_data_size;
     if (myRank == 0) {
         int batchCount = 0;
@@ -171,56 +168,102 @@ dmrpt::DRPT::batchQuery(vector <vector<double>> queries, double *P, int batch_si
         dmrpt::MathOp mathOp;
         vector <vector<double>> queryBatch;
         MPI_Bcast(&total_data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
         for (int k = 1; k <= total_data_size; k++) {
             if (k % batch_size == 0  and k <= rounded * batch_size) {
                 queryBatch.push_back(queries[k-1]);
-                double *querArr = mathOp.convert_to_row_major_format(queryBatch);
-                // P= X.R
-                double *querP = mathOp.multiply_mat(querArr, P, queries[0].size(), this->tree_depth, batch_size, 1.0);
-                MPI_Bcast(&batch_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-                MPI_Bcast(querP, batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+                this->send_query_and_receive_results(queryBatch,P,batch_size,queries[0].size(),storageFormat,myRank,world_size);
                 queryBatch.clear();
-                free(querArr);
-                free(querP);
             } else if (k == total_data_size  && remain > 0) {
-                double *querArr = mathOp.convert_to_row_major_format(queryBatch);
-                // P= X.R
-                double *querP = mathOp.multiply_mat(querArr, P, queries[0].size(), this->tree_depth, remain, 1.0);
-                MPI_Bcast(&remain, 1, MPI_INT, 0, MPI_COMM_WORLD);
-                MPI_Bcast(querP, remain, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+                this->send_query_and_receive_results(queryBatch,P,remain,queries[0].size(),storageFormat,myRank,world_size);
                 queryBatch.clear();
-                free(querArr);
-                free(querP);
             } else {
                 queryBatch.push_back(queries[k-1]);
             }
         }
 
     } else {
-        MPI_Bcast(&total_data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        int count = 0;
-        while (count < total_data_size) {
-            int batch_size;
-            MPI_Bcast(&batch_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-            double *recev = (double *) malloc(sizeof (double )*batch_size);
-            MPI_Bcast(recev, batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            this->query(recev,batch_size,storageFormat,myRank);
-            free(recev);
-            count = count+ batch_size;
-        }
+        this->receive_queries_and_evaluate_results(storageFormat,myRank);
     }
 
-//    int size = no_datapoints * this->tree_depth;
-//    int root;
-//    if (rank == 0) {
-//        root = 0;
-//    } else {
-//        queryP = (double *) malloc(size * sizeof(double));
-//    }
-//    MPI_Bcast(queryP, size, MPI_DOUBLE, root, MPI_COMM_WORLD);
-//    return this->query(queryP, no_datapoints, storageFormat, rank);
     vector <vector<double>> vec;
     return vec;
+}
+
+
+vector <vector<double>>
+dmrpt::DRPT::send_query_and_receive_results(vector<vector<double>> queryBatch,double *P, int batch_size,
+                                            int query_dimension, dmrpt::StorageFormat storageFormat, int myRank, int world_size) {
+
+    dmrpt::MathOp mathOp;
+    vector<vector<double>> results(batch_size);
+    double *querArr = mathOp.convert_to_row_major_format(queryBatch);
+    // P= X.R
+    double *querP = mathOp.multiply_mat(querArr, P, query_dimension, this->tree_depth, batch_size, 1.0);
+    vector<vector<int>> selectedNodes = this->query(querP,batch_size,storageFormat,myRank);
+    int* buffer = (int *) malloc(sizeof (int)*batch_size*world_size);
+    int* counts = (int*) malloc(sizeof (int)*selectedNodes.size());
+    for(int m=0; m < selectedNodes.size();m++) {
+        counts[m] = selectedNodes[m].size();
+    }
+    MPI_Bcast(&batch_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(querP, batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Gather(counts,batch_size , MPI_INT, buffer, batch_size, MPI_INT, 0, MPI_COMM_WORLD);
+
+
+    int sum = 0;
+    int* process_counts = new int[world_size];
+    for(int n=0;n<world_size;n++){
+        int process_count = 0;
+        for(int m=0;m<batch_size;m++){
+            sum = sum + buffer[m+n*batch_size];
+            process_count = process_count+ buffer[m+n*batch_size];;
+        }
+        process_counts[n]=process_count;
+        cout<<" Process count for process " <<process_counts[n] << " rank "<<n<<endl;
+    }
+
+    // Displacements in the receive buffer for MPI_GATHERV
+    int *disps = new int[world_size];
+    // Displacement for the first chunk of data - 0
+    for (int i = 0; i < world_size; i++) {
+        disps[i] = (i > 0) ? (disps[i - 1] + process_counts[i - 1]) : 0;
+        cout << " disps count for process " << disps[i] << " rank " << i << endl;
+    }
+
+    cout<<" Total gathered NN "<< sum<<endl;
+    double* data_buffer = (double *) malloc(sizeof (double )*sum);
+
+    free(querArr);
+    free(querP);
+    free(buffer);
+    free(counts);
+    free(data_buffer);
+    free(disps);
+    free(process_counts);
+    return results;
+}
+
+
+void dmrpt::DRPT::receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int myRank) {
+    int total_data_size;
+    MPI_Bcast(&total_data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    int count = 0;
+    while (count < total_data_size) {
+        int batch_size;
+        MPI_Bcast(&batch_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+        double *recev = (double *) malloc(sizeof (double )*batch_size);
+        MPI_Bcast(recev, batch_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        vector<vector<int>> selectedNodes = this->query(recev,batch_size,storageFormat,myRank);
+        int* counts = (int*) malloc(sizeof (int)*selectedNodes.size());
+        for(int m=0; m < selectedNodes.size();m++) {
+            counts[m] = selectedNodes[m].size();
+        }
+        MPI_Gather(counts,batch_size , MPI_INT, NULL, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        count = count+ batch_size;
+        free(counts);
+    }
+
 }
 

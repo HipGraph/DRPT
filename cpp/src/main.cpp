@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 //        std::cout << "rank " << rank << " gmedian " << medians[i] << std::endl;
 //    }
 
-    DRPT drpt = DRPT(P, cols, tree_levels, dmrpt::StorageFormat::RAW);
+    DRPT drpt = DRPT(P, cols, tree_levels, imagedatas,dmrpt::StorageFormat::RAW);
 
     drpt.grow_local_tree(rank);
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         quer= querP;
     }
 
-    drpt.batchQuery(imagedatas,B,100,dmrpt::StorageFormat::RAW,rank,0);
+    drpt.batchQuery(imagedatas,B,8,dmrpt::StorageFormat::RAW,rank,0,size);
 
     free(imdataArr);
     free(B);

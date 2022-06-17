@@ -43,21 +43,6 @@ int main(int argc, char *argv[]) {
     // P= X.R
     double *P = mathOp.multiply_mat(imdataArr, B, rows, tree_levels, cols, 1.0);
 
-    string ran = to_string(rank);
-
-    string filename=  "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/my_text"+ran+".txt";
-    ofstream fout(filename);
-    if(fout.is_open())
-    {
-        for(int k=0;k<rows;k++){
-            for (int i = 1; i < cols; i++)
-                fout << imdataArr[i+k*cols] << ' ';
-            fout<<endl;
-        }
-    }
-
-
-
 //    double *array1 = (double *) malloc(sizeof(double) * 4);
 //    double *array2 = (double *) malloc(sizeof(double) * 4);
 //    double *array3 = (double *) malloc(sizeof(double) * 4);
@@ -74,7 +59,7 @@ int main(int argc, char *argv[]) {
 //        std::cout << "rank " << rank << " gmedian " << medians[i] << std::endl;
 //    }
 
-    DRPT drpt = DRPT(P, cols, tree_levels, imagedatas,dmrpt::StorageFormat::RAW);
+    DRPT drpt = DRPT(P, cols, tree_levels, imagedatas,rank*cols,dmrpt::StorageFormat::RAW);
 
     drpt.grow_local_tree(rank);
 
@@ -92,8 +77,27 @@ int main(int argc, char *argv[]) {
     if(rank==0){
         quer= querP;
     }
+    string filename=  "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/my_text"+to_string(rank)+".txt";
 
-    drpt.batchQuery(imagedatas,B,8,dmrpt::StorageFormat::RAW,rank,0,size);
+    ofstream fout(filename);
+    for(int i=0;i<size;++i){
+       vector<vector<int>> results=  drpt.batchQuery(imagedatas,B,10,dmrpt::StorageFormat::RAW,rank,i,size);
+
+        if(fout.is_open())
+        {
+            if (results.size()>0) {
+                for (int k = 0; k < results.size(); k++) {
+                    for (int l = 0; l < results[k].size(); l++) {
+                        fout << k + rank * cols << ' ' << results[k][l] << endl;
+                        cout <<" rank "<< rank << " Node id "<< k + rank * cols << ' ' << results[k][l] << endl;
+                    }
+
+                }
+            }
+        }
+
+    }
+
 
     free(imdataArr);
     free(B);

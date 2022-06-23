@@ -1,0 +1,11 @@
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /usr/local/opt/llvm/bin/clang++ 
+Build flags: -I/usr/local/opt/llvm/include;-fopenmp
+Id flags:  
+
+The output was:
+1
+ld: library not found for -lomp
+clang-13: error: linker command failed with exit code 1 (use -v to see invocation)
+
+

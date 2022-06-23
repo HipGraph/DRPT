@@ -295,4 +295,18 @@ dmrpt::MathOp::distributed_median(double *data, int local_rows, int local_cols, 
     return medians;
 }
 
+double dmrpt::MathOp::calculate_distance(vector<double> data, vector<double> query) {
+
+    std::vector<double>	auxiliary(data.size());
+
+    std::transform (data.begin(), data.end(), query.begin(), std::back_inserter(auxiliary),//
+                    [](double element1, double element2) {return pow((element1-element2),2);});
+
+    double  value =  sqrt(std::accumulate(auxiliary.begin(), auxiliary.end(), 0.0));
+    data.clear();
+    query.clear();
+    auxiliary.clear();
+    return  value;
+}
+
 

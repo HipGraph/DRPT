@@ -11,9 +11,12 @@
 
 namespace dmrpt {
     class DRPT {
+
+
     private:
         int tree_depth;
         double *projected_matrix;
+        double *projection_matrix;
         int rows;
         int cols;
         dmrpt::StorageFormat storageFormat;
@@ -24,8 +27,17 @@ namespace dmrpt {
         vector<int> leaf_first_indices;
         vector<vector<double>> original_data;
         int starting_data_index;
+        int rank;
+        int world_size;
     public:
-        DRPT(double *projected_matrix, int rows, int cols, vector<vector<double>> original_data, int starting_index, dmrpt::StorageFormat storageFormat);
+
+        struct DataPoint {
+            int index;
+            double distance;
+        };
+        DRPT();
+        DRPT(double *projected_matrix, double *projection_matrix, int rows, int cols, vector<vector<double>> original_data,
+             int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size);
 
         void grow_local_tree(int rank);
 
@@ -34,8 +46,7 @@ namespace dmrpt {
 
         vector<vector<int>> query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat);
 
-        vector<vector<int>> batchQuery(vector <vector<double>> queries, double *P, int batch_size, dmrpt::StorageFormat storageFormat,
-                                          int myRank, int initialRank, int world_size);
+        vector<vector<DRPT::DataPoint>> batchQuery(vector <vector<double>> queries,  int batch_size, int initialRank,double distance_threshold);
 
         void count_leaf_sizes(int datasize, int level,  int depth,std::vector<int> &out_leaf_sizes);
 
@@ -43,10 +54,10 @@ namespace dmrpt {
 
         void count_first_leaf_indices_all(std::vector<std::vector<int>> &indices, int datasize, int depth_max);
 
-        vector<vector<int>> send_query_and_receive_results(vector<vector<double>> queryBatch,double *P, int batch_size, int query_dimension,
-                                                              dmrpt::StorageFormat storageFormat, int myRank, int world_size);
+        vector<vector<DRPT::DataPoint>> send_query_and_receive_results(vector<vector<double>> queryBatch,double *P, int batch_size, int query_dimension,
+                                                              dmrpt::StorageFormat storageFormat, int myRank, int world_size,double distance_threshold);
 
-        void receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int myRank, int world_size);
+        void receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int sending_rank, int my_rank, int world_size,int query_dimension,double distance_threshold);
 
         int getTreeDepth();
     };

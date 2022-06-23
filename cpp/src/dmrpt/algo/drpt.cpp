@@ -12,17 +12,24 @@
 
 using namespace std;
 
-dmrpt::DRPT::DRPT(double *projected_matrix, int rows, int cols, vector <vector<double>> original_data,
-                  int starting_index, dmrpt::StorageFormat storageFormat) {
+dmrpt::DRPT::DRPT(){
+
+}
+
+dmrpt::DRPT::DRPT(double *projected_matrix, double *projection_matrix, int rows, int cols, vector <vector<double>> original_data,
+                  int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size) {
     this->tree_depth = cols;
     this->rows = rows;
     this->cols = cols;
     this->storageFormat = storageFormat;
     this->projected_matrix = projected_matrix;
+    this->projection_matrix = projection_matrix;
     this->data = vector < vector < double >> (cols);
     this->indices = vector<int>(rows);
     this->original_data = original_data;
     this->starting_data_index = starting_index;
+    this->rank =rank;
+    this->world_size=world_size;
 
 }
 
@@ -159,12 +166,11 @@ dmrpt::DRPT::query(double *queryP, int no_datapoints, dmrpt::StorageFormat stora
 }
 
 
-vector <vector<int>>
-dmrpt::DRPT::batchQuery(vector <vector<double>> queries, double *P, int batch_size, dmrpt::StorageFormat storageFormat,
-                        int myRank, int current_master, int world_size) {
+vector <vector<dmrpt::DRPT::DataPoint>>
+dmrpt::DRPT::batchQuery(vector <vector<double>> queries, int batch_size, int current_master, double distance_threshold) {
         int total_data_size;
-        vector<vector<int>> all_results;
-        if (myRank == current_master) {
+        vector<vector<DataPoint>> all_results;
+        if (this->rank == current_master) {
             int batchCount = 0;
             total_data_size = queries.size();
             int rounded = total_data_size / batch_size;
@@ -173,23 +179,24 @@ dmrpt::DRPT::batchQuery(vector <vector<double>> queries, double *P, int batch_si
             vector <vector<double>> queryBatch;
             MPI_Bcast(&total_data_size, 1, MPI_INT, current_master, MPI_COMM_WORLD);
 
+            //TODO: improve using chunk copying
             for (int k = 1; k <= total_data_size; k++) {
                 if (k % batch_size == 0 and k <= rounded * batch_size) {
                     queryBatch.push_back(queries[k - 1]);
-                    vector <vector<int>> results = this->send_query_and_receive_results(queryBatch, P, batch_size,
+                    vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch, this->projection_matrix,batch_size,
                                                                                         queries[0].size(),
-                                                                                        storageFormat, current_master,
-                                                                                        world_size);
+                                                                                        this->storageFormat, current_master,
+                                                                                        this->world_size,distance_threshold);
                     for (int j = 0; j < results.size(); j++) {
                         all_results.push_back(results[j]);
                     }
 
                     queryBatch.clear();
                 } else if (k == total_data_size && remain > 0) {
-                    vector <vector<int>> results = this->send_query_and_receive_results(queryBatch, P, remain,
+                    vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch, this->projection_matrix, remain,
                                                                                         queries[0].size(),
-                                                                                        storageFormat, current_master,
-                                                                                        world_size);
+                                                                                        this->storageFormat, current_master,
+                                                                                        this->world_size,distance_threshold);
                     for (int j = 0; j < results.size(); j++) {
                         all_results.push_back(results[j]);
                     }
@@ -200,33 +207,61 @@ dmrpt::DRPT::batchQuery(vector <vector<double>> queries, double *P, int batch_si
             }
 
         } else {
-            this->receive_queries_and_evaluate_results(storageFormat, current_master, world_size);
+            this->receive_queries_and_evaluate_results(this->storageFormat, current_master,this->rank, this->world_size,queries[0].size(),distance_threshold);
         }
     return all_results;
 }
 
 
-vector <vector<int>>
+vector <vector<dmrpt::DRPT::DataPoint>>
 dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> queryBatch, double *P, int batch_size,
                                             int query_dimension, dmrpt::StorageFormat storageFormat, int myRank,
-                                            int world_size) {
+                                            int world_size, double distance_threshold) {
 
     dmrpt::MathOp mathOp;
-    vector <vector<int>> results(batch_size);
+    vector <vector<DataPoint>> results(batch_size);
     double *querArr = mathOp.convert_to_row_major_format(queryBatch);
+
+
     // P= X.R
     double *querP = mathOp.multiply_mat(querArr, P, query_dimension, this->tree_depth, batch_size, 1.0);
     vector <vector<int>> selectedNodes = this->query(querP, batch_size, storageFormat);
+
     int *buffer = (int *) malloc(sizeof(int) * batch_size * world_size);
     int *counts = (int *) malloc(sizeof(int) * selectedNodes.size());
+
+    //count selected nodes for each query locally
+    vector<vector<int>> selec(selectedNodes.size());
+    vector<vector<double>> selecDistances(selectedNodes.size());
+
+    //calculate distances for each selected node
     for (int m = 0; m < selectedNodes.size(); m++) {
-        counts[m] = selectedNodes[m].size();
+        int cf = 0;
+        selec[m]=vector<int>();
+        selecDistances[m]=vector<double>();
+        for (int w = 0; w < selectedNodes[m].size(); w++) {
+            int ind = selectedNodes[m][w];
+            double dist = mathOp.calculate_distance(this->original_data[ind-myRank*this->starting_data_index],queryBatch[m]);
+            if (dist<=distance_threshold) {
+                cf++;
+                selec[m].push_back(ind);
+                selecDistances[m].push_back(dist);
+            }
+        }
+        counts[m] = cf;
     }
+
+    //send to worker nodes
     MPI_Bcast(&batch_size, 1, MPI_INT, myRank, MPI_COMM_WORLD);
-    MPI_Bcast(querP, batch_size, MPI_DOUBLE, myRank, MPI_COMM_WORLD);
+    int totalQ = batch_size*this->tree_depth;
+    MPI_Bcast(querP, totalQ, MPI_DOUBLE, myRank, MPI_COMM_WORLD);
+    int totaArr = batch_size*query_dimension;
+    MPI_Bcast(querArr, totaArr, MPI_DOUBLE, myRank, MPI_COMM_WORLD);
     MPI_Gather(counts, batch_size, MPI_INT, buffer, batch_size, MPI_INT, myRank, MPI_COMM_WORLD);
 
+
     int sum = 0;
+    //each processor selected nodes counts
     int *process_counts = new int[world_size];
     for (int n = 0; n < world_size; n++) {
         int process_count = 0;
@@ -247,23 +282,35 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> queryBatch, 
 
     int *total_recev = (int *) malloc(sizeof(int) * sum);
     int *my_send = (int *) malloc(sizeof(int) * process_counts[myRank]);
+    double *my_send_dis = (double *) malloc(sizeof(double) * process_counts[myRank]);
+    double *total_recev_dis = (double *) malloc(sizeof(double) * sum);
 
     int co = 0;
-    for (int g = 0; g < selectedNodes.size(); g++) {
-        for (int w = 0; w < selectedNodes[g].size(); w++) {
-            my_send[co] = selectedNodes[g][w];
-//           cout<<" rank "<< myRank<< " My send value "<<my_send[co]<<endl;
+    for (int g = 0; g < selec.size(); g++) {
+        for (int w = 0; w < selec[g].size(); w++) {
+            int ind = selec[g][w];
+            double dis = selecDistances[g][w];
+            my_send[co] = ind;
+            my_send_dis[co]=dis;
             co++;
         }
     }
 
+
+
+    //send indices of selected nodes
     MPI_Gatherv(my_send, process_counts[myRank], MPI_INT, total_recev, process_counts, disps, MPI_INT, myRank,
                 MPI_COMM_WORLD);
 
+    //gather distances
+    MPI_Gatherv(my_send_dis, process_counts[myRank], MPI_DOUBLE, total_recev_dis, process_counts, disps, MPI_DOUBLE, myRank,
+                MPI_COMM_WORLD);
 
+
+    //reconstructed received nns from MPI calls
     int last_process_count[world_size];
     for (int p = 0; p < batch_size; ++p) {
-        results[p] = vector<int>();
+        results[p] = vector<DataPoint>();
         for (int u = 0; u < world_size; u++) {
             if (p == 0) {
                 last_process_count[u] = 0;
@@ -272,12 +319,15 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> queryBatch, 
             int start = disps[u] + last_process_count[u];
             int end = start + localtot;
             for (int b = start; b < end; b++) {
-                results[p].push_back(total_recev[b]);
+                DataPoint dataPoint;
+                dataPoint.index=total_recev[b];
+                dataPoint.distance=total_recev_dis[b];
+                results[p].push_back(dataPoint);
             }
             last_process_count[u] = last_process_count[u] + localtot;
         }
     }
-
+    selec.clear();
     free(querArr);
     free(querP);
     free(buffer);
@@ -290,42 +340,86 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> queryBatch, 
 }
 
 
-void dmrpt::DRPT::receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int sendingRank, int world_size) {
+void dmrpt::DRPT::receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int sendingRank, int my_rank, int world_size, int query_dimension,double distance_threshold) {
     int total_data_size;
     MPI_Bcast(&total_data_size, 1, MPI_INT, sendingRank, MPI_COMM_WORLD);
     int count = 0;
+    dmrpt::MathOp mathOp;
     while (count < total_data_size) {
         int batch_size;
         MPI_Bcast(&batch_size, 1, MPI_INT, sendingRank, MPI_COMM_WORLD);
+        double *recev = (double *) malloc(sizeof(double) * batch_size*this->tree_depth);
+        double *originalQ = (double *) malloc(sizeof(double) * batch_size*query_dimension);
+        int totalQ = batch_size*this->tree_depth;
+        MPI_Bcast(recev, totalQ, MPI_DOUBLE, sendingRank, MPI_COMM_WORLD);
 
-        double *recev = (double *) malloc(sizeof(double) * batch_size);
-        MPI_Bcast(recev, batch_size, MPI_DOUBLE, sendingRank, MPI_COMM_WORLD);
         vector <vector<int>> selectedNodes = this->query(recev, batch_size, storageFormat);
+        int len_originalQ = batch_size*query_dimension;
+        MPI_Bcast(originalQ, len_originalQ, MPI_DOUBLE, sendingRank, MPI_COMM_WORLD);
         int *counts = (int *) malloc(sizeof(int) * selectedNodes.size());
         int mytotal = 0;
-        for (int m = 0; m < selectedNodes.size(); m++) {
-            counts[m] = selectedNodes[m].size();
-            mytotal = mytotal + selectedNodes[m].size();
+
+        vector<vector<double>> receivedOrgQ(batch_size);
+
+        for(int h=0;h<batch_size;h++){
+            receivedOrgQ[h] = vector<double>();
+            for(int e=0;e<query_dimension;e++){
+//                cout<<originalQ[h+e*batch_size]<<endl;
+                receivedOrgQ[h].push_back(originalQ[h+e*batch_size]);
+            }
         }
+
+        vector<vector<int>> selec(selectedNodes.size());
+        vector<vector<double>> selecDistances(selectedNodes.size());
+        for (int m = 0; m < selectedNodes.size(); m++) {
+            int cf = 0;
+            selec[m]=vector<int>();
+            selecDistances[m]=vector<double>();
+            for (int w = 0; w < selectedNodes[m].size(); w++) {
+                int ind = selectedNodes[m][w];
+                double dist = mathOp.calculate_distance(this->original_data[ind-my_rank*this->starting_data_index],receivedOrgQ[m]);
+                if (dist<=distance_threshold) {
+                    cf++;
+                    selec[m].push_back(ind);
+                    selecDistances[m].push_back(dist);
+                }
+            }
+            counts[m] = cf;
+            mytotal= mytotal+cf;
+        }
+
+
         MPI_Gather(counts, batch_size, MPI_INT, NULL, 1, MPI_INT,sendingRank , MPI_COMM_WORLD);
 
 
         int *my_send = (int *) malloc(sizeof(int) * mytotal);
 
+        double *my_send_dis = (double *) malloc(sizeof(double) * mytotal);
+
         int co = 0;
-        for (int g = 0; g < selectedNodes.size(); g++) {
-            for (int w = 0; w < selectedNodes[g].size(); w++) {
-                my_send[co] = selectedNodes[g][w];
-//                cout<<" rank "<< myRank<< " My send value "<<my_send[co]<<endl;
+        for (int g = 0; g < selec.size(); g++) {
+            for (int w = 0; w < selec[g].size(); w++) {
+                int ind = selec[g][w];
+                double dis = selecDistances[g][w];
+                my_send[co] = ind;
+                my_send_dis[co]=dis;
                 co++;
             }
         }
 
         MPI_Gatherv(my_send, mytotal, MPI_INT, NULL, NULL, NULL, MPI_INT, sendingRank, MPI_COMM_WORLD);
 
+        //gather distances
+        MPI_Gatherv(my_send_dis, mytotal, MPI_DOUBLE, NULL, NULL, NULL, MPI_DOUBLE, sendingRank,
+                    MPI_COMM_WORLD);
+
+
         count = count + batch_size;
+        receivedOrgQ.clear();
+        selectedNodes.clear();
         free(counts);
         free(my_send);
+        free(originalQ);
         free(recev);
     }
 

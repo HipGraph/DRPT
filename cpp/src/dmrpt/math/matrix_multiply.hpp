@@ -19,6 +19,7 @@ namespace dmrpt{
         double* distributed_mean(double *data, int local_rows, int local_cols, int total_elements_per_col, dmrpt::StorageFormat format,int rank);
         double* distributed_variance(double *data, int rows, int cols,int total_elements_per_col, dmrpt::StorageFormat format,int rank);
         double* distributed_median(double *data, int rows, int cols,int total_elements_per_col,int no_of_bins, dmrpt::StorageFormat format,int rank);
+        double calculate_distance(vector<double> data, vector<double> query);
 
     };
 }

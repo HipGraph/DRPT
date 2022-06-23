@@ -7,6 +7,7 @@ add_library(
         io/image_reader.cpp
         math/matrix_multiply.cpp
         algo/drpt.cpp
+        algo/mdrpt.cpp
 )
 target_link_libraries(dmrpt ${OpenCV_LIBS})
 target_link_libraries(dmrpt ${OpenBLAS_CXX_LIBRARIES})

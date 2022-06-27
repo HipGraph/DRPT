@@ -20,13 +20,14 @@ namespace dmrpt {
         int starting_data_index;
         int rank;
         int world_size;
+        int total_data_set_size;
         vector<dmrpt::DRPT> trees;
 
     public:
-        MDRPT(int ntrees, vector<vector<double>> original_data,int tree_depth,dmrpt::StorageFormat storageFormat, int rank, int world_size);
+        MDRPT(int ntrees, vector<vector<double>> original_data,int tree_depth,int total_data_set_size, dmrpt::StorageFormat storageFormat, int rank, int world_size);
         void grow_trees(float density);
-        vector<vector<dmrpt::DRPT::DataPoint>> batchQuery(int batch_size, double distance_threshold, int nn);
-        vector<vector<dmrpt::DRPT::DataPoint>> get_vote_results(vector<vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn);
+        vector<vector<dmrpt::DRPT::DataPoint>> batch_query(int batch_size, double distance_threshold, int vote_threshold, int nn);
+        vector<vector<dmrpt::DRPT::DataPoint>> get_filtered_results(vector<vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn);
 
     };
 }

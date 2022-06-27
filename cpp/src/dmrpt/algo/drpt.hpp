@@ -39,14 +39,14 @@ namespace dmrpt {
         DRPT(double *projected_matrix, double *projection_matrix, int rows, int cols, vector<vector<double>> original_data,
              int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size);
 
-        void grow_local_tree(int rank);
+        void grow_local_tree();
 
         void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
-                                int depth, int i, int rank);
+                                int depth, int i);
 
         vector<vector<int>> query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat);
 
-        vector<vector<DRPT::DataPoint>> batchQuery(vector <vector<double>> queries,  int batch_size, int initialRank,double distance_threshold);
+        vector<vector<DRPT::DataPoint>> batch_query(vector <vector<double>> queries,  int batch_size, int initialRank,double distance_threshold);
 
         void count_leaf_sizes(int datasize, int level,  int depth,std::vector<int> &out_leaf_sizes);
 
@@ -54,12 +54,11 @@ namespace dmrpt {
 
         void count_first_leaf_indices_all(std::vector<std::vector<int>> &indices, int datasize, int depth_max);
 
-        vector<vector<DRPT::DataPoint>> send_query_and_receive_results(vector<vector<double>> queryBatch,double *P, int batch_size, int query_dimension,
-                                                              dmrpt::StorageFormat storageFormat, int myRank, int world_size,double distance_threshold);
+        vector<vector<DRPT::DataPoint>> send_query_and_receive_results(vector <vector<double>> query_batch, int batch_size,
+                                                                       int query_dimension, double distance_threshold);
 
-        void receive_queries_and_evaluate_results(dmrpt::StorageFormat storageFormat, int sending_rank, int my_rank, int world_size,int query_dimension,double distance_threshold);
+        void receive_queries_and_evaluate_results(int sendingRank, int query_dimension,double distance_threshold);
 
-        int getTreeDepth();
     };
 }
 

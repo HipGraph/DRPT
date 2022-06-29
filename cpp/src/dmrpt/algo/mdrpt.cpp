@@ -17,44 +17,49 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, vector<vector<double>> original_data,int tree_depth, int total_data_set_size, dmrpt::StorageFormat storageFormat, int rank, int world_size) {
-    this->data_dimension= original_data[0].size();
-    this->tree_depth=tree_depth;
-    this->original_data=original_data;
+dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<double>> original_data, int tree_depth, int total_data_set_size,
+                    dmrpt::StorageFormat storageFormat, int rank, int world_size) {
+    this->data_dimension = original_data[0].size();
+    this->tree_depth = tree_depth;
+    this->original_data = original_data;
     this->total_data_set_size = total_data_set_size;
-    this->storageFormat=storageFormat;
-    this->rank=rank;
-    this->world_size=world_size;
-    this->ntrees=ntrees;
-    this->trees= vector<dmrpt::DRPT>(ntrees);
+    this->storageFormat = storageFormat;
+    this->rank = rank;
+    this->world_size = world_size;
+    this->ntrees = ntrees;
+    this->trees = vector<dmrpt::DRPT>(ntrees);
 }
 
 template<typename T>
-vector<T> slice(vector<T> const &v, int m, int n)
+vector <T> slice(vector < T >
+const &v,
+int m,
+int n
+)
 {
 auto first = v.cbegin() + m;
 auto last = v.cbegin() + n + 1;
 
-std::vector<T> vec(first, last);
-return vec;
+std::vector <T> vec(first, last);
+return
+vec;
 }
 
 
-
-
-vector <vector<dmrpt::DRPT::DataPoint>> dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn) {
+vector <vector<dmrpt::DRPT::DataPoint>>
+dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn) {
 
 //    cout<< " received results size "<< results.size()<<endl;
 
-    vector<unordered_map<int, int>> voted_results(results.size());
-    vector<vector<dmrpt::DRPT::DataPoint>> voted_selected(results.size());
-    vector<vector<dmrpt::DRPT::DataPoint>> final_results(results.size());
+    vector <unordered_map<int, int>> voted_results(results.size());
+    vector <vector<dmrpt::DRPT::DataPoint>> voted_selected(results.size());
+    vector <vector<dmrpt::DRPT::DataPoint>> final_results(results.size());
 
-    for(int i=0;i<results.size();i++){
-        voted_results[i]= unordered_map<int,int>();
-        voted_selected[i]= vector<dmrpt::DRPT::DataPoint>();
+    for (int i = 0; i < results.size(); i++) {
+        voted_results[i] = unordered_map<int, int>();
+        voted_selected[i] = vector<dmrpt::DRPT::DataPoint>();
 
-        vector<dmrpt::DRPT::DataPoint> local_selected = results[i];
+        vector <dmrpt::DRPT::DataPoint> local_selected = results[i];
 
 //        cout<< " local selected  size "<< local_selected.size()<<endl;
         if (!local_selected.empty()) {
@@ -109,38 +114,42 @@ void dmrpt::MDRPT::grow_trees(float density) {
     this->trees.clear();
 
 
-    for(int i=0; i<this->ntrees; i++) {
+//    for(int i=0; i<this->ntrees; i++) {
 
-       double *B = mathOp.build_sparse_proj:q!ection_matrix(this->rank, this->world_size, this->data_dimension, this->tree_depth, density);
-        // P= X.R
-        double *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth, cols, 1.0);
+    double *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
+                                                      this->tree_depth * this->ntrees, density);
+    // P= X.R
+    double *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
 
-        int starting_index = this->rank * this->total_data_set_size/world_size;
-        this->trees[i]= dmrpt::DRPT(P,B, cols, this->tree_depth, this->original_data, starting_index,this->storageFormat, this->rank,this->world_size);
-        this->trees[i].grow_local_tree();
-    }
+    int starting_index = this->rank * this->total_data_set_size / world_size;
+    dmrpt::DRPT drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
+                                   this->storageFormat, this->rank, this->world_size);
+    drpt.grow_local_tree();
+//    }
 
 }
 
 
-vector <vector<dmrpt::DRPT::DataPoint>> dmrpt::MDRPT::batch_query(int batch_size, double distance_threshold, int vote_threshold, int nn) {
-    vector<vector<dmrpt::DRPT::DataPoint>> results(this->original_data.size());
-    for(int i=0;i<ntrees;i++){
-        for(int j=0;j<this->world_size;j++){
+vector <vector<dmrpt::DRPT::DataPoint>>
+dmrpt::MDRPT::batch_query(int batch_size, double distance_threshold, int vote_threshold, int nn) {
+    vector <vector<dmrpt::DRPT::DataPoint>> results(this->original_data.size());
+    for (int i = 0; i < ntrees; i++) {
+        for (int j = 0; j < this->world_size; j++) {
             auto start = high_resolution_clock::now();
-           vector<vector<dmrpt::DRPT::DataPoint>> result =  this->trees[i].batch_query(this->original_data,batch_size,j,distance_threshold);
+            vector <vector<dmrpt::DRPT::DataPoint>> result = this->trees[i].batch_query(this->original_data, batch_size,
+                                                                                        j, distance_threshold);
             auto stop = high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(stop - start);
-            cout << "Time taken for batch_query tree  "<<j<< " duration"<<
+            cout << "Time taken for batch_query tree  " << j << " duration" <<
                  duration.count() << " microseconds" << endl;
-           for(int k=0;k<result.size();k++){
-              results[k].insert(results[k].end(),result[k].begin(),result[k].end());
-           }
+            for (int k = 0; k < result.size(); k++) {
+                results[k].insert(results[k].end(), result[k].begin(), result[k].end());
+            }
         }
     }
 
 
-   return   this->get_filtered_results(results,vote_threshold,nn);
+    return this->get_filtered_results(results, vote_threshold, nn);
 
 }
 

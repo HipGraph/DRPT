@@ -56,39 +56,39 @@ int main(int argc, char *argv[]) {
     cout << "Time taken by grow trees: "
          << duration.count() << " microseconds" << endl;
 
-    char filename[500];
-    char labels[500];
-    sprintf(filename, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results.txt");
-    sprintf(labels, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/labels.nodes.txt");
+//    char filename[500];
+//    char labels[500];
+//    sprintf(filename, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results.txt");
+//    sprintf(labels, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/labels.nodes.txt");
+//
+//    //FILE* f = fopen("test.txt","wb+");
+//    ofstream fout(filename,std::ios_base::app);
+//    ofstream fout2(labels,std::ios_base::app);
+//    int co=0;
+//
+//    start = high_resolution_clock::now();
+//     vector<vector<dmrpt::DRPT::DataPoint>> results =  mdrpt.batch_query(30000,5000.0,1,10);
+//     stop = high_resolution_clock::now();
+//     duration = duration_cast<microseconds>(stop - start);
+//
+//    cout << "Time taken for total query "
+//         << duration.count() << " microseconds" << endl;
+//
+//    if (fout.is_open()) {
+//                if (results.size() > 0) {
+//                    for (int k = 0; k < results.size(); k++) {
+//                        for (int l = 0; l < results[k].size(); l++) {
+//                         if (k + rank * cols != results[k][l].index) {
+//
+//                                fout << (k + rank * chunk_size) + 1 << ' ' << results[k][l].index + 1<< endl;
+//                         }
+//                        }
+//                    }
+//                }
+//
+//            }
 
-    //FILE* f = fopen("test.txt","wb+");
-    ofstream fout(filename,std::ios_base::app);
-    ofstream fout2(labels,std::ios_base::app);
-    int co=0;
-
-    start = high_resolution_clock::now();
-     vector<vector<dmrpt::DRPT::DataPoint>> results =  mdrpt.batch_query(30000,5000.0,1,10);
-     stop = high_resolution_clock::now();
-     duration = duration_cast<microseconds>(stop - start);
-
-    cout << "Time taken for total query "
-         << duration.count() << " microseconds" << endl;
-
-    if (fout.is_open()) {
-                if (results.size() > 0) {
-                    for (int k = 0; k < results.size(); k++) {
-                        for (int l = 0; l < results[k].size(); l++) {
-                         if (k + rank * cols != results[k][l].index) {
-
-                                fout << (k + rank * chunk_size) + 1 << ' ' << results[k][l].index + 1<< endl;
-                         }
-                        }
-                    }
-                }
-
-            }
-
-     results.clear();
+//     results.clear();
 
      MPI_Finalize();
 

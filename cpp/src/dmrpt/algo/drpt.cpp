@@ -17,18 +17,26 @@ dmrpt::DRPT::DRPT() {
 
 }
 
-dmrpt::DRPT::DRPT(double *projected_matrix, double *projection_matrix, int rows, int cols,
-                  vector <vector<double>> original_data,
+dmrpt::DRPT::DRPT(double *projected_matrix, double *projection_matrix, int no_of_data_points, int tree_depth,
+                  vector <vector<double>> original_data, int ntrees,
                   int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size) {
-    this->tree_depth = cols;
-    this->rows = rows;
-    this->cols = cols;
+    this->tree_depth = tree_depth;
+    this->no_of_data_points = no_of_data_points;
     this->storageFormat = storageFormat;
     this->projected_matrix = projected_matrix;
     this->projection_matrix = projection_matrix;
-    this->data = vector < vector < double >> (cols);
-    this->indices = vector<int>(rows);
+    this->data = vector < vector < double >> (tree_depth);
+    this->indices = vector<int>(no_of_data_points);
     this->original_data = original_data;
+
+    this->ntrees = ntrees;
+
+    this->trees_data = vector < vector < vector < double>>>(ntrees);
+    this->trees_splits = vector < vector < double >> (ntrees);
+    this->trees_indices = vector < vector < int >> (ntrees);
+    this->trees_leaf_first_indices_all = vector < vector < vector < int>>>(ntrees);
+    this->trees_leaf_first_indices = vector < vector < int >> (ntrees);
+
     this->starting_data_index = starting_index;
     this->rank = rank;
     this->world_size = world_size;
@@ -67,76 +75,89 @@ void dmrpt::DRPT::count_first_leaf_indices_all(std::vector <std::vector<int>> &i
 
 void dmrpt::DRPT::grow_local_tree() {
 
-    if (tree_depth <= 0 || tree_depth > log2(rows)) {
+    if (this->tree_depth <= 0 || this->tree_depth > log2(this->no_of_data_points)) {
         throw std::out_of_range(" depth should be in range [1,....,log2(rows)]");
     }
-    int total_split_size = 1 << (tree_depth + 1);
-    this->splits = vector<double>(total_split_size);
+
+    if (this->ntrees <= 0) {
+        throw std::out_of_range(" no of trees should be greater than zero");
+    }
+
+    int total_split_size = 1 << (this->tree_depth + 1);
 
     if (dmrpt::StorageFormat::RAW == storageFormat) {
 
-        this->count_first_leaf_indices_all(this->leaf_first_indices_all, rows, this->tree_depth);
-        this->leaf_first_indices = this->leaf_first_indices_all[this->tree_depth];
 
-#pragma omp parallel for shared(this->data)
-        for (int i = 0; i < cols; i++) {
-            this->data[i] = vector<double>(rows);
-            for (int j = 0; j < rows; j++) {
-                this->data[i][j] = this->projected_matrix[i + j * cols];
+#pragma omp parallel for
+        {
+            for (int k = 0; k < this->ntrees; k++) {
+                this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
+                                                   this->tree_depth);
+                this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
+                this->trees_splits[k] = vector<double>(total_split_size);
+                this->trees_data[k] = vector < vector < double >> (this->tree_depth);
+                this->trees_indices[k] = vector<int>(this->no_of_data_points);;
+                for (int i = 0; i < this->tree_depth; i++) {
+                    this->trees_data[k][i] = vector<double>(this->no_of_data_points);
+                    for (int j = 0; j < this->no_of_data_points; j++) {
+                        int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+                        this->trees_data[k][i][j] = this->projected_matrix[index];
+                    }
+                }
+
+                iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
+                grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0,k);
+
             }
         }
-
-        iota(this->indices.begin(), this->indices.end(), 0);
-        grow_local_subtree(this->indices.begin(), this->indices.end(), 0, 0);
-
     }
 
 }
 
 void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
-                                     int depth, int i) {
+                                     int depth, int i, const int tree) {
     int datasize = end - begin;
     int id_left = 2 * i + 1;
     int id_right = id_left + 1;
 
-    if (depth == tree_depth) {
+    if (depth == this->tree_depth) {
         return;
     }
 
-    std::nth_element(begin, begin + datasize / 2, end, [this, depth](int a, int b) -> bool {
-        return this->data[depth][a] < this->data[depth][b];
+    std::nth_element(begin, begin + datasize / 2, end, [this, tree,depth](int a, int b) -> bool {
+        return this->trees_data[tree][depth][a] < this->trees_data[tree][depth][b];
     });
 
     auto mid = end - datasize / 2;
 
 
     if (datasize % 2) {
-        this->splits[i] = this->data[depth][*(mid - 1)];
+        this->trees_splits[tree][i] = this->trees_data[tree][depth][*(mid - 1)];
 
     } else {
 
-        auto left = std::max_element(begin, mid, [this, depth](int a, int b) -> bool {
-            return this->data[depth][a] < this->data[depth][b];
+        auto left = std::max_element(begin, mid, [this, tree,depth](int a, int b) -> bool {
+            return this->trees_data[tree][depth][a] < this->trees_data[tree][depth][b];
         });
 
-        this->splits[i] = (this->data[depth][*mid] + this->data[depth][*left]) / 2.0;
+        this->trees_splits[tree][i] = (this->trees_data[tree][depth][*mid] + this->trees_data[tree][depth][*left]) / 2.0;
     }
 
-    grow_local_subtree(begin, mid, depth + 1, id_left);
+    grow_local_subtree(begin, mid, depth + 1, id_left,tree);
 
-    grow_local_subtree(mid, end, depth + 1, id_right);
+    grow_local_subtree(mid, end, depth + 1, id_right,tree);
 
 }
 
 vector <vector<int>>
-dmrpt::DRPT::query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat) {
+dmrpt::DRPT::query(double *queryP, int no_data_points, dmrpt::StorageFormat storageFormat) {
 
 
-    vector <vector<int>> vec(no_datapoints);
+    vector <vector<int>> vec(no_data_points);
 
     if (storageFormat == dmrpt::StorageFormat::RAW) {
 #pragma  omp parallel for
-        for (int j = 0; j < no_datapoints; ++j) {
+        for (int j = 0; j < no_data_points; ++j) {
             int idx = 0;
             for (int i = 0; i < this->tree_depth; ++i) {
 
@@ -208,34 +229,6 @@ dmrpt::DRPT::batch_query(vector <vector<double>> queries, int batch_size, int cu
             queryBatch.clear();
         }
 
-//        //TODO: improve using chunk copying
-//        for (int k = 1; k <= total_data_size; k++) {
-//            if (k % batch_size == 0 and k <= rounded * batch_size) {
-//                queryBatch.push_back(queries[k - 1]);
-//                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
-//                                                                                          batch_size,
-//                                                                                          queries[0].size(),
-//                                                                                          distance_threshold);
-//                for (int j = 0; j < results.size(); j++) {
-//                    all_results.push_back(results[j]);
-//                }
-//
-//                queryBatch.clear();
-//            } else if (k == total_data_size && remain > 0) {
-//                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
-//                                                                                          remain,
-//                                                                                          queries[0].size(),
-//                                                                                          distance_threshold);
-//                #pragma  omp parallel for
-//                for (int j = 0; j < results.size(); j++) {
-//                    all_results.push_back(results[j]);
-//                }
-//                queryBatch.clear();
-//            } else {
-//                queryBatch.push_back(queries[k - 1]);
-//            }
-//        }
-
     } else {
         this->receive_queries_and_evaluate_results(current_master, queries[0].size(), distance_threshold);
 
@@ -261,15 +254,15 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     vector <vector<int>> selectedNodes = this->query(querP, batch_size, this->storageFormat);
 
 
-    int* buffer= new int[batch_size * this->world_size];
-    int* counts = new int[selectedNodes.size()];
+    int *buffer = new int[batch_size * this->world_size];
+    int *counts = new int[selectedNodes.size()];
 
     //count selected nodes for each query locally
     vector <vector<int>> selec(selectedNodes.size());
     vector <vector<double>> selecDistances(selectedNodes.size());
 
     //calculate distances for each selected node
-#pragma omp parallel for shared(this->original_data, query_batch, selec, selecDistances,counts,selectedNodes)
+#pragma omp parallel for shared(this->original_data, query_batch, selec, selecDistances, counts, selectedNodes)
     {
         for (int m = 0; m < selectedNodes.size(); m++) {
             int cf = 0;
@@ -315,17 +308,17 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     }
 
     // Displacements in the receive buffer for MPI_GATHERV
-    int *disps  = new int[this->world_size];
+    int *disps = new int[this->world_size];
     // Displacement for the first chunk of data - 0
     for (int i = 0; i < this->world_size; i++) {
         disps[i] = (i > 0) ? (disps[i - 1] + process_counts[i - 1]) : 0;
     }
 
 
-    int* total_recev= new int[sum];
-    int* my_send = new int[process_counts[this->rank]];
-    double* my_send_dis= new double[process_counts[this->rank]];
-    double* total_recev_dis= new double[sum];
+    int *total_recev = new int[sum];
+    int *my_send = new int[process_counts[this->rank]];
+    double *my_send_dis = new double[process_counts[this->rank]];
+    double *total_recev_dis = new double[sum];
 
     int co = 0;
     for (int g = 0; g < selec.size(); g++) {
@@ -413,11 +406,10 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //
 //            originalQ = (double *) malloc(sizeof(double) * batch_size * query_dimension);
 
-        double* recev = new double[batch_size * this->tree_depth];
+        double *recev = new double[batch_size * this->tree_depth];
 
 
-
-        double* originalQ = new double [batch_size * query_dimension];
+        double *originalQ = new double[batch_size * query_dimension];
 //            recev = recevArray;
 //            originalQ = originalQArray;
 
@@ -474,8 +466,8 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
             }
         }
 
-        for(int b=0;b<selectedNodes.size();b++){
-            mytotal = mytotal+counts[b];
+        for (int b = 0; b < selectedNodes.size(); b++) {
+            mytotal = mytotal + counts[b];
         }
 
 
@@ -491,10 +483,10 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //            my_send = (int *) malloc(sizeof(int) * mytotal);
 //
 //            my_send_dis = (double *) malloc(sizeof(double) * mytotal);
-        int*  my_send = new int[mytotal];
+        int *my_send = new int[mytotal];
 //            my_send = my_sendArray;
 
-        double* my_send_dis = new double[mytotal];
+        double *my_send_dis = new double[mytotal];
 //            my_send_dis = my_send_disArray;
 //        }
 

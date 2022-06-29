@@ -17,18 +17,29 @@ namespace dmrpt {
         int tree_depth;
         double *projected_matrix;
         double *projection_matrix;
-        int rows;
-        int cols;
+        int no_of_data_points;
+        int ntrees;
+        int starting_data_index;
+        int rank;
+        int world_size;
+
+        //single tree
         dmrpt::StorageFormat storageFormat;
         vector<vector<double>> data;
         vector<double> splits;
         vector<int> indices;
         vector<std::vector<int>> leaf_first_indices_all;
         vector<int> leaf_first_indices;
+
+        //multiple trees
+        vector<vector<vector<double>>> trees_data;
+        vector<vector<double>> trees_splits;
+        vector<vector<int>> trees_indices;
+        vector<vector<vector<int>>> trees_leaf_first_indices_all;
+        vector<vector<int>> trees_leaf_first_indices;
         vector<vector<double>> original_data;
-        int starting_data_index;
-        int rank;
-        int world_size;
+
+
     public:
 
         struct DataPoint {
@@ -36,13 +47,14 @@ namespace dmrpt {
             double distance;
         };
         DRPT();
-        DRPT(double *projected_matrix, double *projection_matrix, int rows, int cols, vector<vector<double>> original_data,
+        DRPT(double *projected_matrix, double *projection_matrix, int no_of_data_points, int tree_depth,
+             vector <vector<double>> original_data, int ntrees,
              int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size);
 
         void grow_local_tree();
 
         void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
-                                int depth, int i);
+                                int depth, int i, int tree);
 
         vector<vector<int>> query(double *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat);
 

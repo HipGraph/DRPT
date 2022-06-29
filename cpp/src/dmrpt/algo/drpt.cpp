@@ -183,58 +183,58 @@ dmrpt::DRPT::batch_query(vector <vector<double>> queries, int batch_size, int cu
         MPI_Bcast(&total_data_size, 1, MPI_INT, current_master, MPI_COMM_WORLD);
         int count = 0;
 
-//        while (count < total_data_size) {
-//            int sending_count = 0;
-//            if (count <= (rounded - 1) * batch_size) {
-//                sending_count = batch_size;
-//                queryBatch.insert(queryBatch.end(), std::make_move_iterator(queries.begin() + count),
-//                                  std::make_move_iterator(queries.begin() + count + batch_size));
-////                queries.erase(queries.begin() + count, queries.begin() + count + batch_size);
-//            } else if (count > (rounded - 1) * batch_size) {
-//                sending_count = remain;
-//                queryBatch.insert(queryBatch.end(), std::make_move_iterator(queries.begin() + count),
-//                                  std::make_move_iterator(queries.begin() + count + remain));
-////                queries.erase(queries.begin() + count, queries.begin() + count + remain);
-//
-//            }
-//            vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch, sending_count,
-//                                                                                      queryBatch[0].size(),
-//                                                                                      distance_threshold);
-//            count = count + sending_count;
-//
-//            for (int j = 0; j < results.size(); j++) {
-//                all_results.push_back(results[j]);
-//            }
-//            queryBatch.clear();
-//        }
+        while (count < total_data_size) {
+            int sending_count = 0;
+            if (count <= (rounded - 1) * batch_size) {
+                sending_count = batch_size;
+                queryBatch.insert(queryBatch.end(), std::make_move_iterator(queries.begin() + count),
+                                  std::make_move_iterator(queries.begin() + count + batch_size));
+//                queries.erase(queries.begin() + count, queries.begin() + count + batch_size);
+            } else if (count > (rounded - 1) * batch_size) {
+                sending_count = remain;
+                queryBatch.insert(queryBatch.end(), std::make_move_iterator(queries.begin() + count),
+                                  std::make_move_iterator(queries.begin() + count + remain));
+//                queries.erase(queries.begin() + count, queries.begin() + count + remain);
 
-        //TODO: improve using chunk copying
-        for (int k = 1; k <= total_data_size; k++) {
-            if (k % batch_size == 0 and k <= rounded * batch_size) {
-                queryBatch.push_back(queries[k - 1]);
-                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
-                                                                                          batch_size,
-                                                                                          queries[0].size(),
-                                                                                          distance_threshold);
-                for (int j = 0; j < results.size(); j++) {
-                    all_results.push_back(results[j]);
-                }
-
-                queryBatch.clear();
-            } else if (k == total_data_size && remain > 0) {
-                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
-                                                                                          remain,
-                                                                                          queries[0].size(),
-                                                                                          distance_threshold);
-                #pragma  omp parallel for
-                for (int j = 0; j < results.size(); j++) {
-                    all_results.push_back(results[j]);
-                }
-                queryBatch.clear();
-            } else {
-                queryBatch.push_back(queries[k - 1]);
             }
+            vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch, sending_count,
+                                                                                      queryBatch[0].size(),
+                                                                                      distance_threshold);
+            count = count + sending_count;
+
+            for (int j = 0; j < results.size(); j++) {
+                all_results.push_back(results[j]);
+            }
+            queryBatch.clear();
         }
+
+//        //TODO: improve using chunk copying
+//        for (int k = 1; k <= total_data_size; k++) {
+//            if (k % batch_size == 0 and k <= rounded * batch_size) {
+//                queryBatch.push_back(queries[k - 1]);
+//                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
+//                                                                                          batch_size,
+//                                                                                          queries[0].size(),
+//                                                                                          distance_threshold);
+//                for (int j = 0; j < results.size(); j++) {
+//                    all_results.push_back(results[j]);
+//                }
+//
+//                queryBatch.clear();
+//            } else if (k == total_data_size && remain > 0) {
+//                vector <vector<DataPoint>> results = this->send_query_and_receive_results(queryBatch,
+//                                                                                          remain,
+//                                                                                          queries[0].size(),
+//                                                                                          distance_threshold);
+//                #pragma  omp parallel for
+//                for (int j = 0; j < results.size(); j++) {
+//                    all_results.push_back(results[j]);
+//                }
+//                queryBatch.clear();
+//            } else {
+//                queryBatch.push_back(queries[k - 1]);
+//            }
+//        }
 
     } else {
         this->receive_queries_and_evaluate_results(current_master, queries[0].size(), distance_threshold);
@@ -261,8 +261,8 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     vector <vector<int>> selectedNodes = this->query(querP, batch_size, this->storageFormat);
 
 
-    int buffer[batch_size * this->world_size];
-    int counts[selectedNodes.size()];
+    int* buffer= new int[batch_size * this->world_size];
+    int* counts = new int[selectedNodes.size()];
 
     //count selected nodes for each query locally
     vector <vector<int>> selec(selectedNodes.size());
@@ -300,7 +300,7 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
 
     MPI_Bcast(querArr, totaArr, MPI_DOUBLE, this->rank, MPI_COMM_WORLD);
 
-    MPI_Gather(&counts, batch_size, MPI_INT, &buffer, batch_size, MPI_INT, this->rank, MPI_COMM_WORLD);
+    MPI_Gather(counts, batch_size, MPI_INT, buffer, batch_size, MPI_INT, this->rank, MPI_COMM_WORLD);
 
     int sum = 0;
     //each processor selected nodes counts
@@ -322,10 +322,10 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     }
 
 
-    int total_recev[sum];
-    int my_send[process_counts[this->rank]];
-    double my_send_dis[process_counts[this->rank]];
-    double total_recev_dis[sum];
+    int* total_recev= new int[sum];
+    int* my_send = new int[process_counts[this->rank]];
+    double* my_send_dis= new double[process_counts[this->rank]];
+    double* total_recev_dis= new double[sum];
 
     int co = 0;
     for (int g = 0; g < selec.size(); g++) {
@@ -341,12 +341,12 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
 
 
     //send indices of selected nodes
-    MPI_Gatherv(&my_send, process_counts[this->rank], MPI_INT, &total_recev, process_counts, disps, MPI_INT,
+    MPI_Gatherv(my_send, process_counts[this->rank], MPI_INT, total_recev, process_counts, disps, MPI_INT,
                 this->rank,
                 MPI_COMM_WORLD);
 
     //gather distances
-    MPI_Gatherv(&my_send_dis, process_counts[this->rank], MPI_DOUBLE, &total_recev_dis, process_counts, disps,
+    MPI_Gatherv(my_send_dis, process_counts[this->rank], MPI_DOUBLE, total_recev_dis, process_counts, disps,
                 MPI_DOUBLE, this->rank,
                 MPI_COMM_WORLD);
 
@@ -374,13 +374,12 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     selec.clear();
     free(querArr);
     free(querP);
-
-//    free(buffer);
-//    free(counts);
+    free(buffer);
+    free(counts);
     free(disps);
     free(process_counts);
-//    free(total_recev);
-//    free(my_send);
+    free(total_recev);
+    free(my_send);
     return results;
 }
 
@@ -397,6 +396,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //    int *my_send = (int *) malloc(sizeof(int) * total_data_size);
 //    double *my_send_dis = (double *) malloc(sizeof(double) * total_data_size);
     while (count < total_data_size) {
+
         int batch_size;
         MPI_Bcast(&batch_size, 1, MPI_INT, sending_rank, MPI_COMM_WORLD);
 //        double *recev;
@@ -413,22 +413,26 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //
 //            originalQ = (double *) malloc(sizeof(double) * batch_size * query_dimension);
 
-        double recev[batch_size * this->tree_depth];
+        double* recev = new double[batch_size * this->tree_depth];
 
-        double originalQ[batch_size * query_dimension];
+
+
+        double* originalQ = new double [batch_size * query_dimension];
 //            recev = recevArray;
 //            originalQ = originalQArray;
 
 //        }
 
+//        vector<double> originalQ(batch_size * query_dimension);
 
         int totalQ = batch_size * this->tree_depth;
 
-        MPI_Bcast(&recev, totalQ, MPI_DOUBLE, sending_rank, MPI_COMM_WORLD);
+
+        MPI_Bcast(recev, totalQ, MPI_DOUBLE, sending_rank, MPI_COMM_WORLD);
 
         vector <vector<int>> selectedNodes = this->query(recev, batch_size, this->storageFormat);
         int len_originalQ = batch_size * query_dimension;
-        MPI_Bcast(&originalQ, len_originalQ, MPI_DOUBLE, sending_rank, MPI_COMM_WORLD);
+        MPI_Bcast(originalQ, len_originalQ, MPI_DOUBLE, sending_rank, MPI_COMM_WORLD);
 
 //#pragma omp single
 //        {
@@ -487,10 +491,10 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //            my_send = (int *) malloc(sizeof(int) * mytotal);
 //
 //            my_send_dis = (double *) malloc(sizeof(double) * mytotal);
-        int my_send[mytotal];
+        int*  my_send = new int[mytotal];
 //            my_send = my_sendArray;
 
-        double my_send_dis[mytotal];
+        double* my_send_dis = new double[mytotal];
 //            my_send_dis = my_send_disArray;
 //        }
 
@@ -508,19 +512,20 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
         }
 
 
-        MPI_Gatherv(&my_send, mytotal, MPI_INT, NULL, NULL, NULL, MPI_INT, sending_rank, MPI_COMM_WORLD);
+        MPI_Gatherv(my_send, mytotal, MPI_INT, NULL, NULL, NULL, MPI_INT, sending_rank, MPI_COMM_WORLD);
 
         //gather distances
-        MPI_Gatherv(&my_send_dis, mytotal, MPI_DOUBLE, NULL, NULL, NULL, MPI_DOUBLE, sending_rank,
+        MPI_Gatherv(my_send_dis, mytotal, MPI_DOUBLE, NULL, NULL, NULL, MPI_DOUBLE, sending_rank,
                     MPI_COMM_WORLD);
 //#pragma omp single
 //        {
         count = count + batch_size;
         receivedOrgQ.clear();
         selectedNodes.clear();
-//            free(counts);
-//            free(my_send);
-//            free(my_send_dis);
+        free(originalQ);
+        free(recev);
+        free(my_send);
+        free(my_send_dis);
 //            free(originalQ);
 //            free(recev);
 //            delete counts;

@@ -111,7 +111,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     for(int i=0; i<this->ntrees; i++) {
 
-       double *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension, this->tree_depth, density);
+       double *B = mathOp.build_sparse_proj:q!ection_matrix(this->rank, this->world_size, this->data_dimension, this->tree_depth, density);
         // P= X.R
         double *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth, cols, 1.0);
 

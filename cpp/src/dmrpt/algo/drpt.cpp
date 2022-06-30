@@ -154,33 +154,41 @@ dmrpt::DRPT::query(double *queryP, int no_data_points, dmrpt::StorageFormat stor
 
 
     vector <vector<int>> vec(no_data_points);
+#pragma omp parallel for
+    for(int i=0;i<no_data_points;i++){
+        vec[i] = vector<int>();
+    }
+
 
     if (storageFormat == dmrpt::StorageFormat::RAW) {
-#pragma  omp parallel for
-        for (int j = 0; j < no_data_points; ++j) {
-            int idx = 0;
-            for (int i = 0; i < this->tree_depth; ++i) {
 
-                int id_left = 2 * idx + 1;
-                int id_right = id_left + 1;
-                double split_point = this->splits[idx];
-                if (queryP[i + j * this->tree_depth] <= split_point) {
-                    idx = id_left;
-                } else {
-                    idx = id_right;
+        for (int m = 0; m < this->ntrees; m++) {
+#pragma  omp parallel for
+            for (int j = 0; j < no_data_points; ++j) {
+                int idx = 0;
+                for (int i = 0; i < this->tree_depth; ++i) {
+
+                    int id_left = 2 * idx + 1;
+                    int id_right = id_left + 1;
+                    double split_point = this->trees_splits[m][idx];
+                    int index = this->tree_depth * m + i + j * this->tree_depth * this->ntrees;
+                    if (queryP[index] <= split_point) {
+                        idx = id_left;
+                    } else {
+                        idx = id_right;
+                    }
+
                 }
 
-            }
+                int selected_leaf = idx - (1 << this->tree_depth) + 1;
 
-            int selected_leaf = idx - (1 << this->tree_depth) + 1;
-
-            int leaf_begin = this->leaf_first_indices[selected_leaf];
-            int leaf_end = this->leaf_first_indices[selected_leaf + 1];
-            vec[j] = vector<int>();
-            for (int k = leaf_begin; k < leaf_end; ++k) {
-                int orginal_data_index = this->indices[k];
-                int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
-                vec[j].push_back(reconstrcutedIndex);
+                int leaf_begin = this->trees_leaf_first_indices[m][selected_leaf];
+                int leaf_end = this->trees_leaf_first_indices[m][selected_leaf + 1];
+                for (int k = leaf_begin; k < leaf_end; ++k) {
+                    int orginal_data_index = this->trees_indices[m][k];
+                    int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
+                    vec[j].push_back(reconstrcutedIndex);
+                }
             }
         }
     }
@@ -247,12 +255,10 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     double *querArr = mathOp.convert_to_row_major_format(query_batch);
 
     // P= X.R
-    double *querP = mathOp.multiply_mat(querArr, this->projection_matrix, query_dimension, this->tree_depth,
+    double *querP = mathOp.multiply_mat(querArr, this->projection_matrix, query_dimension, this->tree_depth*this->ntrees,
                                         batch_size, 1.0);
 
-
     vector <vector<int>> selectedNodes = this->query(querP, batch_size, this->storageFormat);
-
 
     int *buffer = new int[batch_size * this->world_size];
     int *counts = new int[selectedNodes.size()];
@@ -283,13 +289,12 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
 
     MPI_Bcast(&batch_size, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
 
-    int totalQ = batch_size * this->tree_depth;
+    int totalQ = batch_size * this->tree_depth*this->ntrees;
 
 
     MPI_Bcast(querP, totalQ, MPI_DOUBLE, this->rank, MPI_COMM_WORLD);
 
     int totaArr = batch_size * query_dimension;
-
 
     MPI_Bcast(querArr, totaArr, MPI_DOUBLE, this->rank, MPI_COMM_WORLD);
 
@@ -342,7 +347,6 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<double>> query_batch,
     MPI_Gatherv(my_send_dis, process_counts[this->rank], MPI_DOUBLE, total_recev_dis, process_counts, disps,
                 MPI_DOUBLE, this->rank,
                 MPI_COMM_WORLD);
-
 
     //reconstructed received nns from MPI calls
     int last_process_count[this->world_size];
@@ -406,7 +410,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //
 //            originalQ = (double *) malloc(sizeof(double) * batch_size * query_dimension);
 
-        double *recev = new double[batch_size * this->tree_depth];
+        double *recev = new double[batch_size * this->tree_depth*this->ntrees];
 
 
         double *originalQ = new double[batch_size * query_dimension];
@@ -417,7 +421,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 
 //        vector<double> originalQ(batch_size * query_dimension);
 
-        int totalQ = batch_size * this->tree_depth;
+        int totalQ = batch_size * this->tree_depth*this->ntrees;
 
 
         MPI_Bcast(recev, totalQ, MPI_DOUBLE, sending_rank, MPI_COMM_WORLD);

@@ -9,6 +9,8 @@
 #include <string>
 #include <omp.h>
 
+#define VALUE_TYPE float
+
 namespace dmrpt {
     class DRPT {
 

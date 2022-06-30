@@ -21,7 +21,7 @@ namespace dmrpt {
         int rank;
         int world_size;
         int total_data_set_size;
-        vector<dmrpt::DRPT> trees;
+        dmrpt::DRPT drpt;
 
     public:
         MDRPT(int ntrees, vector<vector<double>> original_data,int tree_depth,int total_data_set_size, dmrpt::StorageFormat storageFormat, int rank, int world_size);

@@ -30,9 +30,9 @@ int main(int argc, char *argv[]) {
 
     ImageReader imageReader;
 
-    vector<vector<double>> imagedatas =  imageReader.read_MNIST("/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-images-idx3-ubyte",60000,784,rank,size);
+    vector<vector<VALUE_TYPE>> imagedatas =  imageReader.read_MNIST("/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-images-idx3-ubyte",60000,784,rank,size);
 
-    vector<vector<double>> labeldatas =  imageReader.read_mnist_labels("/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-labels-idx1-ubyte",60000,1,rank,size);
+    vector<vector<VALUE_TYPE>> labeldatas =  imageReader.read_mnist_labels("/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-labels-idx1-ubyte",60000,1,rank,size);
 
 
     cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;

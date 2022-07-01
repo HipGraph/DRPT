@@ -6,20 +6,25 @@
 #include <string>
 #include <omp.h>
 
+#define VALUE_TYPE float
+//#define DOUBLE_VALUE_TYPE double
+#define FLOAT_VALUE_TYPE float
+#define MPI_VALUE_TYPE MPI_FLOAT
+
 using namespace std;
 
 namespace dmrpt{
     enum class StorageFormat {RAW, COLUMN};
     class MathOp{
     public:
-        double* multiply_mat(double *A, double *B, int A_rows, int B_cols,int A_cols,int alpha);
-        double* build_sparse_local_random_matrix(int rows, int cols, float density);
-        double* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density);
-        double* convert_to_row_major_format(vector<vector<double>> data);
+        VALUE_TYPE* multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols,int A_cols,int alpha);
+        VALUE_TYPE* build_sparse_local_random_matrix(int rows, int cols, float density);
+        VALUE_TYPE* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density);
+        VALUE_TYPE* convert_to_row_major_format(vector<vector<VALUE_TYPE>> data);
         double* distributed_mean(double *data, int local_rows, int local_cols, int total_elements_per_col, dmrpt::StorageFormat format,int rank);
         double* distributed_variance(double *data, int rows, int cols,int total_elements_per_col, dmrpt::StorageFormat format,int rank);
         double* distributed_median(double *data, int rows, int cols,int total_elements_per_col,int no_of_bins, dmrpt::StorageFormat format,int rank);
-        double calculate_distance(vector<double> data, vector<double> query);
+        VALUE_TYPE calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query);
 
     };
 }

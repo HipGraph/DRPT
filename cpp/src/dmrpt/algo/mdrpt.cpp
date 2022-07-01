@@ -17,7 +17,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<double>> original_data, int tree_depth, int total_data_set_size,
+dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<VALUE_TYPE>> original_data, int tree_depth, int total_data_set_size,
                     dmrpt::StorageFormat storageFormat, int rank, int world_size) {
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
@@ -96,15 +96,15 @@ dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DRPT::DataPoint>> resul
 void dmrpt::MDRPT::grow_trees(float density) {
 
     dmrpt::MathOp mathOp;
-    double *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
+    VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
     int rows = this->original_data[0].size();
     int cols = this->original_data.size();
 
-    double *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
+    VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
                                                       this->tree_depth * this->ntrees, density);
     // P= X.R
-    double *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
+    VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
 
     int starting_index = this->rank * this->total_data_set_size / world_size;
     this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
@@ -115,7 +115,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
 
 vector <vector<dmrpt::DRPT::DataPoint>>
-dmrpt::MDRPT::batch_query(int batch_size, double distance_threshold, int vote_threshold, int nn) {
+dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int vote_threshold, int nn) {
     vector <vector<dmrpt::DRPT::DataPoint>> results(this->original_data.size());
         for (int j = 0; j < this->world_size; j++) {
             auto start = high_resolution_clock::now();

@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     int chunk_size = 60000/size;
 
-    MDRPT mdrpt = MDRPT(10,imagedatas,tree_levels,60000,dmrpt::StorageFormat::RAW,rank,size);
+    MDRPT mdrpt = MDRPT(1,imagedatas,tree_levels,60000,dmrpt::StorageFormat::RAW,rank,size);
     auto start = high_resolution_clock::now();
     mdrpt.grow_trees(1.0/ sqrt(rows));
 //    mdrpt.grow_trees(0.9);
@@ -56,39 +56,39 @@ int main(int argc, char *argv[]) {
     cout << "Time taken by grow trees: "
          << duration.count() << " microseconds" << endl;
 
-    char filename[500];
-    char labels[500];
-    sprintf(filename, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results.txt");
-    sprintf(labels, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/labels.nodes.txt");
-
-    //FILE* f = fopen("test.txt","wb+");
-    ofstream fout(filename,std::ios_base::app);
-    ofstream fout2(labels,std::ios_base::app);
-    int co=0;
-
-    start = high_resolution_clock::now();
-     vector<vector<dmrpt::DRPT::DataPoint>> results =  mdrpt.batch_query(1000,5000.0,3,10);
-     stop = high_resolution_clock::now();
-     duration = duration_cast<microseconds>(stop - start);
-
-    cout << "Time taken for total query "
-         << duration.count() << " microseconds" << endl;
-
-    if (fout.is_open()) {
-                if (results.size() > 0) {
-                    for (int k = 0; k < results.size(); k++) {
-                        for (int l = 0; l < results[k].size(); l++) {
-                         if (k + rank * cols != results[k][l].index) {
-
-                                fout << (k + rank * chunk_size) + 1 << ' ' << results[k][l].index + 1<< endl;
-                         }
-                        }
-                    }
-                }
-
-            }
-
-     results.clear();
+//    char filename[500];
+//    char labels[500];
+//    sprintf(filename, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results.txt");
+//    sprintf(labels, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/labels.nodes.txt");
+//
+//    //FILE* f = fopen("test.txt","wb+");
+//    ofstream fout(filename,std::ios_base::app);
+//    ofstream fout2(labels,std::ios_base::app);
+//    int co=0;
+//
+//    start = high_resolution_clock::now();
+//     vector<vector<dmrpt::DRPT::DataPoint>> results =  mdrpt.batch_query(1000,5000.0,3,10);
+//     stop = high_resolution_clock::now();
+//     duration = duration_cast<microseconds>(stop - start);
+//
+//    cout << "Time taken for total query "
+//         << duration.count() << " microseconds" << endl;
+//
+//    if (fout.is_open()) {
+//                if (results.size() > 0) {
+//                    for (int k = 0; k < results.size(); k++) {
+//                        for (int l = 0; l < results[k].size(); l++) {
+//                         if (k + rank * cols != results[k][l].index) {
+//
+//                                fout << (k + rank * chunk_size) + 1 << ' ' << results[k][l].index + 1<< endl;
+//                         }
+//                        }
+//                    }
+//                }
+//
+//            }
+//
+//     results.clear();
 
      MPI_Finalize();
 

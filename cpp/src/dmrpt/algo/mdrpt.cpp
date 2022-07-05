@@ -12,6 +12,7 @@
 #include <map>
 #include <unordered_map>
 #include <fstream>
+#include "../algo/drpt_global.hpp"
 
 
 using namespace std;
@@ -107,9 +108,13 @@ void dmrpt::MDRPT::grow_trees(float density) {
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
 
     int starting_index = this->rank * this->total_data_set_size / world_size;
-    this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
+//    this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
+//                                   this->storageFormat, this->rank, this->world_size);
+//    this->drpt.grow_local_tree();
+
+    dmrpt::DRPTGlobal global_drpt = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index, this->total_data_set_size,
                                    this->storageFormat, this->rank, this->world_size);
-    this->drpt.grow_local_tree();
+    global_drpt.grow_global_tree();
 
 }
 

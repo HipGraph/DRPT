@@ -40,6 +40,7 @@ namespace dmrpt {
         int total_data_set_size;
         int donate_per;
         int data_dimension;
+        int transfer_threshold;
 
         //multiple trees
         vector<vector<vector<dmrpt::DataPoint>>> trees_data;
@@ -58,18 +59,23 @@ namespace dmrpt {
         DRPTGlobal();
         DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
              vector <vector<VALUE_TYPE>> original_data, int ntrees,
-             int starting_index,int total_data_set_size,int donate_per, dmrpt::StorageFormat storage_format, int rank, int world_size);
+             int starting_index,int total_data_set_size,int donate_per, int transfer_threshold, dmrpt::StorageFormat storage_format,
+                   int rank, int world_size);
 
         void grow_global_tree();
 
         void grow_global_subtree(std::vector<DataPoint> data_vector,int total_data_set_size,int depth, int i, int tree);
 
         void  send_receive_data_points_if_zero(vector<DataPoint> left_data_points,vector<DataPoint> right_data_points, int *total_counts,
-                                                            int *process_counts,int *disps,int tree);
+                                                            int *process_counts,int *disps,int depth, int tree);
 
         int detect_max_rank(int *total_counts, int direction);
 
-        void send_receive_data_points_if_zero(vector<DataPoint> data_points, int* total_counts,int i,int direction, int tree);
+        int detect_min_rank(int *total_counts, int direction);
+
+        void send_receive_data_points_if_zero(vector<DataPoint> data_points, int* total_counts,int i,int direction, int depth, int tree);
+
+        bool is_transfer_needed(int * total_counts, int direction);
 
     };
 }

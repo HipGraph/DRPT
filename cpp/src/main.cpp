@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
     int chunk_size = 60000/size;
 
-    MDRPT mdrpt = MDRPT(10,imagedatas,tree_levels,60000,10,dmrpt::StorageFormat::RAW,rank,size);
+    MDRPT mdrpt = MDRPT(10,imagedatas,tree_levels,60000,10,15,dmrpt::StorageFormat::RAW,rank,size);
     auto start = high_resolution_clock::now();
     mdrpt.grow_trees(1.0/ sqrt(rows));
 //    mdrpt.grow_trees(0.9);

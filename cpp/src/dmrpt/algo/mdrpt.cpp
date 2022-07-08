@@ -19,6 +19,7 @@ using namespace std;
 using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<VALUE_TYPE>> original_data, int tree_depth, int total_data_set_size,int donate_per,
+                    int transfer_threshold,
                     dmrpt::StorageFormat storageFormat, int rank, int world_size) {
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
@@ -29,6 +30,7 @@ dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<VALUE_TYPE>> original_data, int t
     this->rank = rank;
     this->world_size = world_size;
     this->ntrees = ntrees;
+    this->transfer_threshold=transfer_threshold;
 }
 
 template<typename T> vector <T> slice(vector < T >const &v,int m,int n) {
@@ -114,7 +116,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 //    this->drpt.grow_local_tree();
 
     dmrpt::DRPTGlobal global_drpt = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index, this->total_data_set_size, this->donate_per,
-                                   this->storageFormat, this->rank, this->world_size);
+                                   this->transfer_threshold,this->storageFormat, this->rank, this->world_size);
     global_drpt.grow_global_tree();
 
 }

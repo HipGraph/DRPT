@@ -115,9 +115,12 @@ void dmrpt::MDRPT::grow_trees(float density) {
 //                                   this->storageFormat, this->rank, this->world_size);
 //    this->drpt.grow_local_tree();
 
-    dmrpt::DRPTGlobal global_drpt = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index, this->total_data_set_size, this->donate_per,
+    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index, this->total_data_set_size, this->donate_per,
                                    this->transfer_threshold,this->storageFormat, this->rank, this->world_size);
-    global_drpt.grow_global_tree();
+    this->drpt_global.grow_global_tree();
+    cout<<" rank "<<rank<< " completing growing trees"<<endl;
+
+    this->drpt_global.collect_similar_data_points_for_all_tree_indices(0,0);
 
 }
 
@@ -142,6 +145,11 @@ dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int vot
 
     return this->get_filtered_results(results, vote_threshold, nn);
 
+}
+
+
+vector <dmrpt::DataPoint> dmrpt::MDRPT::get_knn(int nn) {
+   return this->drpt_global.get_nns(10);
 }
 
 

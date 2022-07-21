@@ -7,7 +7,7 @@
 #include <mpi.h>
 #include <string>
 #include <omp.h>
-
+#include "drpt_global.hpp"
 namespace dmrpt {
     class MDRPT {
 
@@ -24,6 +24,7 @@ namespace dmrpt {
         int total_data_set_size;
         int transfer_threshold;
         dmrpt::DRPT drpt;
+        dmrpt::DRPTGlobal drpt_global;
 
     public:
         MDRPT(int ntrees, vector<vector<VALUE_TYPE>> original_data,int tree_depth,int total_data_set_size,int donate_per, int transfer_threshold,
@@ -31,6 +32,9 @@ namespace dmrpt {
         void grow_trees(float density);
         vector<vector<dmrpt::DRPT::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int vote_threshold, int nn);
         vector<vector<dmrpt::DRPT::DataPoint>> get_filtered_results(vector<vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn);
+        vector<dmrpt::DataPoint> get_knn(int nn);
+
+
 
     };
 }

@@ -8,15 +8,19 @@
 #include <mpi.h>
 #include <string>
 #include <omp.h>
+#include <map>
+#include <unordered_map>
 
 
 
 
 namespace dmrpt {
     struct DataPoint {
+        int src_index;
         int index;
         VALUE_TYPE distance;
         VALUE_TYPE value;
+        vector<VALUE_TYPE> image_data;
     };
 
     struct ImageDataPoint {
@@ -41,15 +45,17 @@ namespace dmrpt {
         int donate_per;
         int data_dimension;
         int transfer_threshold;
+        unordered_map<string, VALUE_TYPE> distance_map;
 
         //multiple trees
         vector<vector<vector<dmrpt::DataPoint>>> trees_data;
         vector<vector<VALUE_TYPE>> trees_splits;
         vector<vector<int>> trees_indices;
-        vector<vector<vector<int>>> trees_leaf_first_indices_all;
-        vector<vector<int>> trees_leaf_first_indices;
+        vector<vector<DataPoint>> trees_leaf_first_indices_all;
+        vector<vector<vector<DataPoint>>> trees_leaf_first_indices;
 
         vector<ImageDataPoint> original_data_processed;
+        vector<ImageDataPoint> final_collected_data;
 
         vector<vector<DataPoint>> leaf_data;
 
@@ -66,16 +72,32 @@ namespace dmrpt {
 
         void grow_global_subtree(std::vector<DataPoint> data_vector,int total_data_set_size,int depth, int i, int tree);
 
-        void  send_receive_data_points_if_zero(vector<DataPoint> left_data_points,vector<DataPoint> right_data_points, int *total_counts,
-                                                            int *process_counts,int *disps,int depth, int tree);
+
+
+        vector<DataPoint>  send_receive_data_points_if_zero(vector<DataPoint> data_points, int *total_counts,
+                                                            int *process_counts,int *disps,int depth, int direction, int tree);
 
         int detect_max_rank(int *total_counts, int direction);
 
         int detect_min_rank(int *total_counts, int direction);
 
-        void send_receive_data_points_if_zero(vector<DataPoint> data_points, int* total_counts,int i,int direction, int depth, int tree);
+        vector<DataPoint> send_receive_data_points_if_zero(vector<DataPoint> data_points, int* total_counts,int i,int direction, int depth, int tree);
 
         bool is_transfer_needed(int * total_counts, int direction);
+
+        void gather_sibling_indexes();
+
+
+        vector<DataPoint> collect_similar_data_points_for_given_tree_index(int index);
+
+        void collect_similar_data_points_for_all_tree_indices(int index, int depth);
+
+        vector<DataPoint> request_data_points_for_given_index(vector <DataPoint> all_my_points);
+
+        vector<DataPoint>  send_data_points_for_requested_node(vector<DataPoint> all_my_points, int sending_rank);
+
+        vector<dmrpt::DataPoint> get_nns(int nn);
+
 
     };
 }

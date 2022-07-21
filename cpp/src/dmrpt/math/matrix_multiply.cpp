@@ -315,16 +315,24 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
 VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query) {
 
-    std::vector<VALUE_TYPE> auxiliary(data.size());
+//    std::vector<VALUE_TYPE> auxiliary(data.size());
+//
+//    std::transform(data.begin(), data.end(), query.begin(), std::back_inserter(auxiliary),//
+//                   [](VALUE_TYPE element1, VALUE_TYPE element2) { return pow((element1 - element2), 2); });
+//
+//    VALUE_TYPE value = sqrt(std::accumulate(auxiliary.begin(), auxiliary.end(), 0.0));
+//    data.clear();
+//    query.clear();
+//    auxiliary.clear();
 
-    std::transform(data.begin(), data.end(), query.begin(), std::back_inserter(auxiliary),//
-                   [](VALUE_TYPE element1, VALUE_TYPE element2) { return pow((element1 - element2), 2); });
+    int sum=0;
+#pragma omp parallel for schedule(runtime) (+reduction:sum)
+    for(int n=0;n<query.size();n++){
 
-    VALUE_TYPE value = sqrt(std::accumulate(auxiliary.begin(), auxiliary.end(), 0.0));
-    data.clear();
-    query.clear();
-    auxiliary.clear();
-    return value;
+        sum += pow((data[n] - query[n]),2);
+    }
+
+    return sqrt(sum);
 }
 
 

@@ -32,7 +32,7 @@ namespace dmrpt {
         void grow_trees(float density);
         vector<vector<dmrpt::DRPT::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int vote_threshold, int nn);
         vector<vector<dmrpt::DRPT::DataPoint>> get_filtered_results(vector<vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn);
-        vector<dmrpt::DataPoint> get_knn(int nn);
+        vector<vector<dmrpt::DataPoint>> get_knn(int nn);
 
 
 

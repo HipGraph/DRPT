@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <omp.h>
+#include <fstream>
 
 using namespace std;
 
@@ -19,22 +20,22 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows
     }
 
 #ifdef   DOUBLE_VALUE_TYPE
-        double *Acast = reinterpret_cast<double *>(A);
-        double *Bcast = reinterpret_cast<double *>(B);
-        double *resultCast = reinterpret_cast<double *>(result);
+    double *Acast = reinterpret_cast<double *>(A);
+    double *Bcast = reinterpret_cast<double *>(B);
+    double *resultCast = reinterpret_cast<double *>(result);
 
-        cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, Acast, A_cols, Bcast,
-                    B_cols,
-                    0.0,
-                    resultCast, B_cols);
+    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, Acast, A_cols, Bcast,
+                B_cols,
+                0.0,
+                resultCast, B_cols);
 #elifdef FLOAT_VALUE_TYPE
-        float *AcastFloat = reinterpret_cast<float *>(A);
-        float *BcastFloat = reinterpret_cast<float *>(B);
-        float *resultCastFloat = reinterpret_cast<float *>(result);
+    float *AcastFloat = reinterpret_cast<float *>(A);
+    float *BcastFloat = reinterpret_cast<float *>(B);
+    float *resultCastFloat = reinterpret_cast<float *>(result);
 
-        cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, AcastFloat, A_cols,
-                    BcastFloat, B_cols, 0.0,
-                    resultCastFloat, B_cols);
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, AcastFloat, A_cols,
+                BcastFloat, B_cols, 0.0,
+                resultCastFloat, B_cols);
 #endif
     return result;
 }
@@ -120,6 +121,10 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_si
 }
 
 VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE>> data) {
+    if(data.empty()){
+        return (VALUE_TYPE *) malloc(0);
+    }
+
     int cols = data.size();
     int rows = data[0].size();
     int total_size = cols * rows;
@@ -141,7 +146,7 @@ VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE
 }
 
 VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements,
-                                        dmrpt::StorageFormat format, int rank) {
+                                            dmrpt::StorageFormat format, int rank) {
     int size = local_rows * local_cols;
     VALUE_TYPE *sums = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     VALUE_TYPE *gsums = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
@@ -167,7 +172,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, int local_rows, in
 }
 
 VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements,
-                                            dmrpt::StorageFormat format, int rank) {
+                                                dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
     int size = local_rows * local_cols;
     VALUE_TYPE *var = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
@@ -300,8 +305,8 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
 
             VALUE_TYPE median = distribution[selected_index - 1] +
-                            ((total_elements / 2 - (cfreq - count)) / count) *
-                            (distribution[selected_index] - distribution[selected_index - 1]);
+                                ((total_elements / 2 - (cfreq - count)) / count) *
+                                (distribution[selected_index] - distribution[selected_index - 1]);
             medians[i] = median;
 
             free(gfrequency);
@@ -314,7 +319,6 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 }
 
 VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query) {
-
 //    std::vector<VALUE_TYPE> auxiliary(data.size());
 //
 //    std::transform(data.begin(), data.end(), query.begin(), std::back_inserter(auxiliary),//
@@ -325,11 +329,11 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
 //    query.clear();
 //    auxiliary.clear();
 
-    int sum=0;
-#pragma omp parallel for schedule(runtime) (+reduction:sum)
-    for(int n=0;n<query.size();n++){
+    int sum = 0;
+//#pragma omp parallel for reduction(+ :sum)
+    for (int n = 0; n < query.size(); n++) {
 
-        sum += pow((data[n] - query[n]),2);
+        sum += pow((data[n] - query[n]), 2);
     }
 
     return sqrt(sum);

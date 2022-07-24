@@ -51,13 +51,14 @@ namespace dmrpt {
         vector<vector<vector<dmrpt::DataPoint>>> trees_data;
         vector<vector<VALUE_TYPE>> trees_splits;
         vector<vector<int>> trees_indices;
-        vector<vector<DataPoint>> trees_leaf_first_indices_all;
+        vector<vector<vector<DataPoint>>> trees_leaf_first_indices_all;
         vector<vector<vector<DataPoint>>> trees_leaf_first_indices;
 
         vector<ImageDataPoint> original_data_processed;
         vector<ImageDataPoint> final_collected_data;
 
         vector<vector<DataPoint>> leaf_data;
+        vector<vector<vector<int>>> data_point_tree_index_tracker;
 
 
     public:
@@ -88,15 +89,17 @@ namespace dmrpt {
         void gather_sibling_indexes();
 
 
-        vector<DataPoint> collect_similar_data_points_for_given_tree_index(int index);
+        vector<DataPoint> collect_similar_data_points_for_given_tree_index(int tree,int index);
 
-        void collect_similar_data_points_for_all_tree_indices(int index, int depth);
+        void collect_similar_data_points_for_all_tree_indices(int tree,int index, int depth);
 
         vector<DataPoint> request_data_points_for_given_index(vector <DataPoint> all_my_points);
 
         vector<DataPoint>  send_data_points_for_requested_node(vector<DataPoint> all_my_points, int sending_rank);
 
-        vector<dmrpt::DataPoint> get_nns(int nn);
+        vector<vector<dmrpt::DataPoint>> calculate_nns(int tree, int nn);
+
+        vector<vector<dmrpt::DataPoint>> gather_nns(int nn);
 
 
     };

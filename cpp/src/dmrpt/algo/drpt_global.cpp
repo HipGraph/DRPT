@@ -43,6 +43,7 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->trees_splits = vector < vector < VALUE_TYPE >> (ntrees);
     this->trees_indices = vector < vector < int >> (ntrees);
     this->trees_leaf_first_indices = vector < vector < vector < DataPoint > >> (ntrees);
+    this->trees_leaf_first_indices_all = vector < vector < vector < DataPoint > >> (ntrees);
 
     this->starting_data_index = starting_index;
     this->rank = rank;
@@ -50,6 +51,7 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->leaf_data = vector < vector < DataPoint >> (this->ntrees);
     this->donate_per = donate_per;
     this->original_data_processed = vector<ImageDataPoint>(intial_no_of_data_points);
+    this->data_point_tree_index_tracker = vector < vector < vector < int>>>(ntrees);
 
 
 #pragma omp parallel for
@@ -104,7 +106,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
     cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
-    this->trees_leaf_first_indices_all = vector < vector < dmrpt::DataPoint >> (total_child_size);
+
     if (dmrpt::StorageFormat::RAW == storage_format) {
 
         for (int k = 0; k < this->ntrees; k++) {
@@ -112,7 +114,8 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
             this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
             this->trees_indices[k] = vector<int>(this->intial_no_of_data_points);
             this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
-
+            this->data_point_tree_index_tracker[k] = vector < vector < int >> (this->total_data_set_size);
+            this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
 
             for (int i = 0; i < this->tree_depth; i++) {
                 this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
@@ -403,8 +406,13 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
 
             vector<VALUE_TYPE> dataP = (*it).value;
             receving_indexes[j] = (*it).index;
-            sendVector.push_back(dataP);
+            sendVector[j] = dataP;
             data_points.pop_back();
+
+
+
+
+
 
             //remove these values from rest of the projected matrix
 
@@ -420,10 +428,13 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             }
         }
 
+
         VALUE_TYPE *sendVec = mathOp.convert_to_row_major_format(sendVector);
 //        cout << " rank " << this->rank << " sending " << send_count << " max rank " << max_rank << endl;
         MPI_Send(receving_indexes, send_count, MPI_INT, current_rank, 0, MPI_COMM_WORLD);
         int tot = send_count * this->data_dimension;
+
+
         MPI_Send(sendVec, tot, MPI_VALUE_TYPE, current_rank, 1, MPI_COMM_WORLD);
 
         int count_index = direction == 0 ? this->rank * 2 : this->rank * 2 + 1;
@@ -501,7 +512,7 @@ bool dmrpt::DRPTGlobal::is_transfer_needed(int *total_counts, int direction) {
 
 
 vector <dmrpt::DataPoint>
-dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int index) {
+dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, int index) {
 
     dmrpt::MathOp mathOp;
     int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
@@ -520,19 +531,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int index) {
         end_count = total_leaf_size;
     }
 
-    vector <DataPoint> all_points;
 
+    // merge all trees
+    vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][selected_leaf];
 
-    for (int i = 0; i < this->ntrees; i++) {
-        vector <DataPoint> dp_vecs = this->trees_leaf_first_indices[i][selected_leaf];
-        all_points.insert(all_points.end(), dp_vecs.begin(), dp_vecs.end());
-    }
-
-    all_points.erase(unique(all_points.begin(), all_points.end(),
-                            [](const DataPoint &lhs,
-                               const DataPoint &rhs) {
-                                return lhs.index == rhs.index;
-                            }), all_points.end());
 
     if (selected_leaf >= my_start_count && selected_leaf < end_count) {
         vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
@@ -555,20 +557,20 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int index) {
 }
 
 
-void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int index, int depth) {
+void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tree, int index, int depth) {
 
     int id_left = 2 * index + 1;
     int id_right = id_left + 1;
 
     if (depth == this->tree_depth - 1) {
         int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
-        this->trees_leaf_first_indices_all[selected_leaf] = this->collect_similar_data_points_for_given_tree_index(
-                index);
+        this->trees_leaf_first_indices_all[tree][selected_leaf] = this->collect_similar_data_points_for_given_tree_index(
+                tree, index);
         return;
     }
 
-    collect_similar_data_points_for_all_tree_indices(id_left, depth + 1);
-    collect_similar_data_points_for_all_tree_indices(id_right, depth + 1);
+    collect_similar_data_points_for_all_tree_indices(tree, id_left, depth + 1);
+    collect_similar_data_points_for_all_tree_indices(tree, id_right, depth + 1);
 
 }
 
@@ -618,7 +620,18 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
                                                                [src_index](ImageDataPoint const &n) {
                                                                    return n.index == src_index;
                                                                });
+
+        if (src_it == this->original_data_processed.end()) {
+            cout << " couldn't find " << src_index << endl;
+        }
         send_vector[g] = ((*src_it).value);
+        for (int i = 0; i < this->data_dimension; i++) {
+            if (send_vector[g][i] > 255 || send_vector[g][i] < 0) {
+                cout << " index " << src_index << " calculated index for sending data" << this->rank << endl;
+            }
+        }
+
+
 //        this->original_data_processed.erase(src_it);
 
     }
@@ -666,6 +679,9 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
             {
                 for (int y = 0; y < this->data_dimension; y++) {
                     int get_index = my_start + h + process_counts[m] * y;
+                    if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
+                        cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
+                    }
                     im_data[y] = total_recev_queries[get_index];
                 }
             }
@@ -733,7 +749,18 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
             cout << " all equal befor seding index  " << src_index << endl;
         }
 
+        for (int i = 0; i < this->data_dimension; i++) {
+            if (send_vector[g][i] > 255 || send_vector[g][i] < 0) {
+                cout << " index " << src_index << " calculated index for sending data" << this->rank << endl;
+            }
+        }
+
+
     }
+    if (send_vector.empty()) {
+        cout << " send vector empty **********" << endl;
+    }
+
     VALUE_TYPE *my_queries = mathOp.convert_to_row_major_format(send_vector);
 
 
@@ -756,7 +783,13 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
     return all_my_points;
 }
 
-vector <dmrpt::DataPoint> dmrpt::DRPTGlobal::get_nns(int nn) {
+vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int nn) {
+//    char filename[500];
+////    char labels[500];
+//    sprintf(filename,
+//            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results5.txt");
+//
+//    ofstream fout(filename, std::ios_base::app);
 
     dmrpt::MathOp mathOp;
 
@@ -772,44 +805,264 @@ vector <dmrpt::DataPoint> dmrpt::DRPTGlobal::get_nns(int nn) {
     } else {
         end_count = total_leaf_size;
     }
-    vector <DataPoint> final_results;
 
-//#pragma omp parallel
-////#pragma omp for collapse(3)
-//    {
-#pragma omp parallel for
+
+    vector <vector<DataPoint>> final_results(total_data_set_size);
+
+
     for (int i = my_start_count; i < end_count; i++) {
+        vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
 
-        vector <DataPoint> data_points = this->trees_leaf_first_indices_all[i];
+        for (int k = 0; k < data_points.size(); k++) {
+            vector <DataPoint> vec(data_points.size());
 #pragma omp parallel for
-        for (int j = 0; j < data_points.size(); j++) {
-            vector <DataPoint> vec = vector<DataPoint>(data_points.size());
+            for (int j = 0; j < data_points.size(); j++) {
 
-#pragma omp parallel for
-            for (int k = 0; k < data_points.size(); k++) {
+//                if (data_points[k].index != data_points[j].index) {
+                VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
+                                                                data_points[j].image_data);
 
-                VALUE_TYPE distance = mathOp.calculate_distance(data_points[j].image_data, data_points[k].image_data);
                 DataPoint dataPoint;
-                dataPoint.src_index = data_points[j].index;
-                dataPoint.index = data_points[k].index;
+                dataPoint.src_index = data_points[k].index;
+                dataPoint.index = data_points[j].index;
                 dataPoint.distance = distance;
-                vec[k] = dataPoint;
+                vec[j] = dataPoint;
+//                }
             }
 
             sort(vec.begin(), vec.end(),
                  [](const DataPoint &lhs, const DataPoint &rhs) {
                      return lhs.distance < rhs.distance;
                  });
-            vector <DataPoint> sub_vec = slice(vec, 0, nn - 1);
-#pragma omp critical
-            {
-                final_results.insert(final_results.end(), sub_vec.begin(), sub_vec.end());
+
+            vector <DataPoint> sub_vec;
+            if (vec.size() > nn) {
+                sub_vec = slice(vec, 0, nn - 1);
+            } else {
+                sub_vec = vec;
             }
+            final_results[vec[0].src_index].insert(final_results[vec[0].src_index].end(), sub_vec.begin(),
+                                                   sub_vec.end());
         }
     }
-
-//    }
     return final_results;
+}
+
+vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
+//
+//    cout << " rank " << rank << " calculating distributed nns " << endl;
+//
+//    char filename[500];
+////    char labels[500];
+//    sprintf(filename,
+//            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results5.txt");
+//
+//    ofstream fout(filename, std::ios_base::app);
+    int my_starting_index = this->rank * this->total_data_set_size / world_size;
+
+    int end_index = 0;
+    if (this->rank < this->world_size - 1) {
+        end_index = (this->rank + 1) * this->total_data_set_size / world_size;
+    } else {
+        end_index = this->total_data_set_size;
+    }
+
+
+    vector <vector<DataPoint>> final_data(this->total_data_set_size);
+    vector <vector<DataPoint>> collected_nns(this->total_data_set_size);
+
+    for (int i = 0; i < ntrees; i++) {
+        cout << " calvulation starts for tree " << i << " rank " << this->rank << endl;
+        vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
+        cout << " calculation complete for tree " << i << " rank " << this->rank << " data size " << data.size()
+             << endl;
+
+//#pragma omp parallel for
+        for (int j = 0; j < total_data_set_size; j++) {
+            if (!data[j].empty()) {
+                final_data[j].insert(final_data[j].end(), data[j].begin(),
+                                     data[j].end());
+//                for(int m=0;m<data[j].size();m++){
+//                    fout<< " index " << data[j][m].index << " source index "
+//                        << data[j][m].src_index << " distance "<< data[j][m].distance<< endl;
+//                }
+            }
+        }
+        cout << " insertion complete for tree " << i << " rank " << this->rank << endl;
+    }
+
+    cout << " rank " << rank << " distance calculation completed " << endl;
+
+
+    int chunk_size = this->total_data_set_size / this->world_size;
+
+    int remain = this->total_data_set_size - chunk_size * (this->world_size - 1);
+
+
+    int count = 0;
+
+    int sending_size = 0;
+    int feasible_size = 0;
+    while (count < this->total_data_set_size) {
+
+        int sending_rank = -1;
+        for (int g = 0; g < this->world_size; g++) {
+            if (count >= (g * this->total_data_set_size / this->world_size) &&
+                count < ((g + 1) * this->total_data_set_size / this->world_size)) {
+                sending_rank = g;
+                break;
+            }
+        }
+
+        if (this->rank < this->world_size - 1) {
+            feasible_size = chunk_size;
+        } else {
+            feasible_size = remain;
+        }
+        sending_size = 0;
+        for (int i = count; i < count + feasible_size; i++) {
+            if (!final_data[i].empty()) {
+                sending_size++;
+            }
+        }
+
+
+        int tot_indices_size = sending_size * 2 * nn;
+        int *source_indices = new int[sending_size];
+        int *nn_indices = new int[tot_indices_size];
+        int *process_counts = new int[this->world_size];
+        int *process_counts_nns = new int[this->world_size];
+        int *my_count = new int[1];
+        my_count[0] = sending_size;
+        VALUE_TYPE *nn_distances = new VALUE_TYPE[tot_indices_size];
+        int co = 0;
+        for (int l = count; l < count + feasible_size; l++) {
+            if (!final_data[l].empty()) {
+                source_indices[co] = final_data[l][0].src_index;
+                sort(final_data[l].begin(), final_data[l].end(),
+                     [](const DataPoint &lhs, const DataPoint &rhs) {
+                         return lhs.distance < rhs.distance;
+                     });
+//                final_data[l].erase(unique(final_data[l].begin(), final_data[l].end(),
+//                                           [](const DataPoint &lhs,
+//                                              const DataPoint &rhs) {
+//                                               return lhs.src_index == rhs.index;
+//                                           }), final_data[l].end());
+
+                for (int j = 0; j < 2 * nn; j++) {
+                    nn_indices[co * 2 * nn + j] = final_data[l][j].index;
+                    nn_distances[co * 2 * nn + j] = final_data[l][j].distance;
+                }
+                co++;
+            }
+        }
+        if (count >= my_starting_index && count < end_index) {
+
+            MPI_Gather(my_count, 1, MPI_INT, process_counts, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
+
+
+            int *disps = new int[this->world_size];
+            int *disps_nns = new int[this->world_size];
+
+            // Displacement for the first chunk of data - 0
+            int tot = 0;
+            for (int i = 0; i < this->world_size; i++) {
+                tot = tot + process_counts[i];
+                process_counts_nns[i] = process_counts[i] * 2 * nn;
+                disps[i] = (i > 0) ? (disps[i - 1] + process_counts[i - 1]) : 0;
+                disps_nns[i] = (i > 0) ? (disps_nns[i - 1] + process_counts_nns[i - 1]) : 0;
+            }
+            int *total_source_indices = new int[tot];
+            int *total_nn_indices = new int[tot * 2 * nn];
+            VALUE_TYPE *total_nn_distances = new VALUE_TYPE[tot * 2 * nn];
+
+            MPI_Gatherv(source_indices, sending_size, MPI_INT, total_source_indices, process_counts, disps, MPI_INT,
+                        this->rank, MPI_COMM_WORLD);
+            MPI_Gatherv(nn_indices, tot_indices_size, MPI_INT, total_nn_indices, process_counts_nns, disps_nns,
+                        MPI_INT,
+                        this->rank, MPI_COMM_WORLD);
+            MPI_Gatherv(nn_distances, tot_indices_size, MPI_VALUE_TYPE, total_nn_distances, process_counts_nns,
+                        disps_nns, MPI_VALUE_TYPE, this->rank, MPI_COMM_WORLD);
+
+
+            for (int m = 0; m < this->world_size; m++) {
+                int my_index_start = disps[m];
+                int my_start = disps_nns[m];
+                for (int h = 0; h < process_counts[m]; h++) {
+                    int source = total_source_indices[my_index_start + h];
+                    vector <DataPoint> gathred_knns(2 * nn);
+//                    cout<<" rank "<< this->rank<<" gathering for source "<<source<< " from rank  "<<m <<endl;
+                    for (int y = 0; y < 2 * nn; y++) {
+                        DataPoint dataPoint;
+                        dataPoint.src_index = source;
+                        int get_index = my_start + 2 * nn * h + y;
+                        dataPoint.index = total_nn_indices[get_index];
+                        dataPoint.distance = total_nn_distances[get_index];
+                        if (isnan(dataPoint.distance)) {
+                            cout << " distance NAN for index" << dataPoint.index << " " << dataPoint.src_index
+                                 << endl;
+                        }
+                        gathred_knns[y] = dataPoint;
+                    }
+
+//                    sort(gathred_knns.begin(), gathred_knns.end(),
+//                         [](const DataPoint &lhs, const DataPoint &rhs) {
+//                             return lhs.distance < rhs.distance;
+//                         });
+
+
+                    if (collected_nns[source].empty()) {
+                        collected_nns[source] = gathred_knns;
+
+                    } else {
+                        std::vector <DataPoint> v3;
+                        std::merge(collected_nns[source].begin(), collected_nns[source].end(),
+                                   gathred_knns.begin(), gathred_knns.end(),
+                                   std::back_inserter(v3), [](const DataPoint &lhs, const DataPoint &rhs) {
+                                    return lhs.distance < rhs.distance;
+                                });
+
+
+                        collected_nns[source] = v3;
+                    }
+                    collected_nns[source].erase(unique(collected_nns[source].begin(), collected_nns[source].end(),
+                                                       [](const DataPoint &lhs,
+                                                          const DataPoint &rhs) {
+                                                           return lhs.index == rhs.index;
+                                                       }), collected_nns[source].end());
+
+                }
+            }
+
+            free(total_source_indices);
+            free(total_nn_indices);
+            free(total_nn_distances);
+            free(disps);
+            free(disps_nns);
+
+        } else {
+
+            MPI_Gather(my_count, 1, MPI_INT, NULL, 1, MPI_INT, sending_rank, MPI_COMM_WORLD);
+            MPI_Gatherv(source_indices, sending_size, MPI_INT, NULL, NULL, NULL, MPI_INT, sending_rank,
+                        MPI_COMM_WORLD);
+            MPI_Gatherv(nn_indices, tot_indices_size, MPI_INT, NULL, NULL, NULL, MPI_INT, sending_rank,
+                        MPI_COMM_WORLD);
+            MPI_Gatherv(nn_distances, tot_indices_size, MPI_VALUE_TYPE, NULL, NULL, NULL, MPI_VALUE_TYPE,
+                        sending_rank,
+                        MPI_COMM_WORLD);
+        }
+
+        free(source_indices);
+        free(nn_indices);
+        free(nn_distances);
+        free(my_count);
+        free(process_counts_nns);
+        free(process_counts);
+
+        count = count + feasible_size;
+
+    }
+    return collected_nns;
 }
 
 

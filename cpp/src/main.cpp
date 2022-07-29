@@ -44,12 +44,12 @@ int main(int argc, char *argv[]) {
 
     int rows = imagedatas[0].size();
     int cols = imagedatas.size();
-    int tree_levels = static_cast<int>(log2(cols) - 4);
+    int tree_levels = static_cast<int>(log2(cols) - 3);
 
 
     int chunk_size = 60000 / size;
 
-    MDRPT mdrpt = MDRPT(10, imagedatas, tree_levels, 60000, 10, 15, dmrpt::StorageFormat::RAW, rank, size);
+    MDRPT mdrpt = MDRPT(5, imagedatas, tree_levels, 60000, 10, 15, dmrpt::StorageFormat::RAW, rank, size);
     auto start = high_resolution_clock::now();
     mdrpt.grow_trees(1.0 / sqrt(rows));
 //    mdrpt.grow_trees(0.9);

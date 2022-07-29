@@ -131,7 +131,6 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 }
             }
 
-//            iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
             this->grow_global_subtree(this->trees_data[k][0], this->total_data_set_size, 0, 0, k);
 
         }
@@ -164,14 +163,11 @@ void dmrpt::DRPTGlobal::grow_global_subtree(std::vector<DataPoint> data_vector,
 
     int no_of_bins = 1 + (3.322 * log2(data_vector.size()));
 
-//    cout << " calling distirbuted mean calc rank " << this->rank << endl;
     VALUE_TYPE *result = mathOp.distributed_median(data, data_vector.size(), 1, total_data_set_size,
                                                    28, dmrpt::StorageFormat::RAW, this->rank);
-//    cout << " exiting distirbuted mean calc rank " << this->rank << endl;
 
     VALUE_TYPE median = result[0];
 
-//    cout<<" rank "<< this->rank<<" median  "<<median<<" depth  "<<depth<<endl;
 
     this->trees_splits[tree][index] = median;
     vector <DataPoint> left_childs_global;
@@ -190,9 +186,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree(std::vector<DataPoint> data_vector,
                                                                [index](DataPoint const &n) {
                                                                    return n.index == index;
                                                                });
-//            if (it == this->trees_data[tree][depth+1].end()){
-//                cout<<" rank "<<this->rank<<" depth "<< depth<<" cannot find "<<(*it).value<<endl;
-//            }
+
             if (data_vector[i].value <= median) {
 
                 left_childs.push_back(*it);
@@ -232,23 +226,8 @@ void dmrpt::DRPTGlobal::grow_global_subtree(std::vector<DataPoint> data_vector,
         total_counts[id + 1] = right_childs_global.size();
     }
 
-//   cout << " Calling API gatherV mean calc rank" << this->rank << endl;
     MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
-//    cout << " Ending API gatherV mean calc rank " << this->rank << endl;
 
-//    int left_totol = 0, right_total = 0;
-//    for (int i = 0; i < this->world_size; i++) {
-//        int id = i * 2;
-//        left_totol = left_totol + total_counts[id];
-//        right_total = right_total + total_counts[id + 1];
-//    }
-//
-//    if (left_totol == 0 || right_total == 0) {
-//        cout << " Rank " << rank << " Depth " << depth << " left child size "
-//             << left_childs_global.size() << " right child size " << right_childs_global.size() << " left total "
-//             << left_totol << " right total " << right_total<< " median "<< median<<" no of bins"<<no_of_bins << endl;
-//
-//    }
     left_childs_global = this->send_receive_data_points_if_zero(left_childs_global, total_counts, process_counts, disps,
                                                                 depth, 0, tree);
     right_childs_global = this->send_receive_data_points_if_zero(right_childs_global, total_counts, process_counts,
@@ -262,12 +241,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree(std::vector<DataPoint> data_vector,
         left_totol = left_totol + total_counts[id];
         right_total = right_total + total_counts[id + 1];
     }
-//    if (left_totol == 0 || right_total == 0) {
-//        cout << " Rank ###" << rank << " Depth " << depth << " left child size "
-//             << left_childs_global.size() << " right child size " << right_childs_global.size() << " left total "
-//             << left_totol << " right total " << right_total << " median " << median << endl;
-//
-//    }
 
     free(process_counts);
     free(total_counts);
@@ -334,7 +307,7 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
     int remain = count - send_count;
 
     if (max_rank != this->rank && remain > 0 && current_rank == this->rank) {
-//        cout << " rank " << rank << " receiving " << send_count << endl;
+
         VALUE_TYPE *receive = new VALUE_TYPE[send_count * this->data_dimension];
         int *receving_indexes = new int[send_count];
         MPI_Recv(receving_indexes, send_count, MPI_INT, max_rank, 0, MPI_COMM_WORLD,
@@ -357,7 +330,6 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
                 dataPoint.index = receving_indexes[j];
                 this->trees_data[tree][dep][current_size + j] = dataPoint;
                 if (dep == depth + 1) {
-//                    cout<<" Adding to rank "<< this->rank<<" value "<<dataPoint.index<<endl;
                     data_points.push_back(dataPoint);
                 }
 
@@ -391,13 +363,13 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
         return data_points;
 
     } else if (max_rank == this->rank && current_rank != this->rank && remain > 0) {
-//        cout << " rank " << rank << " send_count sending " << send_count << endl;
+
         int *receving_indexes = new int[send_count];
         vector <vector<VALUE_TYPE>> sendVector(send_count);
         for (int j = 0; j < send_count; j++) {
             auto val = data_points.back();
             int index = val.index;
-//            cout << " rank " << rank << "searc index " << index << endl;
+
             vector<ImageDataPoint>::iterator it = std::find_if(this->original_data_processed.begin(),
                                                                this->original_data_processed.end(),
                                                                [index](ImageDataPoint const &n) {
@@ -430,7 +402,7 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
 
 
         VALUE_TYPE *sendVec = mathOp.convert_to_row_major_format(sendVector);
-//        cout << " rank " << this->rank << " sending " << send_count << " max rank " << max_rank << endl;
+
         MPI_Send(receving_indexes, send_count, MPI_INT, current_rank, 0, MPI_COMM_WORLD);
         int tot = send_count * this->data_dimension;
 
@@ -440,7 +412,6 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
         int count_index = direction == 0 ? this->rank * 2 : this->rank * 2 + 1;
         total_counts[count_index] = total_counts[count_index] - send_count;
 
-//        cout << " rank " << this->rank << " sending " << send_count << " max rank completed" << max_rank << endl;
         free(receving_indexes);
         free(sendVec);
 
@@ -462,9 +433,9 @@ vector <dmrpt::DataPoint> dmrpt::DRPTGlobal::send_receive_data_points_if_zero(ve
 
             selected_data_points = this->send_receive_data_points_if_zero(data_points, total_counts, i, direction,
                                                                           depth, tree);
-//            cout<<"Calling MPIGatherV left "<<this->rank<<endl;
+
             MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
-//            cout<<"Exit MPIGatherV left "<<this->rank<<endl;
+
             return selected_data_points;
         }
     }
@@ -585,8 +556,6 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
 
     int *process_counts = new int[this->world_size];
 
-//    MPI_Bcast(&index, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
-
     MPI_Gather(counts, 1, MPI_INT, process_counts, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
 
 
@@ -625,19 +594,11 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
             cout << " couldn't find " << src_index << endl;
         }
         send_vector[g] = ((*src_it).value);
-        for (int i = 0; i < this->data_dimension; i++) {
-            if (send_vector[g][i] > 255 || send_vector[g][i] < 0) {
-                cout << " index " << src_index << " calculated index for sending data" << this->rank << endl;
-            }
-        }
-
 
 //        this->original_data_processed.erase(src_it);
 
     }
 
-//    cout << "my rank" << this->rank << " send vector size " << send_vector.size() << endl;
-//    cout << "my rank" << this->rank << " total vector size " << sum << endl;
     VALUE_TYPE *my_queries = mathOp.convert_to_row_major_format(send_vector);
 
 
@@ -666,10 +627,6 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
         int my_end = my_start + process_counts_queries[m];
         int process_sum = process_counts_queries[m];
         for (int h = 0; h < process_counts[m]; h++) {
-//            ImageDataPoint imageDataPoint;
-//            imageDataPoint.value = vector<VALUE_TYPE>(this->data_dimension);
-//            imageDataPoint.index = total_recev_indexes[my_index_start + h];
-//            this->original_data_processed[co] = imageDataPoint;
 
             DataPoint dataPoint;
             dataPoint.index = total_recev_indexes[my_index_start + h];
@@ -687,22 +644,10 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
             }
 
             dataPoint.image_data = im_data;
-            if (dataPoint.image_data.size() == 0) {
-                cout << " index " << dataPoint.index << " size " << dataPoint.image_data.size() << endl;
-            }
 
             all_my_points.push_back(dataPoint);
         }
     }
-
-    for (int h = 0; h < all_my_points.size(); h++) {
-        if (all_my_points[h].image_data.size() == 0) {
-            cout << "total size " << all_my_points.size() << "  EMpty for index"
-                 << all_my_points[h].index << endl;
-
-        }
-    }
-
 
     free(counts);
     free(process_counts);
@@ -745,16 +690,6 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
                                                                });
         send_vector[g] = ((*src_it).value);
 //      this->original_data_processed.erase(src_it);
-        if (allEqual(send_vector[g]) || send_vector[g].size() == 0) {
-            cout << " all equal befor seding index  " << src_index << endl;
-        }
-
-        for (int i = 0; i < this->data_dimension; i++) {
-            if (send_vector[g][i] > 255 || send_vector[g][i] < 0) {
-                cout << " index " << src_index << " calculated index for sending data" << this->rank << endl;
-            }
-        }
-
 
     }
     if (send_vector.empty()) {
@@ -770,7 +705,7 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
                 MPI_COMM_WORLD);
 
     int cf = send_vector.size() * this->data_dimension;
-//    cout << " my rank " << this->rank << " sending rank " << sending_rank << " count " << send_vector.size() << endl;
+
     //gather queries
     MPI_Gatherv(my_queries, cf, MPI_VALUE_TYPE, NULL, NULL,
                 NULL, MPI_VALUE_TYPE, sending_rank, MPI_COMM_WORLD);
@@ -784,12 +719,6 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
 }
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int nn) {
-//    char filename[500];
-////    char labels[500];
-//    sprintf(filename,
-//            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results5.txt");
-//
-//    ofstream fout(filename, std::ios_base::app);
 
     dmrpt::MathOp mathOp;
 
@@ -818,16 +747,14 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 #pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
 
-//                if (data_points[k].index != data_points[j].index) {
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);
-
                 DataPoint dataPoint;
                 dataPoint.src_index = data_points[k].index;
                 dataPoint.index = data_points[j].index;
                 dataPoint.distance = distance;
                 vec[j] = dataPoint;
-//                }
+
             }
 
             sort(vec.begin(), vec.end(),
@@ -849,15 +776,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 }
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
-//
-//    cout << " rank " << rank << " calculating distributed nns " << endl;
-//
-//    char filename[500];
-////    char labels[500];
-//    sprintf(filename,
-//            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results5.txt");
-//
-//    ofstream fout(filename, std::ios_base::app);
+
     int my_starting_index = this->rank * this->total_data_set_size / world_size;
 
     int end_index = 0;
@@ -877,15 +796,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         cout << " calculation complete for tree " << i << " rank " << this->rank << " data size " << data.size()
              << endl;
 
-//#pragma omp parallel for
+#pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
             if (!data[j].empty()) {
                 final_data[j].insert(final_data[j].end(), data[j].begin(),
                                      data[j].end());
-//                for(int m=0;m<data[j].size();m++){
-//                    fout<< " index " << data[j][m].index << " source index "
-//                        << data[j][m].src_index << " distance "<< data[j][m].distance<< endl;
-//                }
             }
         }
         cout << " insertion complete for tree " << i << " rank " << this->rank << endl;
@@ -943,11 +858,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                      [](const DataPoint &lhs, const DataPoint &rhs) {
                          return lhs.distance < rhs.distance;
                      });
-//                final_data[l].erase(unique(final_data[l].begin(), final_data[l].end(),
-//                                           [](const DataPoint &lhs,
-//                                              const DataPoint &rhs) {
-//                                               return lhs.src_index == rhs.index;
-//                                           }), final_data[l].end());
 
                 for (int j = 0; j < 2 * nn; j++) {
                     nn_indices[co * 2 * nn + j] = final_data[l][j].index;
@@ -991,25 +901,15 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                 for (int h = 0; h < process_counts[m]; h++) {
                     int source = total_source_indices[my_index_start + h];
                     vector <DataPoint> gathred_knns(2 * nn);
-//                    cout<<" rank "<< this->rank<<" gathering for source "<<source<< " from rank  "<<m <<endl;
+
                     for (int y = 0; y < 2 * nn; y++) {
                         DataPoint dataPoint;
                         dataPoint.src_index = source;
                         int get_index = my_start + 2 * nn * h + y;
                         dataPoint.index = total_nn_indices[get_index];
                         dataPoint.distance = total_nn_distances[get_index];
-                        if (isnan(dataPoint.distance)) {
-                            cout << " distance NAN for index" << dataPoint.index << " " << dataPoint.src_index
-                                 << endl;
-                        }
                         gathred_knns[y] = dataPoint;
                     }
-
-//                    sort(gathred_knns.begin(), gathred_knns.end(),
-//                         [](const DataPoint &lhs, const DataPoint &rhs) {
-//                             return lhs.distance < rhs.distance;
-//                         });
-
 
                     if (collected_nns[source].empty()) {
                         collected_nns[source] = gathred_knns;

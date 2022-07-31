@@ -18,7 +18,78 @@ using namespace std::chrono;
 
 int main(int argc, char *argv[]) {
 
-    string folderPath = argv[1];
+    string input_path = "";
+    string output_path = "";
+    int algo = 0;
+    int data_set_size = 0;
+    int dimension = 0;
+    int ntrees = 10;
+    int tree_depth = 0;
+    int transfer_threshold = 10;
+    int donate_per = 10;
+    double density = 0;
+    int nn = 0;
+    int batch_size = 1000;
+
+    for (int p = 0; p < argc; p++) {
+
+        if (strcmp(argv[p], "-input") == 0) {
+            input_path = argv[p + 1];
+        } else if (strcmp(argv[p], "-output") == 0) {
+            output_path = argv[p + 1];
+        } else if (strcmp(argv[p], "-algo") == 0) {
+            algo = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-data-set-size") == 0) {
+            data_set_size = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-dimension") == 0) {
+            dimension = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-ntrees") == 0) {
+            ntrees = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-tree-depth") == 0) {
+            tree_depth = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-transfer_threshold") == 0) {
+            transfer_threshold = atof(argv[p + 1]);
+        } else if (strcmp(argv[p], "-donate_per") == 0) {
+            donate_per = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-density") == 0) {
+            density = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-nn") == 0) {
+            nn = atoi(argv[p + 1]);
+        } else if (strcmp(argv[p], "-batch_size") == 0) {
+            batch_size = atoi(argv[p + 1]);
+        }
+
+    }
+
+    if (input_path.size() == 0) {
+        printf("Valid input path needed!...\n");
+        exit(1);
+    }
+    if (output_path.size() == 0) {
+        printf("Valid out path needed!...\n");
+        exit(1);
+    }
+    if (data_set_size == 0) {
+        printf("Dataset size should be greater than 0\n");
+        exit(1);
+    }
+
+    if (dimension == 0) {
+        printf("Dimension size should be greater than 0\n");
+        exit(1);
+    }
+
+    if (nn == 0) {
+        printf("Nearest neighbours size should be greater than 0\n");
+        exit(1);
+    }
+    if (density == 0) {
+        density = 1.0 / sqrt(dimension);
+    }
+    if (tree_depth == 0) {
+        tree_depth = static_cast<int>(log2(data_set_size) - 3);
+    }
+
 
     int rank, size;
 
@@ -30,15 +101,27 @@ int main(int argc, char *argv[]) {
     ImageReader imageReader;
 
     vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
-            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-images-idx3-ubyte", 60000, 784,
+            input_path + "/train-images-idx3-ubyte", data_set_size, dimension,
             rank, size);
 
     vector <vector<VALUE_TYPE>> labeldatas = imageReader.read_mnist_labels(
-            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/train-labels-idx1-ubyte", 60000, 1, rank,
+            input_path + "/train-labels-idx1-ubyte", data_set_size, 1, rank,
             size);
 
 
     cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
+
+    char stats[500];
+    char results[500];
+
+    string file_path_stat = output_path + "stats.txt";
+    std::sprintf(stats, file_path_stat.c_str());
+
+    string file_path = output_path + "results.txt";
+    std::sprintf(results, file_path.c_str());
+
+    ofstream fout(stats, std::ios_base::app);
+    ofstream fout1(results, std::ios_base::app);
 
     MathOp mathOp;
 
@@ -47,43 +130,29 @@ int main(int argc, char *argv[]) {
     int tree_levels = static_cast<int>(log2(cols) - 3);
 
 
-    int chunk_size = 60000 / size;
+    int chunk_size = data_set_size / size;
+    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_levels, data_set_size,
+                        donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size);
+    auto start_index_buildling = high_resolution_clock::now();
+    mdrpt.grow_trees(density);
+    auto stop_index_building = high_resolution_clock::now();
 
-    MDRPT mdrpt = MDRPT(5, imagedatas, tree_levels, 60000, 10, 15, dmrpt::StorageFormat::RAW, rank, size);
-    auto start = high_resolution_clock::now();
-    mdrpt.grow_trees(1.0 / sqrt(rows));
-//    mdrpt.grow_trees(0.9);
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
+    auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
 
-    cout << "Time taken by grow trees: "
-         << duration.count() << " microseconds" << endl;
-
-    char filename[500];
-//    char labels[500];
-    sprintf(filename,
-            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results.txt");
-    char filename1[500];
-//    char labels[500];
-    sprintf(filename1,
-            "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/results_pure.txt");
-//    sprintf(labels, "/Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/distributed-mrpt/cpp/labels.nodes.txt");
-
-    //FILE* f = fopen("test.txt","wb+");
-    ofstream fout(filename, std::ios_base::app);
-    ofstream fout1(filename1, std::ios_base::app);
-//    ofstream fout2(labels,std::ios_base::app);
     int co = 0;
 
-    start = high_resolution_clock::now();
-//     vector<vector<dmrpt::DRPT::DataPoint>> results =  mdrpt.batch_query(1000,5000.0,3,10);
-
-    vector <vector<DataPoint>> data_points = mdrpt.get_knn(10);
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
+    auto start_query = high_resolution_clock::now();
+    vector <vector<DataPoint>> data_points;
+    if (algo == 0) {
+        data_points = mdrpt.batch_query(batch_size, 5000.0, nn);
+    } else {
+        data_points = mdrpt.get_knn(nn);
+    }
+    auto stop_query = high_resolution_clock::now();
+    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
 
     cout << "Time taken for total query "
-         << duration.count() << " microseconds" << endl;
+         << duration_query.count() << " microseconds" << endl;
 
     if (fout.is_open()) {
         if (data_points.size() > 0) {
@@ -91,17 +160,19 @@ int main(int argc, char *argv[]) {
                 if (data_points[k].size() > 0) {
                     vector <DataPoint> vec = data_points[k];
                     for (int l = 0; l < 10; l++) {
-                       if (vec[l].src_index != vec[l].index) {
-                            fout << vec[l].src_index + 1 << ' ' << vec[l].index + 1<<' '<< vec[l].distance <<endl;
-                           fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1<<endl;
+                        if (vec[l].src_index != vec[l].index) {
+                            if (algo == 0) {
+                                fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
+                            } else {
+                                fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                            }
                         }
                     }
-
                 }
             }
-
         }
-
     }
+
+    fout << rank << ' ' << duration_index_building.count() << ' ' << duration_query.count() << endl;
     MPI_Finalize();
 }

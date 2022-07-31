@@ -10,8 +10,20 @@
 #include <omp.h>
 
 
-
 namespace dmrpt {
+    struct DataPoint {
+        int src_index;
+        int index;
+        VALUE_TYPE distance;
+        VALUE_TYPE value;
+        vector<VALUE_TYPE> image_data;
+    };
+
+    struct ImageDataPoint {
+        int index;
+        vector<VALUE_TYPE> value;
+    };
+
     class DRPT {
 
 
@@ -43,11 +55,6 @@ namespace dmrpt {
 
 
     public:
-
-        struct DataPoint {
-            int index;
-            VALUE_TYPE distance;
-        };
         DRPT();
         DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
              vector <vector<VALUE_TYPE>> original_data, int ntrees,
@@ -60,7 +67,7 @@ namespace dmrpt {
 
         vector<vector<int>> query(VALUE_TYPE *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat);
 
-        vector<vector<DRPT::DataPoint>> batch_query(vector <vector<VALUE_TYPE>> queries,  int batch_size, int initialRank,VALUE_TYPE distance_threshold);
+        vector<vector<dmrpt::DataPoint>> batch_query(vector <vector<VALUE_TYPE>> queries,  int batch_size, int initialRank,VALUE_TYPE distance_threshold);
 
         void count_leaf_sizes(int datasize, int level,  int depth,std::vector<int> &out_leaf_sizes);
 
@@ -68,7 +75,7 @@ namespace dmrpt {
 
         void count_first_leaf_indices_all(std::vector<std::vector<int>> &indices, int datasize, int depth_max);
 
-        vector<vector<DRPT::DataPoint>> send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_batch, int batch_size,
+        vector<vector<dmrpt::DataPoint>> send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_batch, int batch_size,
                                                                        int query_dimension, VALUE_TYPE distance_threshold);
 
         void receive_queries_and_evaluate_results(int sendingRank, int query_dimension,VALUE_TYPE distance_threshold);

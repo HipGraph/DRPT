@@ -11,8 +11,8 @@ using namespace std;
 namespace dmrpt{
     class ImageReader {
       public:
-        vector<VALUE_TYPE> readImage(string path);
-        vector<vector<VALUE_TYPE>> readImages(vector<string> imagePaths);
+//        vector<VALUE_TYPE> readImage(string path);
+//        vector<vector<VALUE_TYPE>> readImages(vector<string> imagePaths);
         vector<vector<VALUE_TYPE>> read_MNIST(string path,int no_of_images, int dimension, int rank, int world_size);
         vector <vector<VALUE_TYPE>>read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size);
         int reverse_int(int i);

@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <omp.h>
+#include "drpt_global.hpp"
 
 
 using namespace std;
@@ -197,7 +198,7 @@ dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat 
 }
 
 
-vector <vector<dmrpt::DRPT::DataPoint>>
+vector <vector<dmrpt::DataPoint>>
 dmrpt::DRPT::batch_query(vector <vector<VALUE_TYPE>> queries, int batch_size, int current_master,
                          VALUE_TYPE distance_threshold) {
     int total_data_size;
@@ -245,7 +246,7 @@ dmrpt::DRPT::batch_query(vector <vector<VALUE_TYPE>> queries, int batch_size, in
 }
 
 
-vector <vector<dmrpt::DRPT::DataPoint>>
+vector <vector<dmrpt::DataPoint>>
 dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_batch, int batch_size,
                                             int query_dimension, VALUE_TYPE distance_threshold) {
 

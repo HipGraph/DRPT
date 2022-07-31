@@ -18,20 +18,22 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, vector <vector<VALUE_TYPE>> original_data, int tree_depth, int total_data_set_size,
+dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_data, int tree_depth,
+                    int total_data_set_size,
                     int donate_per,
                     int transfer_threshold,
-                    dmrpt::StorageFormat storageFormat, int rank, int world_size) {
+                    dmrpt::StorageFormat storage_format, int rank, int world_size) {
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
     this->original_data = original_data;
     this->total_data_set_size = total_data_set_size;
-    this->storageFormat = storageFormat;
+    this->storage_format = storage_format;
     this->donate_per = donate_per;
     this->rank = rank;
     this->world_size = world_size;
     this->ntrees = ntrees;
     this->transfer_threshold = transfer_threshold;
+    this->algo = algo;
 }
 
 template<typename T> vector <T> slice(vector < T >
@@ -48,51 +50,30 @@ vec;
 }
 
 
-vector <vector<dmrpt::DRPT::DataPoint>>
-dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn) {
+vector <vector<dmrpt::DataPoint>>
+dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DataPoint>> results, int nn) {
 
-    vector <unordered_map<int, int>> voted_results(results.size());
-    vector <vector<dmrpt::DRPT::DataPoint>> voted_selected(results.size());
-    vector <vector<dmrpt::DRPT::DataPoint>> final_results(results.size());
+    vector <vector<dmrpt::DataPoint>> final_results(results.size());
 
 #pragma omp parallel for
     {
         for (int i = 0; i < results.size(); i++) {
 
-            unordered_map<int, int> voted_results;
-            vector <dmrpt::DRPT::DataPoint> voted_selected;
-
             if (!results[i].empty()) {
-//                for (int j = 0; j < results[i].size(); j++) {
-//                    cout<<" runing loop"<<rank<<endl;
-//                    unordered_map<int, int>::iterator it = voted_results.find(results[i][j].index);
-//                    if (it != voted_results.end()) {
-//                        ++it->second;// increment map's value for key `c`
-//                        if (it->second >= vote_threshold) {
-//                            voted_selected.push_back(results[i][j]);
-//                        }
-//                    } else {
-//                        cout<<" running loop inserting "<<rank<<endl;
-//                        voted_results.insert(std::make_pair(results[i][j].index, 1));
-//                        if (vote_threshold == 1) {
-//                            voted_selected.push_back(results[i][j]);
-//                        }
-//                    }
-//                }
 
                 sort(results[i].begin(), results[i].end(),
-                     [](const dmrpt::DRPT::DataPoint &lhs, const dmrpt::DRPT::DataPoint &rhs) {
+                     [](const dmrpt::DataPoint &lhs, const dmrpt::DataPoint &rhs) {
                          return lhs.distance < rhs.distance;
                      });
 
 
                 results[i].erase(unique(results[i].begin(), results[i].end(),
-                                        [](const dmrpt::DRPT::DataPoint &lhs,
-                                           const dmrpt::DRPT::DataPoint &rhs) {
+                                        [](const dmrpt::DataPoint &lhs,
+                                           const dmrpt::DataPoint &rhs) {
                                             return lhs.index == rhs.index;
                                         }), results[i].end());
 
-                vector <dmrpt::DRPT::DataPoint> sub_vec = slice(results[i], 0, nn - 1);
+                vector <dmrpt::DataPoint> sub_vec = slice(results[i], 0, nn - 1);
 
                 final_results[i].insert(final_results[i].end(), sub_vec.begin(), sub_vec.end());
             }
@@ -117,31 +98,37 @@ void dmrpt::MDRPT::grow_trees(float density) {
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
 
     int starting_index = this->rank * this->total_data_set_size / world_size;
-//    this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
-//                                   this->storageFormat, this->rank, this->world_size);
-//    this->drpt.grow_local_tree();
+    if (algo == 0) {
+        this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
+                                 this->storage_format, this->rank, this->world_size);
+        this->drpt.grow_local_tree();
+        cout << " rank " << rank << " completing growing trees" << endl;
+    } else {
 
-    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees,
-                                          starting_index, this->total_data_set_size, this->donate_per,
-                                          this->transfer_threshold, this->storageFormat, this->rank, this->world_size);
-    this->drpt_global.grow_global_tree();
-    cout << " rank " << rank << " completing growing trees" << endl;
+        this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees,
+                                              starting_index, this->total_data_set_size, this->donate_per,
+                                              this->transfer_threshold, this->storage_format, this->rank,
+                                              this->world_size);
+        this->drpt_global.grow_global_tree();
 
-    cout << " rank " << rank << " running  datapoint collection " << endl;
-    for (int i = 0; i < ntrees; i++) {
-        this->drpt_global.collect_similar_data_points_for_all_tree_indices(i, 0, 0);
+        cout << " rank " << rank << " completing growing trees" << endl;
+
+        cout << " rank " << rank << " running  datapoint collection " << endl;
+        for (int i = 0; i < ntrees; i++) {
+            this->drpt_global.collect_similar_data_points_for_all_tree_indices(i, 0, 0);
+        }
+        cout << " rank " << rank << " similar datapoint collection completed" << endl;
     }
-    cout << " rank " << rank << " similar datapoint collection completed" << endl;
 
 }
 
 
-vector <vector<dmrpt::DRPT::DataPoint>>
-dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int vote_threshold, int nn) {
-    vector <vector<dmrpt::DRPT::DataPoint>> results(this->original_data.size());
+vector <vector<dmrpt::DataPoint>>
+dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold,int nn) {
+    vector <vector<dmrpt::DataPoint>> results(this->original_data.size());
     for (int j = 0; j < this->world_size; j++) {
         auto start = high_resolution_clock::now();
-        vector <vector<dmrpt::DRPT::DataPoint>> result = this->drpt.batch_query(this->original_data, batch_size,
+        vector <vector<dmrpt::DataPoint>> result = this->drpt.batch_query(this->original_data, batch_size,
                                                                                 j, distance_threshold);
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
@@ -154,7 +141,7 @@ dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int vot
     }
 
 
-    return this->get_filtered_results(results, vote_threshold, nn);
+    return this->get_filtered_results(results, nn);
 
 }
 

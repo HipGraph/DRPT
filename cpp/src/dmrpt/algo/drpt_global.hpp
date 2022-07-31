@@ -15,18 +15,7 @@
 
 
 namespace dmrpt {
-    struct DataPoint {
-        int src_index;
-        int index;
-        VALUE_TYPE distance;
-        VALUE_TYPE value;
-        vector<VALUE_TYPE> image_data;
-    };
 
-    struct ImageDataPoint {
-        int index;
-        vector<VALUE_TYPE> value;
-    };
 
     class DRPTGlobal {
 

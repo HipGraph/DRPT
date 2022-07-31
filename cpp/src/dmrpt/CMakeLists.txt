@@ -8,6 +8,7 @@ add_library(
         math/matrix_multiply.cpp
         algo/drpt.cpp
         algo/mdrpt.cpp
+        algo/drpt_global.cpp
 )
 target_link_libraries(dmrpt ${OpenCV_LIBS})
 target_link_libraries(dmrpt ${OpenBLAS_CXX_LIBRARIES})

@@ -7,7 +7,7 @@
 #include <mpi.h>
 #include <string>
 #include <omp.h>
-
+#include "drpt_global.hpp"
 namespace dmrpt {
     class MDRPT {
 
@@ -15,19 +15,27 @@ namespace dmrpt {
         int ntrees;
         int tree_depth;
         int data_dimension;
-        dmrpt::StorageFormat storageFormat;
-        vector<vector<double>> original_data;
+        dmrpt::StorageFormat storage_format;
+        vector<vector<VALUE_TYPE>> original_data;
         int starting_data_index;
+        int donate_per;
         int rank;
         int world_size;
         int total_data_set_size;
-        vector<dmrpt::DRPT> trees;
+        int transfer_threshold;
+        dmrpt::DRPT drpt;
+        dmrpt::DRPTGlobal drpt_global;
+        int algo;
 
     public:
-        MDRPT(int ntrees, vector<vector<double>> original_data,int tree_depth,int total_data_set_size, dmrpt::StorageFormat storageFormat, int rank, int world_size);
+        MDRPT(int ntrees, int algo,vector<vector<VALUE_TYPE>> original_data,int tree_depth,int total_data_set_size,int donate_per, int transfer_threshold,
+              dmrpt::StorageFormat storageFormat, int rank, int world_size);
         void grow_trees(float density);
-        vector<vector<dmrpt::DRPT::DataPoint>> batch_query(int batch_size, double distance_threshold, int vote_threshold, int nn);
-        vector<vector<dmrpt::DRPT::DataPoint>> get_filtered_results(vector<vector<dmrpt::DRPT::DataPoint>> results, int vote_threshold, int nn);
+        vector<vector<dmrpt::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn);
+        vector<vector<dmrpt::DataPoint>> get_filtered_results(vector<vector<dmrpt::DataPoint>> results, int nn);
+        vector<vector<dmrpt::DataPoint>> get_knn(int nn);
+
+
 
     };
 }

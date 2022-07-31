@@ -4,35 +4,35 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/imgcodecs/imgcodecs.hpp>
 
-using namespace cv;
+//using namespace cv;
 using namespace std;
 
-vector<double> dmrpt::ImageReader::readImage(string path) {
-    Mat image = imread(path, IMREAD_GRAYSCALE);
-    if (image.empty()) {
-        cout << "Could not open or find the image " << path << endl;
-    }
-    assert(image.channels() == 1);
-    vector<double> array;
-    for (int r = 0; r < image.rows; r++) {
-        for (int c = 0; c < image.cols; c++) {
-            double val = (double) image.at<u_char>(r, c);
-            array.push_back(val);
-        }
-    }
-    return array;
-}
+//vector<VALUE_TYPE> dmrpt::ImageReader::readImage(string path) {
+//    Mat image = imread(path, IMREAD_GRAYSCALE);
+//    if (image.empty()) {
+//        cout << "Could not open or find the image " << path << endl;
+//    }
+//    assert(image.channels() == 1);
+//    vector<VALUE_TYPE> array;
+//    for (int r = 0; r < image.rows; r++) {
+//        for (int c = 0; c < image.cols; c++) {
+//            VALUE_TYPE val = (VALUE_TYPE) image.at<u_char>(r, c);
+//            array.push_back(val);
+//        }
+//    }
+//    return array;
+//}
 
-vector <vector<double>> dmrpt::ImageReader::readImages(vector <string> imagePaths) {
-    vector <vector<double>> imagesdata;
-    for (int i = 0; i < imagePaths.size(); i++) {
-        imagesdata.push_back(readImage(imagePaths[i]));
-    }
-    return imagesdata;
-}
+//vector <vector<VALUE_TYPE>> dmrpt::ImageReader::readImages(vector <string> imagePaths) {
+//    vector <vector<VALUE_TYPE>> imagesdata;
+//    for (int i = 0; i < imagePaths.size(); i++) {
+//        imagesdata.push_back(readImage(imagePaths[i]));
+//    }
+//    return imagesdata;
+//}
 
 int dmrpt::ImageReader::reverse_int(int i) {
     unsigned char ch1, ch2, ch3, ch4;
@@ -43,9 +43,9 @@ int dmrpt::ImageReader::reverse_int(int i) {
     return ((int) ch1 << 24) + ((int) ch2 << 16) + ((int) ch3 << 8) + ch4;
 }
 
-vector <vector<double>>
+vector <vector<VALUE_TYPE>>
 dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int rank, int world_size) {
-    vector <vector<double>> arr;
+    vector <vector<VALUE_TYPE>> arr;
 
     ifstream file(path, ios::binary);
     if (file.is_open()) {
@@ -64,10 +64,10 @@ dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int
 
         int chunk_size = number_of_images / world_size;
         if (rank < world_size - 1) {
-            arr.resize(chunk_size, vector<double>(dimension));
+            arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
         } else if (rank == world_size - 1) {
             chunk_size = no_of_images - chunk_size * (world_size - 1);
-            arr.resize(chunk_size, vector<double>(dimension));
+            arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
         }
 
         for (int i = 0; i < number_of_images; ++i) {
@@ -76,9 +76,9 @@ dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int
                     unsigned char temp = 0;
                     file.read((char *) &temp, sizeof(temp));
                     if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and rank < world_size - 1) {
-                        arr[i - rank * chunk_size][(n_rows * r) + c] = (double) temp;
+                        arr[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
                     } else if (rank == world_size - 1 && i >= (rank) * chunk_size) {
-                        arr[i - rank * chunk_size][(n_rows * r) + c] = (double) temp;
+                        arr[i - rank * chunk_size][(n_rows * r) + c] = (VALUE_TYPE) temp;
                     }
                 }
             }
@@ -87,9 +87,9 @@ dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int
     return arr;
 }
 
-vector <vector<double>> dmrpt::ImageReader::read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size) {
+vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size) {
 
-    vector <vector<double>> arr;
+    vector <vector<VALUE_TYPE>> arr;
 
     ifstream file(path, ios::binary);
 
@@ -106,10 +106,10 @@ vector <vector<double>> dmrpt::ImageReader::read_mnist_labels(string path, int n
 
         int chunk_size = number_of_labels / world_size;
         if (rank < world_size - 1) {
-            arr.resize(chunk_size, vector<double>(dimension));
+            arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
         } else if (rank == world_size - 1) {
             chunk_size = no_of_images - chunk_size * (world_size - 1);
-            arr.resize(chunk_size, vector<double>(dimension));
+            arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
         }
 
 
@@ -117,9 +117,9 @@ vector <vector<double>> dmrpt::ImageReader::read_mnist_labels(string path, int n
             unsigned char temp = 0;
             file.read((char *) &temp, sizeof(temp));
             if (i >= rank * chunk_size and i < (rank + 1) * chunk_size and rank < world_size - 1) {
-                arr[i - rank * chunk_size][0] = (double) temp;
+                arr[i - rank * chunk_size][0] = (VALUE_TYPE) temp;
             } else if (rank == world_size - 1 && i >= (rank) * chunk_size) {
-                arr[i - rank * chunk_size][0] = (double) temp;
+                arr[i - rank * chunk_size][0] = (VALUE_TYPE) temp;
             }
         }
         return arr;

@@ -12,7 +12,7 @@ set(CMAKE_MODULE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/ll
 set(CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
 set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib -L/usr/local/opt/openblas/lib")
 SET (CMAKE_AR      "/usr/local/opt/llvm/bin/llvm-ar")
-set(OpenCV_DIR /Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/opencv/install/lib/cmake/opencv4)
+#set(OpenCV_DIR /Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/opencv/install/lib/cmake/opencv4)
 
 
 
@@ -25,12 +25,12 @@ message(STATUS "MPI executable: ${MPIEXEC_EXECUTABLE}")
 
 include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
 
-message("Finding OpenCV")
-find_package( OpenCV REQUIRED )
-
-message(STATUS "OPENCV include  dir: ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "OPENCV libs  dir: ${OpenCV_LIBS}")
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+#message("Finding OpenCV")
+#find_package( OpenCV REQUIRED )
+#
+#message(STATUS "OPENCV include  dir: ${OpenCV_INCLUDE_DIRS}")
+#message(STATUS "OPENCV libs  dir: ${OpenCV_LIBS}")
+#include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 
 set(OpenBLAS_DIR "/usr/local/opt/openblas/lib/cmake/openblas")

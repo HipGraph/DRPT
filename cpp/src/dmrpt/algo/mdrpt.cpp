@@ -126,6 +126,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 vector <vector<dmrpt::DataPoint>>
 dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold,int nn) {
     vector <vector<dmrpt::DataPoint>> results(this->original_data.size());
+    cout<<" rank "<< this->rank<< " runnnig batch query" <<endl;
     for (int j = 0; j < this->world_size; j++) {
         auto start = high_resolution_clock::now();
         vector <vector<dmrpt::DataPoint>> result = this->drpt.batch_query(this->original_data, batch_size,

@@ -107,7 +107,7 @@ void dmrpt::DRPT::grow_local_tree() {
                 }
 
                 iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
-                grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0,k);
+                grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
 
             }
         }
@@ -125,7 +125,7 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
         return;
     }
 
-    std::nth_element(begin, begin + datasize / 2, end, [this, tree,depth](int a, int b) -> bool {
+    std::nth_element(begin, begin + datasize / 2, end, [this, tree, depth](int a, int b) -> bool {
         return this->trees_data[tree][depth][a] < this->trees_data[tree][depth][b];
     });
 
@@ -137,16 +137,17 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 
     } else {
 
-        auto left = std::max_element(begin, mid, [this, tree,depth](int a, int b) -> bool {
+        auto left = std::max_element(begin, mid, [this, tree, depth](int a, int b) -> bool {
             return this->trees_data[tree][depth][a] < this->trees_data[tree][depth][b];
         });
 
-        this->trees_splits[tree][i] = (this->trees_data[tree][depth][*mid] + this->trees_data[tree][depth][*left]) / 2.0;
+        this->trees_splits[tree][i] =
+                (this->trees_data[tree][depth][*mid] + this->trees_data[tree][depth][*left]) / 2.0;
     }
 
-    grow_local_subtree(begin, mid, depth + 1, id_left,tree);
+    grow_local_subtree(begin, mid, depth + 1, id_left, tree);
 
-    grow_local_subtree(mid, end, depth + 1, id_right,tree);
+    grow_local_subtree(mid, end, depth + 1, id_right, tree);
 
 }
 
@@ -156,7 +157,7 @@ dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat 
 
     vector <vector<int>> vec(no_data_points);
 #pragma omp parallel for
-    for(int i=0;i<no_data_points;i++){
+    for (int i = 0; i < no_data_points; i++) {
         vec[i] = vector<int>();
     }
 
@@ -164,7 +165,6 @@ dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat 
     if (storageFormat == dmrpt::StorageFormat::RAW) {
 
         for (int m = 0; m < this->ntrees; m++) {
-#pragma  omp parallel for
             for (int j = 0; j < no_data_points; ++j) {
                 int idx = 0;
                 for (int i = 0; i < this->tree_depth; ++i) {
@@ -188,8 +188,14 @@ dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat 
                 for (int k = leaf_begin; k < leaf_end; ++k) {
                     int orginal_data_index = this->trees_indices[m][k];
                     int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
+                    if (reconstrcutedIndex<0){
+                        cout<<" error in reconstructing index"<<reconstrcutedIndex
+                        <<" selected index "<<selected_leaf<<endl;
+                    }
                     vec[j].push_back(reconstrcutedIndex);
                 }
+
+
             }
         }
     }
@@ -239,6 +245,7 @@ dmrpt::DRPT::batch_query(vector <vector<VALUE_TYPE>> queries, int batch_size, in
         }
 
     } else {
+
         this->receive_queries_and_evaluate_results(current_master, queries[0].size(), distance_threshold);
 
     }
@@ -256,8 +263,9 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
     VALUE_TYPE *querArr = mathOp.convert_to_row_major_format(query_batch);
 
     // P= X.R
-    VALUE_TYPE *querP = mathOp.multiply_mat(querArr, this->projection_matrix, query_dimension, this->tree_depth*this->ntrees,
-                                        batch_size, 1.0);
+    VALUE_TYPE *querP = mathOp.multiply_mat(querArr, this->projection_matrix, query_dimension,
+                                            this->tree_depth * this->ntrees,
+                                            batch_size, 1.0);
 
     vector <vector<int>> selectedNodes = this->query(querP, batch_size, this->storageFormat);
 
@@ -267,6 +275,8 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
     //count selected nodes for each query locally
     vector <vector<int>> selec(selectedNodes.size());
     vector <vector<VALUE_TYPE>> selecDistances(selectedNodes.size());
+
+    cout << " rank " << this->rank << " start sending " << endl;
 
     //calculate distances for each selected node
 #pragma omp parallel for shared(this->original_data, query_batch, selec, selecDistances, counts, selectedNodes)
@@ -278,7 +288,7 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
             for (int w = 0; w < selectedNodes[m].size(); w++) {
                 int ind = selectedNodes[m][w];
                 VALUE_TYPE dist = mathOp.calculate_distance(
-                        this->original_data[ind - this->rank * this->starting_data_index], query_batch[m]);
+                        this->original_data[ind -  this->starting_data_index], query_batch[m]);
                 selec[m][w] = ind;
                 selecDistances[m][w] = dist;
 
@@ -290,7 +300,7 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
 
     MPI_Bcast(&batch_size, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
 
-    int totalQ = batch_size * this->tree_depth*this->ntrees;
+    int totalQ = batch_size * this->tree_depth * this->ntrees;
 
 
     MPI_Bcast(querP, totalQ, MPI_VALUE_TYPE, this->rank, MPI_COMM_WORLD);
@@ -349,6 +359,8 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
                 MPI_VALUE_TYPE, this->rank,
                 MPI_COMM_WORLD);
 
+    cout << " rank " << this->rank << " gathering completed " << endl;
+
     //reconstructed received nns from MPI calls
     int last_process_count[this->world_size];
     for (int p = 0; p < batch_size; ++p) {
@@ -384,6 +396,7 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
 
 void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int query_dimension,
                                                        VALUE_TYPE distance_threshold) {
+    cout << " rank " << this->rank << " start receving " << endl;
     int total_data_size;
     MPI_Bcast(&total_data_size, 1, MPI_INT, sending_rank, MPI_COMM_WORLD);
     int count = 0;
@@ -411,7 +424,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //
 //            originalQ = (double *) malloc(sizeof(double) * batch_size * query_dimension);
 
-        VALUE_TYPE *recev = new VALUE_TYPE[batch_size * this->tree_depth*this->ntrees];
+        VALUE_TYPE *recev = new VALUE_TYPE[batch_size * this->tree_depth * this->ntrees];
 
 
         VALUE_TYPE *originalQ = new VALUE_TYPE[batch_size * query_dimension];
@@ -422,12 +435,14 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 
 //        vector<double> originalQ(batch_size * query_dimension);
 
-        int totalQ = batch_size * this->tree_depth*this->ntrees;
+        int totalQ = batch_size * this->tree_depth * this->ntrees;
 
 
         MPI_Bcast(recev, totalQ, MPI_VALUE_TYPE, sending_rank, MPI_COMM_WORLD);
 
         vector <vector<int>> selectedNodes = this->query(recev, batch_size, this->storageFormat);
+
+
         int len_originalQ = batch_size * query_dimension;
         MPI_Bcast(originalQ, len_originalQ, MPI_VALUE_TYPE, sending_rank, MPI_COMM_WORLD);
 
@@ -439,7 +454,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 //        }
         int mytotal = 0;
 
-
+        cout << " rank " << this->rank << " broadcating completed " << " count " << count << endl;
 #pragma omp parallel for shared(originalQ, receivedOrgQ)
         {
             for (int h = 0; h < batch_size; h++) {
@@ -453,15 +468,26 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
         vector <vector<int>> selec(selectedNodes.size());
         vector <vector<VALUE_TYPE>> selecDistances(selectedNodes.size());
 
+        cout << " rank " << this->rank << " reformation completed " << " count " << count << endl;
 #pragma omp parallel for shared(this->original_data, receivedOrgQ, selec, selecDistances, counts, mytotal)
         {
             for (int m = 0; m < selectedNodes.size(); m++) {
                 selec[m] = vector<int>(selectedNodes[m].size());
                 selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
+                    for (int y = 0; y < selectedNodes[m].size(); y++) {
+                        if (selectedNodes[m][y]<0){
+                            cout<<" empty vec return "<< this->rank<<" index "<<selectedNodes[m][y]  <<endl;
+                        }
+                }
                 for (int w = 0; w < selectedNodes[m].size(); w++) {
                     int ind = selectedNodes[m][w];
+                    if (this->original_data[ind - this->starting_data_index].size() == 0) {
+                        cout << " rank" << this->rank << " error prone " << " index " <<
+
+                        (ind - this->starting_data_index) << "original index"<<ind << endl;
+                    }
                     VALUE_TYPE dist = mathOp.calculate_distance(
-                            this->original_data[ind - this->rank * this->starting_data_index], receivedOrgQ[m]);
+                            this->original_data[ind - this->starting_data_index], receivedOrgQ[m]);
                     selec[m][w] = ind;
                     selecDistances[m][w] = dist;
 
@@ -470,6 +496,8 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 
             }
         }
+
+        cout << " rank " << this->rank << " distance calculation completed " << " count " << count << endl;
 
         for (int b = 0; b < selectedNodes.size(); b++) {
             mytotal = mytotal + counts[b];
@@ -516,6 +544,8 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
                     MPI_COMM_WORLD);
 //#pragma omp single
 //        {
+
+        cout << " rank " << this->rank << " releasing completed " << " count " << count << endl;
         count = count + batch_size;
         receivedOrgQ.clear();
         selectedNodes.clear();

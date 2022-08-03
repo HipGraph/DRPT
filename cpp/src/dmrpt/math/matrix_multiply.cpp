@@ -328,6 +328,9 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
 //    data.clear();
 //    query.clear();
 //    auxiliary.clear();
+if (data.size() != query.size()){
+    cout<<" wrong length vector data size"<<data.size()<<" query size"<<query.size()<< endl;
+}
 
     int sum = 0;
 //#pragma omp parallel for reduction(+ :sum)

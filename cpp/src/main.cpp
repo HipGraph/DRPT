@@ -144,7 +144,9 @@ int main(int argc, char *argv[]) {
     auto start_query = high_resolution_clock::now();
     vector <vector<DataPoint>> data_points;
     if (algo == 0) {
+        cout<< " starting batch query "<<endl;
         data_points = mdrpt.batch_query(batch_size, 5000.0, nn);
+        cout<< "  batch querying completed "<<endl;
     } else {
         data_points = mdrpt.get_knn(nn);
     }

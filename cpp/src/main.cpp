@@ -111,11 +111,11 @@ int main(int argc, char *argv[]) {
 
     string file_path_stat = output_path + "stats.txt.";
     std::sprintf(stats, file_path_stat.c_str());
-    std::strcpy(stats, hostname);
+    std::strcat(stats, hostname);
 
     string file_path = output_path + "results.txt.";
     std::sprintf(results, file_path.c_str());
-    std::strcpy(results,hostname);
+    std::strcat(results,hostname);
 
     ofstream fout(stats, std::ios_base::app);
     ofstream fout1(results, std::ios_base::app);

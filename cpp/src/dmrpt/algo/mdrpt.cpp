@@ -107,7 +107,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
     int host = gethostname(hostname, HOST_NAME_MAX);
     string file_path_stat = output_path + "stats_divided.txt.";
     std::sprintf(results, file_path_stat.c_str());
-    std::strcpy(results, hostname);
+    std::strcat(results, hostname);
 
     ofstream fout(results, std::ios_base::app);
 

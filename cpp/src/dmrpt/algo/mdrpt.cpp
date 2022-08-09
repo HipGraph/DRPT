@@ -24,7 +24,7 @@ dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_d
                     int total_data_set_size,
                     int donate_per,
                     int transfer_threshold,
-                    dmrpt::StorageFormat storage_format, int rank, int world_size) {
+                    dmrpt::StorageFormat storage_format, int rank, int world_size, string input_path, string output_path) {
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
     this->original_data = original_data;
@@ -112,7 +112,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     auto stop_matrix_index = high_resolution_clock::now();
 
-    auto matrix_time = duration_cast<microseconds>(stop_io_index - start_io_index);
+    auto matrix_time = duration_cast<microseconds>(stop_matrix_index - start_matrix_index);
 
     int starting_index = this->rank * this->total_data_set_size / world_size;
     if (algo == 0) {

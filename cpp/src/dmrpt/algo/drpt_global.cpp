@@ -28,7 +28,7 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
                               int tree_depth,
                               vector <vector<VALUE_TYPE>> original_data, int ntrees,
                               int starting_index, int total_data_set_size, int donate_per, int transfer_threshold,
-                              dmrpt::StorageFormat storage_format, int rank, int world_size) {
+                              dmrpt::StorageFormat storage_format, int rank, int world_size,string input_path, string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
     this->storage_format = storage_format;

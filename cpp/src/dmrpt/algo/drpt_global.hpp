@@ -49,6 +49,9 @@ namespace dmrpt {
         vector<vector<DataPoint>> leaf_data;
         vector<vector<vector<int>>> data_point_tree_index_tracker;
 
+        string input_path;
+        string output_path;
+
 
     public:
 
@@ -56,7 +59,7 @@ namespace dmrpt {
         DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
              vector <vector<VALUE_TYPE>> original_data, int ntrees,
              int starting_index,int total_data_set_size,int donate_per, int transfer_threshold, dmrpt::StorageFormat storage_format,
-                   int rank, int world_size);
+                   int rank, int world_size, string input_path, string output_path);
 
         void grow_global_tree();
 

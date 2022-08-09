@@ -36,6 +36,8 @@ dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_d
     this->ntrees = ntrees;
     this->transfer_threshold = transfer_threshold;
     this->algo = algo;
+    this->input_path = input_path;
+    this->output_path = output_path;
 }
 
 template<typename T> vector <T> slice(vector < T >
@@ -58,7 +60,7 @@ dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DataPoint>> results, in
     vector <vector<dmrpt::DataPoint>> final_results(results.size());
 
 #pragma omp parallel for
-    {
+//    {
         for (int i = 0; i < results.size(); i++) {
 
             if (!results[i].empty()) {
@@ -82,7 +84,7 @@ dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DataPoint>> results, in
 
         }
 
-    }
+//    }
     return final_results;
 }
 
@@ -123,7 +125,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
         this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees,
                                               starting_index, this->total_data_set_size, this->donate_per,
                                               this->transfer_threshold, this->storage_format, this->rank,
-                                              this->world_size);
+                                              this->world_size,input_path,output_path);
 
 
         auto start_grow_index = high_resolution_clock::now();

@@ -26,10 +26,12 @@ namespace dmrpt {
         dmrpt::DRPT drpt;
         dmrpt::DRPTGlobal drpt_global;
         int algo;
+        string input_path;
+        string output_path;
 
     public:
         MDRPT(int ntrees, int algo,vector<vector<VALUE_TYPE>> original_data,int tree_depth,int total_data_set_size,int donate_per, int transfer_threshold,
-              dmrpt::StorageFormat storageFormat, int rank, int world_size);
+              dmrpt::StorageFormat storageFormat, int rank, int world_size, string input_path,string output_path);
         void grow_trees(float density);
         vector<vector<dmrpt::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn);
         vector<vector<dmrpt::DataPoint>> get_filtered_results(vector<vector<dmrpt::DataPoint>> results, int nn);

@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
     int chunk_size = data_set_size / size;
     MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_levels, data_set_size,
-                        donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size);
+                        donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size,input_path,output_path);
     auto start_index_buildling = high_resolution_clock::now();
     mdrpt.grow_trees(density);
     auto stop_index_building = high_resolution_clock::now();

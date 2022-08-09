@@ -55,6 +55,9 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->original_data_processed = vector<ImageDataPoint>(intial_no_of_data_points);
     this->data_point_tree_index_tracker = vector < vector < vector < int>>>(ntrees);
 
+    this->input_path = input_path;
+    this->output_path = output_path;
+
 
 #pragma omp parallel for
     for (int i = 0; i < this->intial_no_of_data_points; i++) {
@@ -635,7 +638,7 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
             co++;
             vector<VALUE_TYPE> im_data(this->data_dimension);
 #pragma omp parallel for
-            {
+//            {
                 for (int y = 0; y < this->data_dimension; y++) {
                     int get_index = my_start + h + process_counts[m] * y;
                     if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
@@ -643,7 +646,7 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
                     }
                     im_data[y] = total_recev_queries[get_index];
                 }
-            }
+//            }
 
             dataPoint.image_data = im_data;
 

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <unistd.h>
 #include <limits.h>
+#include <cstring>
 
 
 using namespace std;

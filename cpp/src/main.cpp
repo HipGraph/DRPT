@@ -13,6 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <cstring>
 
 using namespace std;
 using namespace dmrpt;

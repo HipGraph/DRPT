@@ -13,6 +13,8 @@
 #include <map>
 #include <unordered_map>
 #include "mdrpt.hpp"
+#include <chrono>
+#include <algorithm>
 
 
 using namespace std;
@@ -777,6 +779,15 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
+    char results[500];
+
+    string file_path_stat = output_path + "stats_divided.txt";
+    std::sprintf(results, file_path_stat.c_str());
+
+    ofstream fout(results, std::ios_base::app);
+
+
+
     int my_starting_index = this->rank * this->total_data_set_size / world_size;
 
     int end_index = 0;
@@ -789,6 +800,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     vector <vector<DataPoint>> final_data(this->total_data_set_size);
     vector <vector<DataPoint>> collected_nns(this->total_data_set_size);
+
+    auto start_distance = high_resolution_clock::now();
 
     for (int i = 0; i < ntrees; i++) {
         cout << " calvulation starts for tree " << i << " rank " << this->rank << endl;
@@ -808,6 +821,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     cout << " rank " << rank << " distance calculation completed " << endl;
 
+    auto stop_distance = high_resolution_clock::now();
+    auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
+
+
+    auto start_query = high_resolution_clock::now();
 
     int chunk_size = this->total_data_set_size / this->world_size;
 
@@ -962,6 +980,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         count = count + feasible_size;
 
     }
+    auto end_query = high_resolution_clock::now();
+    auto query_time = duration_cast<microseconds>(end_query - start_query);
+
+    fout << rank << ' distance  ' << distance_time.count() << ' query ' << query_time.count() << endl;
+
     return collected_nns;
 }
 

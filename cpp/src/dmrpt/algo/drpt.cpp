@@ -9,6 +9,8 @@
 #include <iostream>
 #include <omp.h>
 #include "drpt_global.hpp"
+#include <chrono>
+#include <algorithm>
 
 
 using namespace std;
@@ -89,8 +91,9 @@ void dmrpt::DRPT::grow_local_tree() {
     if (dmrpt::StorageFormat::RAW == storageFormat) {
 
 
+
 #pragma omp parallel for
-        {
+//        {
             for (int k = 0; k < this->ntrees; k++) {
                 this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
                                                    this->tree_depth);
@@ -106,12 +109,13 @@ void dmrpt::DRPT::grow_local_tree() {
                     }
                 }
 
+
                 iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
                 grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
 
             }
         }
-    }
+//    }
 
 }
 
@@ -279,8 +283,8 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
     cout << " rank " << this->rank << " start sending " << endl;
 
     //calculate distances for each selected node
-#pragma omp parallel for shared(this->original_data, query_batch, selec, selecDistances, counts, selectedNodes)
-    {
+#pragma omp parallel for
+//    {
         for (int m = 0; m < selectedNodes.size(); m++) {
             int cf = 0;
             selec[m] = vector<int>(selectedNodes[m].size());
@@ -294,7 +298,7 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
 
             }
             counts[m] = selectedNodes[m].size();
-        }
+//        }
     }
 
 
@@ -456,21 +460,21 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
 
         cout << " rank " << this->rank << " broadcating completed " << " count " << count << endl;
 #pragma omp parallel for shared(originalQ, receivedOrgQ)
-        {
+//        {
             for (int h = 0; h < batch_size; h++) {
                 receivedOrgQ[h] = vector<VALUE_TYPE>(query_dimension);
                 for (int e = 0; e < query_dimension; e++) {
                     receivedOrgQ[h][e] = originalQ[h + e * batch_size];
                 }
             }
-        }
+//        }
 
         vector <vector<int>> selec(selectedNodes.size());
         vector <vector<VALUE_TYPE>> selecDistances(selectedNodes.size());
 
         cout << " rank " << this->rank << " reformation completed " << " count " << count << endl;
-#pragma omp parallel for shared(this->original_data, receivedOrgQ, selec, selecDistances, counts, mytotal)
-        {
+#pragma omp parallel for
+//        {
             for (int m = 0; m < selectedNodes.size(); m++) {
                 selec[m] = vector<int>(selectedNodes[m].size());
                 selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
@@ -495,7 +499,7 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
                 counts[m] = selectedNodes[m].size();
 
             }
-        }
+//        }
 
         cout << " rank " << this->rank << " distance calculation completed " << " count " << count << endl;
 

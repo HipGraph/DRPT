@@ -19,16 +19,16 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows
         result[k] = 1;
     }
 
-#ifdef   DOUBLE_VALUE_TYPE
-    double *Acast = reinterpret_cast<double *>(A);
-    double *Bcast = reinterpret_cast<double *>(B);
-    double *resultCast = reinterpret_cast<double *>(result);
-
-    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, Acast, A_cols, Bcast,
-                B_cols,
-                0.0,
-                resultCast, B_cols);
-#elifdef FLOAT_VALUE_TYPE
+//#ifdef   DOUBLE_VALUE_TYPE
+//    double *Acast = reinterpret_cast<double *>(A);
+//    double *Bcast = reinterpret_cast<double *>(B);
+//    double *resultCast = reinterpret_cast<double *>(result);
+//
+//    cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, Acast, A_cols, Bcast,
+//                B_cols,
+//                0.0,
+//                resultCast, B_cols);
+//#elifdef FLOAT_VALUE_TYPE
     float *AcastFloat = reinterpret_cast<float *>(A);
     float *BcastFloat = reinterpret_cast<float *>(B);
     float *resultCastFloat = reinterpret_cast<float *>(result);
@@ -36,7 +36,7 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows
     cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, AcastFloat, A_cols,
                 BcastFloat, B_cols, 0.0,
                 resultCastFloat, B_cols);
-#endif
+//#endif
     return result;
 }
 
@@ -121,7 +121,7 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_si
 }
 
 VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE>> data) {
-    if(data.empty()){
+    if (data.empty()) {
         return (VALUE_TYPE *) malloc(0);
     }
 
@@ -328,9 +328,9 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
 //    data.clear();
 //    query.clear();
 //    auxiliary.clear();
-if (data.size() != query.size()){
-    cout<<" wrong length vector data size"<<data.size()<<" query size"<<query.size()<< endl;
-}
+    if (data.size() != query.size()) {
+        cout << " wrong length vector data size" << data.size() << " query size" << query.size() << endl;
+    }
 
     int sum = 0;
 //#pragma omp parallel for reduction(+ :sum)

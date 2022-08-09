@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include <fstream>
 #include "../algo/drpt_global.hpp"
+#include <chrono>
+#include <algorithm>
 
 
 using namespace std;
@@ -94,8 +96,21 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
                                                           this->tree_depth * this->ntrees, density);
+
+    char results[500];
+
+    string file_path_stat = output_path + "stats_divided.txt";
+    std::sprintf(results, file_path_stat.c_str());
+
+    ofstream fout(results, std::ios_base::app);
+
+    auto start_matrix_index = high_resolution_clock::now();
     // P= X.R
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
+
+    auto stop_matrix_index = high_resolution_clock::now();
+
+    auto matrix_time = duration_cast<microseconds>(stop_io_index - start_io_index);
 
     int starting_index = this->rank * this->total_data_set_size / world_size;
     if (algo == 0) {
@@ -109,14 +124,28 @@ void dmrpt::MDRPT::grow_trees(float density) {
                                               starting_index, this->total_data_set_size, this->donate_per,
                                               this->transfer_threshold, this->storage_format, this->rank,
                                               this->world_size);
+
+
+        auto start_grow_index = high_resolution_clock::now();
         this->drpt_global.grow_global_tree();
+        auto stop_grow_index = high_resolution_clock::now();
+        auto index_time = duration_cast<microseconds>(stop_grow_index - start_grow_index);
 
         cout << " rank " << rank << " completing growing trees" << endl;
 
         cout << " rank " << rank << " running  datapoint collection " << endl;
+
+
+        auto start_collect = high_resolution_clock::now();
         for (int i = 0; i < ntrees; i++) {
             this->drpt_global.collect_similar_data_points_for_all_tree_indices(i, 0, 0);
         }
+        auto stop_collect = high_resolution_clock::now();
+        auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
+
+
+        fout << rank << ' matrix  ' << matrix_time.count() << ' tree ' << index_time.count() << ' collecting ' << collect_time.count()
+             << endl;
         cout << " rank " << rank << " similar datapoint collection completed" << endl;
     }
 

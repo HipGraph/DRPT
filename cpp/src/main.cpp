@@ -1,4 +1,3 @@
-#include "dmrpt/io/file_reader.hpp"
 #include "dmrpt/io/image_reader.hpp"
 #include "dmrpt/math/matrix_multiply.hpp"
 #include "dmrpt/algo/drpt.hpp"
@@ -10,7 +9,8 @@
 #include <fstream>
 #include <iostream>
 #include <math.h>
-
+#include <chrono>
+#include <string.h>
 
 using namespace std;
 using namespace dmrpt;
@@ -100,17 +100,6 @@ int main(int argc, char *argv[]) {
 
     ImageReader imageReader;
 
-    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
-            input_path + "/train-images-idx3-ubyte", data_set_size, dimension,
-            rank, size);
-
-    vector <vector<VALUE_TYPE>> labeldatas = imageReader.read_mnist_labels(
-            input_path + "/train-labels-idx1-ubyte", data_set_size, 1, rank,
-            size);
-
-
-    cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
-
     char stats[500];
     char results[500];
 
@@ -122,6 +111,24 @@ int main(int argc, char *argv[]) {
 
     ofstream fout(stats, std::ios_base::app);
     ofstream fout1(results, std::ios_base::app);
+
+
+    auto start_io_index = high_resolution_clock::now();
+
+    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
+            input_path + "/train-images-idx3-ubyte", data_set_size, dimension,
+            rank, size);
+
+
+
+//    vector <vector<VALUE_TYPE>> labeldatas = imageReader.read_mnist_labels(
+//            input_path + "/train-labels-idx1-ubyte", data_set_size, 1, rank,
+//            size);
+
+    auto stop_io_index = high_resolution_clock::now();
+    auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
+
+    cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
 
     MathOp mathOp;
 
@@ -144,9 +151,9 @@ int main(int argc, char *argv[]) {
     auto start_query = high_resolution_clock::now();
     vector <vector<DataPoint>> data_points;
     if (algo == 0) {
-        cout<< " starting batch query "<<endl;
+        cout << " starting batch query " << endl;
         data_points = mdrpt.batch_query(batch_size, 5000.0, nn);
-        cout<< "  batch querying completed "<<endl;
+        cout << "  batch querying completed " << endl;
     } else {
         data_points = mdrpt.get_knn(nn);
     }
@@ -175,6 +182,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fout << rank << ' ' << duration_index_building.count() << ' ' << duration_query.count() << endl;
+    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
+         << endl;
     MPI_Finalize();
 }

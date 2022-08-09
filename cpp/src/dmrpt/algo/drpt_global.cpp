@@ -15,6 +15,7 @@
 #include "mdrpt.hpp"
 #include <chrono>
 #include <algorithm>
+#include <limits.h>
 
 
 using namespace std;
@@ -125,7 +126,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
             for (int i = 0; i < this->tree_depth; i++) {
                 this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
 #pragma  omp parallel for
-                {
+//                {
                     for (int j = 0; j < this->intial_no_of_data_points; j++) {
                         int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                         DataPoint dataPoint;
@@ -133,7 +134,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                         dataPoint.index = j + this->starting_data_index;
                         this->trees_data[k][i][j] = dataPoint;
                     }
-                }
+//                }
             }
 
             this->grow_global_subtree(this->trees_data[k][0], this->total_data_set_size, 0, 0, k);
@@ -348,11 +349,11 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             imageDataPoint.index = receving_indexes[j];
             vector<VALUE_TYPE> array_val(this->data_dimension);
 #pragma omp parallel for
-            {
+//            {
                 for (int k = 0; k < this->data_dimension; k++) {
                     array_val[k] = receive[k * send_count + j];
                 }
-            }
+//            }
             imageDataPoint.value = array_val;
             if (allEqual(array_val) || array_val.size() == 0) {
                 cout << " recevied data zero for index ######" << imageDataPoint.index << endl;

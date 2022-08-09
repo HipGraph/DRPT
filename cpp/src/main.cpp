@@ -110,12 +110,12 @@ int main(int argc, char *argv[]) {
     int host = gethostname(hostname, HOST_NAME_MAX);
 
     string file_path_stat = output_path + "stats.txt.";
-    std::sprintf(stats, file_path_stat.c_str());
-    std::strcat(stats, hostname);
+    std::strcpy(stats, file_path_stat.c_str());
+    std::strcpy(stats+ strlen(file_path_stat.c_str()), hostname);
 
     string file_path = output_path + "results.txt.";
-    std::sprintf(results, file_path.c_str());
-    std::strcat(results,hostname);
+    std::strcpy(results, file_path.c_str());
+    std::strcpy(results+ strlen(file_path.c_str()),hostname);
 
     ofstream fout(stats, std::ios_base::app);
     ofstream fout1(results, std::ios_base::app);

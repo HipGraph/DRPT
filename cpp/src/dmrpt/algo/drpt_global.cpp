@@ -30,7 +30,8 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
                               int tree_depth,
                               vector <vector<VALUE_TYPE>> original_data, int ntrees,
                               int starting_index, int total_data_set_size, int donate_per, int transfer_threshold,
-                              dmrpt::StorageFormat storage_format, int rank, int world_size,string input_path, string output_path) {
+                              dmrpt::StorageFormat storage_format, int rank, int world_size, string input_path,
+                              string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
     this->storage_format = storage_format;
@@ -128,13 +129,13 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
 #pragma  omp parallel for
 //                {
-                    for (int j = 0; j < this->intial_no_of_data_points; j++) {
-                        int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
-                        DataPoint dataPoint;
-                        dataPoint.value = this->projected_matrix[index];
-                        dataPoint.index = j + this->starting_data_index;
-                        this->trees_data[k][i][j] = dataPoint;
-                    }
+                for (int j = 0; j < this->intial_no_of_data_points; j++) {
+                    int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+                    DataPoint dataPoint;
+                    dataPoint.value = this->projected_matrix[index];
+                    dataPoint.index = j + this->starting_data_index;
+                    this->trees_data[k][i][j] = dataPoint;
+                }
 //                }
             }
 
@@ -351,9 +352,9 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             vector<VALUE_TYPE> array_val(this->data_dimension);
 #pragma omp parallel for
 //            {
-                for (int k = 0; k < this->data_dimension; k++) {
-                    array_val[k] = receive[k * send_count + j];
-                }
+            for (int k = 0; k < this->data_dimension; k++) {
+                array_val[k] = receive[k * send_count + j];
+            }
 //            }
             imageDataPoint.value = array_val;
             if (allEqual(array_val) || array_val.size() == 0) {
@@ -641,13 +642,13 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
             vector<VALUE_TYPE> im_data(this->data_dimension);
 #pragma omp parallel for
 //            {
-                for (int y = 0; y < this->data_dimension; y++) {
-                    int get_index = my_start + h + process_counts[m] * y;
-                    if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
-                        cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
-                    }
-                    im_data[y] = total_recev_queries[get_index];
+            for (int y = 0; y < this->data_dimension; y++) {
+                int get_index = my_start + h + process_counts[m] * y;
+                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
+                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
                 }
+                im_data[y] = total_recev_queries[get_index];
+            }
 //            }
 
             dataPoint.image_data = im_data;
@@ -788,12 +789,12 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     char hostname[HOST_NAME_MAX];
 
-    int host = gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "stats_divided.txt";
-    std::sprintf(results, file_path_stat.c_str()+"_%d",host);
+    gethostname(hostname, HOST_NAME_MAX);
+    string file_path_stat = output_path + "stats_divided.txt.";
+    std::sprintf(results, file_path_stat.c_str());
+    std::sprintf(results, hostname);
 
     ofstream fout(results, std::ios_base::app);
-
 
 
     int my_starting_index = this->rank * this->total_data_set_size / world_size;

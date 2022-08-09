@@ -16,6 +16,7 @@
 #include <chrono>
 #include <algorithm>
 #include <unistd.h>
+#include <limits.h>
 
 
 using namespace std;
@@ -103,8 +104,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
     char results[500];
     char hostname[HOST_NAME_MAX];
     int host = gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "stats_divided.txt";
-    std::sprintf(results, file_path_stat.c_str()+"_%d",host);
+    string file_path_stat = output_path + "stats_divided.txt.";
+    std::sprintf(results, file_path_stat.c_str());
+    std::sprintf(results, hostname);
 
     ofstream fout(results, std::ios_base::app);
 

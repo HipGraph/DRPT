@@ -987,7 +987,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     auto end_query = high_resolution_clock::now();
     auto query_time = duration_cast<microseconds>(end_query - start_query);
 
-    fout << rank << ' distance  ' << distance_time.count() << ' query ' << query_time.count() << endl;
+    fout << rank << " distance  " << distance_time.count() << " query " << query_time.count() << endl;
 
     return collected_nns;
 }

@@ -146,7 +146,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
         auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
 
 
-        fout << rank << ' matrix  ' << matrix_time.count() << ' tree ' << index_time.count() << ' collecting ' << collect_time.count()
+        fout << rank << " matrix  " << matrix_time.count() << " tree " << index_time.count() << " collecting " << collect_time.count()
              << endl;
         cout << " rank " << rank << " similar datapoint collection completed" << endl;
     }

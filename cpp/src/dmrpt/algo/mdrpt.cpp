@@ -119,7 +119,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     auto matrix_time = duration_cast<microseconds>(stop_matrix_index - start_matrix_index);
 
-    int starting_index = this->rank * this->total_data_set_size / world_size;
+    int starting_index = (this->total_data_set_size / world_size) * this->rank ;
     if (algo == 0) {
         this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
                                  this->storage_format, this->rank, this->world_size);

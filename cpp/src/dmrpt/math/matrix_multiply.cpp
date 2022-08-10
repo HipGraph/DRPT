@@ -319,28 +319,9 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 }
 
 VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query) {
-//    std::vector<VALUE_TYPE> auxiliary(data.size());
-//
-//    std::transform(data.begin(), data.end(), query.begin(), std::back_inserter(auxiliary),//
-//                   [](VALUE_TYPE element1, VALUE_TYPE element2) { return pow((element1 - element2), 2); });
-//
-//    VALUE_TYPE value = sqrt(std::accumulate(auxiliary.begin(), auxiliary.end(), 0.0));
-//    data.clear();
-//    query.clear();
-//    auxiliary.clear();
     if (data.size() != query.size()) {
         cout << " wrong length vector data size" << data.size() << " query size" << query.size() << endl;
     }
-
-//    int sum = 0;
-////#pragma omp parallel for reduction(+ :sum)
-//    for (int n = 0; n < query.size(); n++) {
-//
-//        sum += pow((data[n] - query[n]), 2);
-//    }
-//
-//    return sqrt(sum);
-
     VALUE_TYPE data_arr[data.size()];
     VALUE_TYPE query_arr[query.size()];
     std::copy(data.begin(), data.end(), data_arr);
@@ -348,7 +329,6 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
 
     cblas_saxpy(data.size(), -1, data_arr, 1, query_arr, 1);
     return cblas_snrm2(data.size(), query_arr, 1);
-
 }
 
 

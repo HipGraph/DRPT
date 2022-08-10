@@ -332,14 +332,23 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
         cout << " wrong length vector data size" << data.size() << " query size" << query.size() << endl;
     }
 
-    int sum = 0;
-//#pragma omp parallel for reduction(+ :sum)
-    for (int n = 0; n < query.size(); n++) {
+//    int sum = 0;
+////#pragma omp parallel for reduction(+ :sum)
+//    for (int n = 0; n < query.size(); n++) {
+//
+//        sum += pow((data[n] - query[n]), 2);
+//    }
+//
+//    return sqrt(sum);
 
-        sum += pow((data[n] - query[n]), 2);
-    }
+    VALUE_TYPE data_arr[data.size()];
+    VALUE_TYPE query_arr[query.size()];
+    std::copy(data.begin(), data.end(), arr);
+    std::copy(query.begin(), query.end(), query_arr);
 
-    return sqrt(sum);
+    axpy(data.size(), -1, data_arr, 1, query_arr, 1)
+    nrm2(data.size(), query_arr, 1);
+
 }
 
 

@@ -387,6 +387,12 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
 
             vector<VALUE_TYPE> dataP = (*it).value;
             receving_indexes[j] = (*it).index;
+
+            if (allEqual(dataP) || dataP.size() == 0) {
+                cout << " oriignally  data zero for index ######" << receving_indexes[j] << endl;
+            }
+
+
             sendVector[j] = dataP;
             data_points.pop_back();
 

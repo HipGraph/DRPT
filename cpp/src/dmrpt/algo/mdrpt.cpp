@@ -127,7 +127,12 @@ void dmrpt::MDRPT::grow_trees(float density) {
     std::strcpy(results, file_path_stat.c_str());
     std::strcpy(results+ strlen(file_path_stat.c_str()), hostname);
 
-    ofstream fout(results, std::ios_base::app);
+    char data[500];
+    string file_path_data = output_path + "data.txt.";
+    std::strcpy(data, file_path_data.c_str());
+    std::strcpy(data+ strlen(file_path_data.c_str()), hostname);
+
+    ofstream fout1(data, std::ios_base::app);
 
     auto start_matrix_index = high_resolution_clock::now();
     // P= X.R
@@ -141,7 +146,11 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     for (int i = 0; i <  this->original_data.size(); i++) {
         if (allEqual(this->original_data[i]) || this->original_data[i].size() == 0) {
-            cout << "  inintial data zero for index ######" << i+ starting_index << endl;
+            cout << "  initial data zero for index ######" << i+ starting_index << endl;
+            for(int k=0;k<this->original_data[i].size();k++){
+                fout1<this->original_data[i][k]<<' ';
+            }
+            fout1<< endl;
         }
     }
 

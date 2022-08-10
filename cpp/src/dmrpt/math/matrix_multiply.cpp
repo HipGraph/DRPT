@@ -78,8 +78,6 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_si
     }
     VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix(local_rows, levels, density);
 
-    cout<< " rank "<<rank<<  " total bytes "<<sizeof(VALUE_TYPE) * total_dimension * levels<<endl;
-
     global_project_matrix = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * total_dimension * levels);
 
 

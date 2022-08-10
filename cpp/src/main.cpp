@@ -142,11 +142,11 @@ int main(int argc, char *argv[]) {
 
     int rows = imagedatas[0].size();
     int cols = imagedatas.size();
-    int tree_levels = static_cast<int>(log2(cols) - 3);
+
 
 
     int chunk_size = data_set_size / size;
-    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_levels, data_set_size,
+    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, data_set_size,
                         donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size,input_path,output_path);
     auto start_index_buildling = high_resolution_clock::now();
     mdrpt.grow_trees(density);

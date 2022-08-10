@@ -846,8 +846,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     cout << " rank " << rank << " distance calculation completed " << endl;
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
     auto stop_distance = high_resolution_clock::now();
     auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
 

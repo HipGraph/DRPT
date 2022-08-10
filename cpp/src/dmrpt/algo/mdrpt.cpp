@@ -127,6 +127,8 @@ void dmrpt::MDRPT::grow_trees(float density) {
     std::strcpy(results, file_path_stat.c_str());
     std::strcpy(results+ strlen(file_path_stat.c_str()), hostname);
 
+    ofstream fout(results, std::ios_base::app);
+
     char data[500];
     string file_path_data = output_path + "data.txt.";
     std::strcpy(data, file_path_data.c_str());

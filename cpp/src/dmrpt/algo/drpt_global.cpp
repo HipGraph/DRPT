@@ -68,6 +68,10 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
         ImageDataPoint imageDataPoint;
         imageDataPoint.index = i + this->starting_data_index;
         imageDataPoint.value = original_data[i];
+        if (allEqual(imageDataPoint.value) || imageDataPoint.value.size() == 0) {
+            cout << " original data zero for index ######" << imageDataPoint.index << endl;
+        }
+
         this->original_data_processed[i] = imageDataPoint;
     }
 }
@@ -389,7 +393,7 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             receving_indexes[j] = (*it).index;
 
             if (allEqual(dataP) || dataP.size() == 0) {
-                cout << " oriignally  data zero for index ######" << receving_indexes[j] << endl;
+                cout << "  sending data zero for index ######" << receving_indexes[j] << endl;
             }
 
 

@@ -140,7 +140,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
     int starting_index = (this->total_data_set_size / world_size) * this->rank ;
 
     for (int i = 0; i <  this->original_data.size(); i++) {
-        if (allEqual(his->original_data[i]) || his->original_data[i].size() == 0) {
+        if (allEqual(this->original_data[i]) || this->original_data[i].size() == 0) {
             cout << "  inintial data zero for index ######" << i+ starting_index << endl;
         }
     }

@@ -116,6 +116,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 
     cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
 
+    //TODO:remove
     for (int i = 0; i <  this->original_data_processed.size(); i++) {
         if (allEqual(this->original_data_processed[i].value) || this->original_data_processed[i].value.size() == 0) {
             cout << "  original data zero for index ######" << this->original_data_processed[i].index << endl;

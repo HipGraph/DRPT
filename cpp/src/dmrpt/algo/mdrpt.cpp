@@ -91,6 +91,24 @@ dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DataPoint>> results, in
     return final_results;
 }
 
+template<typename T> bool allEqual(std::vector < T >
+const &v) {
+return
+std::adjacent_find(v
+.
+
+begin(), v
+
+.
+
+end(), std::not_equal_to<T>()
+
+) == v.
+
+end();
+
+}
+
 void dmrpt::MDRPT::grow_trees(float density) {
 
     dmrpt::MathOp mathOp;
@@ -120,6 +138,14 @@ void dmrpt::MDRPT::grow_trees(float density) {
     auto matrix_time = duration_cast<microseconds>(stop_matrix_index - start_matrix_index);
 
     int starting_index = (this->total_data_set_size / world_size) * this->rank ;
+
+    for (int i = 0; i <  this->original_data.size(); i++) {
+        if (allEqual(his->original_data[i]) || his->original_data[i].size() == 0) {
+            cout << "  inintial data zero for index ######" << i+ starting_index << endl;
+        }
+    }
+
+
     if (algo == 0) {
         this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
                                  this->storage_format, this->rank, this->world_size);

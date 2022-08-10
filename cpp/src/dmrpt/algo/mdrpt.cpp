@@ -148,7 +148,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
         if (allEqual(this->original_data[i]) || this->original_data[i].size() == 0) {
             cout << "  initial data zero for index ######" << i+ starting_index << endl;
             for(int k=0;k<this->original_data[i].size();k++){
-                fout1<this->original_data[i][k]<<' ';
+                fout1<<this->original_data[i][k]<<' ';
             }
             fout1<< endl;
         }

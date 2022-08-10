@@ -68,10 +68,6 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
         ImageDataPoint imageDataPoint;
         imageDataPoint.index = i + this->starting_data_index;
         imageDataPoint.value = original_data[i];
-        if (allEqual(imageDataPoint.value) || imageDataPoint.value.size() == 0) {
-            cout << " original data zero for index ######" << imageDataPoint.index << endl;
-        }
-
         this->original_data_processed[i] = imageDataPoint;
     }
 }
@@ -119,6 +115,14 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
     cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
+
+    for (int i = 0; i <  this->original_data_processed.size(); i++) {
+        if (allEqual(this->original_data_processed[i]) || this->original_data_processed[i].size() == 0) {
+            cout << "  sending data zero for index ######" << receving_indexes[j] << endl;
+        }
+    }
+
+
 
     if (dmrpt::StorageFormat::RAW == storage_format) {
 

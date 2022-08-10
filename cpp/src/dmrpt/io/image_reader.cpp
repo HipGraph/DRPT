@@ -83,6 +83,7 @@ dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int
             }
         }
     }
+    file.close();
     return arr;
 }
 

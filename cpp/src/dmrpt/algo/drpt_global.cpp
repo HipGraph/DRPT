@@ -910,9 +910,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
             }
         }
 
-        if (this->rank < this->world_size - 1) {
-            feasible_size = chunk_size;
-        } else {
+        feasible_size= chunk_size;
+
+        if (count+feasible_size>=this->total_data_set_size) {
             feasible_size = remain;
         }
         sending_size = 0;

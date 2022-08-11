@@ -1044,7 +1044,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         cout<< " rank "<<this->rank << " completinng count "<< count<<endl;
 
         count = count + feasible_size;
-
+        cout<< " rank "<<this->rank << " next count "<< count<<endl;
 
     }
     auto end_query = high_resolution_clock::now();

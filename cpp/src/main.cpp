@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if (tree_depth == 0) {
-        tree_depth = static_cast<int>(log2((data_set_size/size)) - 3);
+        tree_depth = static_cast<int>(log2((data_set_size / size)) - 3);
     }
 
 
@@ -112,11 +112,11 @@ int main(int argc, char *argv[]) {
 
     string file_path_stat = output_path + "stats.txt.";
     std::strcpy(stats, file_path_stat.c_str());
-    std::strcpy(stats+ strlen(file_path_stat.c_str()), hostname);
+    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
 
     string file_path = output_path + "results.txt.";
     std::strcpy(results, file_path.c_str());
-    std::strcpy(results+ strlen(file_path.c_str()),hostname);
+    std::strcpy(results + strlen(file_path.c_str()), hostname);
 
     ofstream fout(stats, std::ios_base::app);
     ofstream fout1(results, std::ios_base::app);
@@ -145,10 +145,9 @@ int main(int argc, char *argv[]) {
     int cols = imagedatas.size();
 
 
-
     int chunk_size = data_set_size / size;
     MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, data_set_size,
-                        donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size,input_path,output_path);
+                        donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size, input_path, output_path);
     auto start_index_buildling = high_resolution_clock::now();
     mdrpt.grow_trees(density);
     auto stop_index_building = high_resolution_clock::now();
@@ -177,12 +176,14 @@ int main(int argc, char *argv[]) {
             for (int k = 0; k < data_points.size(); k++) {
                 if (data_points[k].size() > 0) {
                     vector <DataPoint> vec = data_points[k];
-                    for (int l = 0; l < 10; l++) {
-                        if (vec[l].src_index != vec[l].index) {
-                            if (algo == 0) {
-                                fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
-                            } else {
-                                fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                    if (vec.size() > 0) {
+                        for (int l = 0; l < 10; l++) {
+                            if (vec[l].src_index != vec[l].index) {
+                                if (algo == 0) {
+                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
+                                } else {
+                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                                }
                             }
                         }
                     }

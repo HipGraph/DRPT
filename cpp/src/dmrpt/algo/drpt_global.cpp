@@ -954,7 +954,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                 co++;
             }
         }
-        cout<<" filling complete for rank "<<this->rank<<endl;
 
         if (count >= my_starting_index && count < end_index) {
 

@@ -949,7 +949,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
                 for (int j = 0; j < 2 * nn; j++) {
                     if (final_data[l].size()< 2 * nn){
-                        cout<<" possible segeamation for  rank "<< this->rank<" size "<<final_data[l].size()<<endl;
+                        cout<<" possible segeamation for  rank "<< this->rank<<" size "<<final_data[l].size()<<endl;
                     }
                     nn_indices[co * 2 * nn + j] = final_data[l][j].index;
                     nn_distances[co * 2 * nn + j] = final_data[l][j].distance;

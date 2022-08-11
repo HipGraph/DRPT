@@ -897,6 +897,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     int count = 0;
 
+
     int sending_size = 0;
     int feasible_size = 0;
     while (count < this->total_data_set_size) {
@@ -912,7 +913,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
         feasible_size= chunk_size;
 
-        if (count+feasible_size>=this->total_data_set_size) {
+        if (count+feasible_size> this->total_data_set_size) {
             feasible_size = remain;
         }
         sending_size = 0;

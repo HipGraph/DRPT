@@ -759,7 +759,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
         end_count = total_leaf_size;
     }
 
-
+    cout<< " my start "<< my_start_count <<" my end "<< end_count << "  rank "<<rank<<endl;
     vector <vector<DataPoint>> final_results(total_data_set_size);
 
     char results[500];
@@ -776,7 +776,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
     for (int i = my_start_count; i < end_count; i++) {
         vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
-        cout<< " data point of size "<< data_points.size() <<" tree "<< tree << " i "<<endl;
+        cout<< " data point of size "<< data_points.size() <<" tree "<< tree << i<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());

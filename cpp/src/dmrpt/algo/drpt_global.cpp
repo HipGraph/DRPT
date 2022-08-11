@@ -546,7 +546,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
                 break;
             }
         }
-        cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_my_points.size()
+        cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
         << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
         return this->send_data_points_for_requested_node(all_points, sending_rank);
     }

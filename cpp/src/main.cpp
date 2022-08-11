@@ -89,9 +89,6 @@ int main(int argc, char *argv[]) {
     if (density == 0) {
         density = 1.0 / sqrt(dimension);
     }
-    if (tree_depth == 0) {
-        tree_depth = static_cast<int>(log2(data_set_size) - 3);
-    }
 
 
     int rank, size;
@@ -99,6 +96,10 @@ int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (tree_depth == 0) {
+        tree_depth = static_cast<int>(log2((data_set_size/size)) - 3);
+    }
 
 
     ImageReader imageReader;

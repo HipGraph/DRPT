@@ -776,6 +776,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
     for (int i = my_start_count; i < end_count; i++) {
         vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
+        cout<< " data point of size "<< data_points.size() <<" tree "<< tree << " i "<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -808,7 +809,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
         }
     }
     auto end_distance = high_resolution_clock::now();
-    auto distance_time = duration_cast<microseconds>(start_distance - end_distance);
+    auto distance_time = duration_cast<microseconds>(end_distance - start_distance);
     fout << rank << " distance calc " << distance_time.count()  << endl;
 
     return final_results;

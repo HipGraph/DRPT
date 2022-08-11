@@ -146,17 +146,6 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     int starting_index = (this->total_data_set_size / world_size) * this->rank ;
 
-    for (int i = 0; i <  this->original_data.size(); i++) {
-        if (allEqual(this->original_data[i]) || this->original_data[i].size() == 0) {
-            cout << "  initial data zero for index ######" << i+ starting_index << endl;
-            for(int k=0;k<this->original_data[i].size();k++){
-                fout1<<this->original_data[i][k]<<' ';
-            }
-            fout1<< endl;
-        }
-    }
-
-
     if (algo == 0) {
         this->drpt = dmrpt::DRPT(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
                                  this->storage_format, this->rank, this->world_size);

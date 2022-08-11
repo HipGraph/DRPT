@@ -546,6 +546,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
                 break;
             }
         }
+        cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_my_points.size()
+        << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
         return this->send_data_points_for_requested_node(all_points, sending_rank);
     }
 
@@ -829,11 +831,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     ofstream fout(results, std::ios_base::app);
 
 
-    int my_starting_index = this->rank * this->total_data_set_size / world_size;
+    int my_starting_index = this->rank * (this->total_data_set_size / world_size);
 
     int end_index = 0;
     if (this->rank < this->world_size - 1) {
-        end_index = (this->rank + 1) * this->total_data_set_size / world_size;
+        end_index = (this->rank + 1) * (this->total_data_set_size / world_size);
     } else {
         end_index = this->total_data_set_size;
     }
@@ -881,8 +883,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
         int sending_rank = -1;
         for (int g = 0; g < this->world_size; g++) {
-            if (count >= (g * this->total_data_set_size / this->world_size) &&
-                count < ((g + 1) * this->total_data_set_size / this->world_size)) {
+            if (count >= (g * (this->total_data_set_size / this->world_size)) &&
+                count < ((g + 1) * (this->total_data_set_size / this->world_size))) {
                 sending_rank = g;
                 break;
             }

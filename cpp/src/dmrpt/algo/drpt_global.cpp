@@ -871,10 +871,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     auto start_distance = high_resolution_clock::now();
 
     for (int i = 0; i < ntrees; i++) {
-        cout << " calvulation starts for tree " << i << " rank " << this->rank << endl;
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
-        cout << " calculation complete for tree " << i << " rank " << this->rank << " data size " << data.size()
-             << endl;
 
 #pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
@@ -883,7 +880,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                                      data[j].end());
             }
         }
-        cout << " insertion complete for tree " << i << " rank " << this->rank << endl;
     }
 
     cout << " rank " << rank << " distance calculation completed " << endl;
@@ -926,9 +922,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
             }
         }
 
-        if (sending_size==0){
-            cout<< " sending cout zero for rank "<<this->rank<<endl;
-        }
 
         int tot_indices_size = sending_size * 2 * nn;
         int *source_indices = new int[sending_size];
@@ -948,9 +941,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                      });
 
                 for (int j = 0; j < 2 * nn; j++) {
-                    if (final_data[l].size()< 2 * nn){
-                        cout<<" possible segeamation for  rank "<< this->rank<<" size "<<final_data[l].size()<<endl;
-                    }
                     nn_indices[co * 2 * nn + j] = final_data[l][j].index;
                     nn_distances[co * 2 * nn + j] = final_data[l][j].distance;
                 }
@@ -1051,7 +1041,10 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         free(process_counts_nns);
         free(process_counts);
 
+        cout<< " rank "<<this->rank << " completinng count "<< count<<endl;
+
         count = count + feasible_size;
+
 
     }
     auto end_query = high_resolution_clock::now();

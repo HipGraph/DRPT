@@ -926,6 +926,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
             }
         }
 
+        if (sending_size==0){
+            cout<< " sending cout zero for rank "<<this->rank<<endl;
+        }
 
         int tot_indices_size = sending_size * 2 * nn;
         int *source_indices = new int[sending_size];
@@ -951,6 +954,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                 co++;
             }
         }
+        cout<<" filling complete for rank "<<this->rank<<endl;
+
         if (count >= my_starting_index && count < end_index) {
 
             MPI_Gather(my_count, 1, MPI_INT, process_counts, 1, MPI_INT, this->rank, MPI_COMM_WORLD);
@@ -1054,6 +1059,3 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     return collected_nns;
 }
-
-
-

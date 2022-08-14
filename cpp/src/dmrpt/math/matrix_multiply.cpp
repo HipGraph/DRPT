@@ -15,6 +15,8 @@ using namespace std;
 VALUE_TYPE *dmrpt::MathOp::multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols, int A_cols, int alpha) {
     int result_size = A_cols * B_cols;
     VALUE_TYPE *result = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * result_size);
+
+#pragma omp parallel for
     for (int k = 0; k < result_size; k++) {
         result[k] = 1;
     }
@@ -319,9 +321,9 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 }
 
 VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query) {
-    if (data.size() != query.size()) {
-        cout << " wrong length vector data size" << data.size() << " query size" << query.size() << endl;
-    }
+//    if (data.size() != query.size()) {
+//        cout << " wrong length vector data size" << data.size() << " query size" << query.size() << endl;
+//    }
     VALUE_TYPE data_arr[data.size()];
     VALUE_TYPE query_arr[query.size()];
     std::copy(data.begin(), data.end(), data_arr);

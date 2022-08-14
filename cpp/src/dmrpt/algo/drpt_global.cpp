@@ -114,14 +114,14 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
+//    cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
 
-    //TODO:remove
-    for (int i = 0; i <  this->original_data_processed.size(); i++) {
-        if (allEqual(this->original_data_processed[i].value) || this->original_data_processed[i].value.size() == 0) {
-            cout << "  original data zero for index ######" << this->original_data_processed[i].index << endl;
-        }
-    }
+//    //TODO:remove
+//    for (int i = 0; i <  this->original_data_processed.size(); i++) {
+//        if (allEqual(this->original_data_processed[i].value) || this->original_data_processed[i].value.size() == 0) {
+//            cout << "  original data zero for index ######" << this->original_data_processed[i].index << endl;
+//        }
+//    }
 
 
 
@@ -367,9 +367,9 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             }
 //            }
             imageDataPoint.value = array_val;
-            if (allEqual(array_val) || array_val.size() == 0) {
-                cout << " recevied data zero for index ######" << imageDataPoint.index << endl;
-            }
+//            if (allEqual(array_val) || array_val.size() == 0) {
+//                cout << " recevied data zero for index ######" << imageDataPoint.index << endl;
+//            }
             this->original_data_processed[original_data_count + j] = imageDataPoint;
         }
         int count_index = direction == 0 ? this->rank * 2 : this->rank * 2 + 1;
@@ -397,9 +397,9 @@ dmrpt::DRPTGlobal::send_receive_data_points_if_zero(vector <DataPoint> data_poin
             vector<VALUE_TYPE> dataP = (*it).value;
             receving_indexes[j] = (*it).index;
 
-            if (allEqual(dataP) || dataP.size() == 0) {
-                cout << "  sending data zero for index ######" << receving_indexes[j] << endl;
-            }
+//            if (allEqual(dataP) || dataP.size() == 0) {
+//                cout << "  sending data zero for index ######" << receving_indexes[j] << endl;
+//            }
 
 
             sendVector[j] = dataP;
@@ -548,8 +548,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
                     break;
                 }
             }
-            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
-                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
+//            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
+//                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
             return this->send_data_points_for_requested_node(all_points, sending_rank);
         }
     } else {
@@ -561,8 +561,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
             vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
             return dps;
         }else {
-            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
-                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
+//            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
+//                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
             return this->send_data_points_for_requested_node(all_points, sending_rank);
         }
     }
@@ -678,9 +678,9 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
 //            {
             for (int y = 0; y < this->data_dimension; y++) {
                 int get_index = my_start + h + process_counts[m] * y;
-                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
-                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
-                }
+//                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
+//                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
+//                }
                 im_data[y] = total_recev_queries[get_index];
             }
 //            }
@@ -734,9 +734,9 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
 //      this->original_data_processed.erase(src_it);
 
     }
-    if (send_vector.empty()) {
-        cout << " send vector empty **********" << endl;
-    }
+//    if (send_vector.empty()) {
+//        cout << " send vector empty **********" << endl;
+//    }
 
     VALUE_TYPE *my_queries = mathOp.convert_to_row_major_format(send_vector);
 
@@ -802,7 +802,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
     for (int i = my_start_count; i < end_count; i++) {
         vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
-        cout<< " data point of size "<< data_points.size() <<" tree "<< tree << i<<endl;
+//        cout<< " data point of size "<< data_points.size() <<" tree "<< tree << i<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -917,7 +917,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
             feasible_size = remain;
         }
         sending_size = 0;
-        cout<< " rank "<<this->rank << " current count "<< count + feasible_size<<endl;
+//        cout<< " rank "<<this->rank << " current count "<< count + feasible_size<<endl;
         for (int i = count; i < count + feasible_size; i++) {
             if (!final_data[i].empty()) {
                 sending_size++;
@@ -1043,7 +1043,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         free(process_counts_nns);
         free(process_counts);
 
-        cout<< " rank "<<this->rank << " completinng count "<< count<<endl;
+//        cout<< " rank "<<this->rank << " completinng count "<< count<<endl;
 
         count = count + feasible_size;
 

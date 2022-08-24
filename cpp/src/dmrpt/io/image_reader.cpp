@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 //#include <opencv2/opencv.hpp>
 //#include <opencv2/imgcodecs/imgcodecs.hpp>
 
@@ -87,7 +88,8 @@ dmrpt::ImageReader::read_MNIST(string path, int no_of_images, int dimension, int
     return arr;
 }
 
-vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size) {
+vector <vector<VALUE_TYPE>>
+dmrpt::ImageReader::read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size) {
 
     vector <vector<VALUE_TYPE>> arr;
 
@@ -126,6 +128,59 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_mnist_labels(string path, i
     } else {
         throw runtime_error("Unable to open file `" + path + "`!");
     }
+}
+
+vector<VALUE_TYPE> load_vector(istream &in) {
+    vector<VALUE_TYPE> v;
+    string line;
+    if (getline(in, line)) {
+        istringstream iss(line);
+        VALUE_TYPE n;
+        while (iss >> n)
+            v.push_back(n);
+    }
+    return v;
+}
+
+vector <vector<VALUE_TYPE>>
+dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension, int rank, int world_size) {
+
+    vector <vector<VALUE_TYPE>> arr;
+    int chunk_size = no_of_data_points / world_size;
+    int starting_point = rank * chunk_size;
+    int endpoint = (rank + 1) * chunk_size;
+    if (rank < world_size - 1) {
+        arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
+    } else if (rank == world_size - 1) {
+        chunk_size = no_of_data_points - chunk_size * (world_size - 1);
+        arr.resize(chunk_size, vector<VALUE_TYPE>(dimension));
+        endpoint = no_of_data_points;
+    }
+
+
+    ifstream file(path);
+    if (file.is_open()) {
+        string line;
+        int count = 0;
+        int index = 0;
+        if (getline(file, line)) {
+            if (count >= starting_point && count < endpoint) {
+                istringstream iss(line);
+                VALUE_TYPE n;
+                int di = 0;
+                while (iss >> n) {
+                    arr[index][di] = n;
+                    di++;
+                }
+                index++;
+            }
+            count++;
+        }
+
+    } else {
+        throw runtime_error("Unable to open file `" + path + "`!");
+    }
+    return arr;
 }
 
 

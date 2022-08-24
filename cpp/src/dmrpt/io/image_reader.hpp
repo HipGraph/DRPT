@@ -15,6 +15,7 @@ namespace dmrpt{
 //        vector<vector<VALUE_TYPE>> readImages(vector<string> imagePaths);
         vector<vector<VALUE_TYPE>> read_MNIST(string path,int no_of_images, int dimension, int rank, int world_size);
         vector <vector<VALUE_TYPE>>read_mnist_labels(string path, int no_of_images, int dimension, int rank, int world_size);
+        vector<vector<VALUE_TYPE>> read_File(string path,int no_of_data_points, int dimension, int rank, int world_size);
         int reverse_int(int i);
       };
 }

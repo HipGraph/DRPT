@@ -211,7 +211,14 @@ dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold,int nn) 
 
 
 vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::get_knn(int nn) {
-    return this->drpt_global.gather_nns(nn);
+    vector <vector<dmrpt::DataPoint>> dps =    this->drpt_global.gather_nns(nn);
+    for(int j=0;j<dps.size();j++){
+        for(int l=0;l<dps[j].size();l++) {
+            if (dps[l][j].index >= 60000 || dps[l][j].index < 0 || dps[l][j].src_index >= 60000 || dps[l][j].src_index < 0) {
+                cout << " mprt stage error " << dps[l][j].index << " "<< dps[l][j].src_index << endl;
+            }
+        }
+    }
 
 }
 

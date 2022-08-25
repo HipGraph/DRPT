@@ -225,7 +225,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
             }
         }
-        int left_index = 2 * (split_starting_index+i);
+        int next_split = (1<< (depth+1))-1;
+        int left_index = 2 * (next_split+i);
         int right_index = left_index + 1;
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
@@ -257,9 +258,9 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     for (int k = 0; k < this->world_size; k++) {
         process_counts[k] = 2 * current_nodes;
     }
-
+    int next_split = (1<< (depth+1))-1;
     for (int j = 0; j < current_nodes; j++) {
-        int id = 2*(split_starting_index+j);
+        int id = 2*(next_split+j);
         cout<<" updating before  "<< 2 * j<<child_data_tracker[id].size()<<endl;
         cout<<" updating before  "<< 2 * j+1<<child_data_tracker[id + 1].size()<<endl;
         total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size();
@@ -279,7 +280,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     for (int j = 0; j < current_nodes; j++) {
         int left_totol = 0;
         int right_total = 0;
-        int id = 2*(split_starting_index+j);
+        int id = 2*(next_split+j);
         for (int k = 0; k < this->world_size; k++) {
 
             left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];

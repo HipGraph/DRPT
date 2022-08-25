@@ -598,7 +598,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
 
             for (int x = 0; x < dps.size(); x++) {
                 if (dps[x].index >= 60000 || dps[x].index < 0) {
-                    cout << " wrong index tree collection " << dps[m].index << endl;
+                    cout << " wrong index tree collection " << dps[x].index << endl;
                 }
             }
 

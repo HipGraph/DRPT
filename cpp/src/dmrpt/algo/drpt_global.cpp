@@ -236,13 +236,13 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             this->trees_leaf_first_indices[tree][selected_leaf_left + 1] = right_childs_global;
 
             for (int m = 0; m < left_childs_global.size(); m++) {
-                if (left_childs_global[m].index > 60000 || left_childs_global[m].index < 0) {
-                    cout << " wrong index " << left_childs_global[m].index << endl;
+                if (left_childs_global[m].index >= 60000 || left_childs_global[m].index < 0) {
+                    cout << " wrong index tree growing " << left_childs_global[m].index << endl;
                 }
             }
             for (int m = 0; m < right_childs_global.size(); m++) {
-                if (right_childs_global[m].index > 60000 || right_childs_global[m].index < 0) {
-                    cout << " wrong index" << right_childs_global[m].index << endl;
+                if (right_childs_global[m].index >= 60000 || right_childs_global[m].index < 0) {
+                    cout << " wrong index tree growing " << right_childs_global[m].index << endl;
                 }
             }
 
@@ -595,6 +595,14 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
 
         if (this->rank == sending_rank) {
             vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
+
+            for (int x = 0; x < dps.size(); x++) {
+                if (dps[x].index >= 60000 || dps[x].index < 0) {
+                    cout << " wrong index tree collection " << dps[m].index << endl;
+                }
+            }
+
+
             return dps;
         } else {
 //            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
@@ -714,9 +722,9 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
 //            {
             for (int y = 0; y < this->data_dimension; y++) {
                 int get_index = my_start + h + process_counts[m] * y;
-//                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
-//                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
-//                }
+                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
+                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
+                }
                 im_data[y] = total_recev_queries[get_index];
             }
 //            }
@@ -770,9 +778,9 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
 //      this->original_data_processed.erase(src_it);
 
     }
-//    if (send_vector.empty()) {
-//        cout << " send vector empty **********" << endl;
-//    }
+    if (send_vector.empty()) {
+        cout << " send vector empty **********" << endl;
+    }
 
     VALUE_TYPE *my_queries = mathOp.convert_to_row_major_format(send_vector);
 

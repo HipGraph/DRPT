@@ -277,6 +277,9 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> child_data_tra
             left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];
             right_total = right_total + total_counts[2 * j + 1 + k * current_nodes * 2];
         }
+        cout<<" updating  "<< 2 * j<<left_totol<<endl;
+        cout<<" updating  "<< 2 * j+2<<right_total<<endl;
+
         total_size_vector[2 * j] = left_totol;
         total_size_vector[2 * j + 1] = right_total;
     }

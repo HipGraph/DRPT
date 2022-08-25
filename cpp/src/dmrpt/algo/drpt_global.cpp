@@ -256,7 +256,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
     for (int j = 0; j < current_nodes; j++) {
         cout<<" updating before  "<< 2 * j<<child_data_tracker[2 * j].size()<<endl;
-        cout<<" updating before  "<< 2 * j+1<<child_data_tracker[2 * j + 1].size();<<endl;
+        cout<<" updating before  "<< 2 * j+1<<child_data_tracker[2 * j + 1].size()<<endl;
         total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[2 * j].size();
         total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[2 * j + 1].size();
     }

@@ -66,7 +66,7 @@ namespace dmrpt {
         void grow_global_tree();
 
         void
-        grow_global_subtree(vector <vector<DataPoint>> child_data_tracker, vector<int> total_size_vector,int depth,int tree);
+        grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);
 
 
         vector <DataPoint> send_receive_data_points_if_zero(vector <DataPoint> data_points, int *total_counts,

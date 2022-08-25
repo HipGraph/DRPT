@@ -922,8 +922,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
         for(int l=0;l<data.size();l++){
             for(int y=0;y<data[l].size();y++) {
-                if (data[l][y].index>= 60000 || data[l][y].index < 0) {
-                    cout << " index error in calc after " <<data[l][y].index << endl;
+                if (data[l][y].src_index>= 60000 || data[l][y].src_index < 0) {
+                    cout << " index error in calc after " <<data[l][y].src_index <<" "<<data[l][y].index << endl;
                 }
             }
         }

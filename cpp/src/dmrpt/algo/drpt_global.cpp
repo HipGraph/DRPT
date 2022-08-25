@@ -234,18 +234,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
             this->trees_leaf_first_indices[tree][selected_leaf_left] = left_childs_global;
             this->trees_leaf_first_indices[tree][selected_leaf_left + 1] = right_childs_global;
-
-            for (int m = 0; m < left_childs_global.size(); m++) {
-                if (left_childs_global[m].index >= 60000 || left_childs_global[m].index < 0) {
-                    cout << " wrong index tree growing " << left_childs_global[m].index << endl;
-                }
-            }
-            for (int m = 0; m < right_childs_global.size(); m++) {
-                if (right_childs_global[m].index >= 60000 || right_childs_global[m].index < 0) {
-                    cout << " wrong index tree growing " << right_childs_global[m].index << endl;
-                }
-            }
-
         }
         free(data);
     }
@@ -596,13 +584,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
         if (this->rank == sending_rank) {
             vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
 
-            for (int x = 0; x < dps.size(); x++) {
-                if (dps[x].index >= 60000 || dps[x].index < 0) {
-                    cout << " wrong index tree collection " << dps[x].index << endl;
-                }
-            }
-
-
             return dps;
         } else {
 //            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
@@ -676,9 +657,9 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
                                                                    return n.index == src_index;
                                                                });
 
-        if (src_it == this->original_data_processed.end()) {
-            cout << " couldn't find " << src_index << endl;
-        }
+//        if (src_it == this->original_data_processed.end()) {
+//            cout << " couldn't find " << src_index << endl;
+//        }
         send_vector[g] = ((*src_it).value);
 
 //        this->original_data_processed.erase(src_it);
@@ -722,9 +703,9 @@ dmrpt::DRPTGlobal::request_data_points_for_given_index(vector <DataPoint> all_my
 //            {
             for (int y = 0; y < this->data_dimension; y++) {
                 int get_index = my_start + h + process_counts[m] * y;
-                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
-                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
-                }
+//                if (total_recev_queries[get_index] > 255 || total_recev_queries[get_index] < 0) {
+//                    cout << " index " << dataPoint.index << " calculated index " << get_index << endl;
+//                }
                 im_data[y] = total_recev_queries[get_index];
             }
 //            }
@@ -778,9 +759,9 @@ dmrpt::DRPTGlobal::send_data_points_for_requested_node(vector <DataPoint> all_my
 //      this->original_data_processed.erase(src_it);
 
     }
-    if (send_vector.empty()) {
-        cout << " send vector empty **********" << endl;
-    }
+//    if (send_vector.empty()) {
+//        cout << " send vector empty **********" << endl;
+//    }
 
     VALUE_TYPE *my_queries = mathOp.convert_to_row_major_format(send_vector);
 
@@ -852,9 +833,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
             vector <DataPoint> vec(data_points.size());
 #pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
-                if (data_points[j].index>=60000 || data_points[j].index<0){
-                    cout<<" index error in calc "<<data_points[j].index<<endl;
-                }
 
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);
@@ -920,13 +898,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
-        for(int l=0;l<data.size();l++){
-            for(int y=0;y<data[l].size();y++) {
-                if (data[l][y].src_index>= 60000 || data[l][y].src_index < 0) {
-                    cout << " index error in calc after " <<data[l][y].src_index <<" "<<data[l][y].index << endl;
-                }
-            }
-        }
 
 #pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
@@ -1053,15 +1024,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
                     if (collected_nns[source].empty()) {
                         collected_nns[source] = gathred_knns;
-                        for(int  f=0;f<collected_nns.size();f++){
-                            for(int r=0;r<collected_nns[f].size();r++){
-                                if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
-                                        || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
-                                    cout<<" first collected final stage error"<<collected_nns[f][r].index<<endl;
-                                }
-                            }
-
-                        }
 
                     } else {
                         std::vector <DataPoint> v3;
@@ -1080,15 +1042,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                                                            return lhs.index == rhs.index;
                                                        }), collected_nns[source].end());
 
-                    for(int  f=0;f<collected_nns.size();f++){
-                        for(int r=0;r<collected_nns[f].size();r++){
-                            if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
-                               || collected_nns[f][r].src_index>=60000 || collected_nns[f][r].src_index<0){
-                                cout<<" after collected final stage error"<<collected_nns[f][r].index<<endl;
-                            }
-                        }
-
-                    }
 
                 }
             }
@@ -1128,17 +1081,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     auto query_time = duration_cast<microseconds>(end_query - start_query);
 
     fout << rank << " distance  " << distance_time.count() << " query " << query_time.count() << endl;
-    for(int  f=0;f<collected_nns.size();f++){
-        for(int r=0;r<collected_nns[f].size();r++){
-            if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
-               || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
-                cout<<" final sending final stage error"<<collected_nns[f][r].index<<endl;
-            }
-            fout << collected_nns[f][r].src_index <<' '<<collected_nns[f][r].index  << endl;
-        }
-
-    }
-
 
     return collected_nns;
 }

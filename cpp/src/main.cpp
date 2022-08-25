@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
                 if (data_points[k].size() > 0) {
                     vector <DataPoint> vec = data_points[k];
                     if (vec.size() > 0) {
-                        for (int l = 0; l < 10; l++) {
+                        for (int l = 0; l < (vec.size()>=10?10:vec.size()); l++) {
                             if (vec[l].src_index != vec[l].index) {
                                 if (algo == 0) {
                                     fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;

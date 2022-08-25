@@ -1134,6 +1134,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
                 cout<<" final sending final stage error"<<collected_nns[f][r].index<<endl;
             }
+            fout << collected_nns[f][r].src_index <<' '<<collected_nns[f][r].index  << endl;
         }
 
     }

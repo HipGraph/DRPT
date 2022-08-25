@@ -193,6 +193,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                        28, dmrpt::StorageFormat::RAW, this->rank);
         cout<<" calculated completed for "<<i <<" depth "<<depth<< endl;
         VALUE_TYPE median = result[0];
+        cout<<" Median "<<median<<endl;
         this->trees_splits[tree][split_starting_index + i] = median;
 
 

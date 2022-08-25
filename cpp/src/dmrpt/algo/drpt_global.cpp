@@ -890,6 +890,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
+    cout<<"gathering started "<<endl;
     char results[500];
 
     char hostname[HOST_NAME_MAX];

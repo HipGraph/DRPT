@@ -235,12 +235,12 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             this->trees_leaf_first_indices[tree][selected_leaf_left] = left_childs_global;
             this->trees_leaf_first_indices[tree][selected_leaf_left + 1] = right_childs_global;
 
-            for (int m = 0; m < left_childs_global; m++) {
+            for (int m = 0; m < left_childs_global.size(); m++) {
                 if (left_childs_global[m].index > 60000 || left_childs_global[m].index < 0) {
                     cout << " wrong index " << left_childs_global[m].index << endl;
                 }
             }
-            for (int m = 0; m < right_childs_global; m++) {
+            for (int m = 0; m < right_childs_global.size(); m++) {
                 if (right_childs_global[m].index > 60000 || right_childs_global[m].index < 0) {
                     cout << " wrong index" << right_childs_global[m].index << endl;
                 }

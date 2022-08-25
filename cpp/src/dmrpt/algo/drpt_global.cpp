@@ -152,8 +152,8 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
             vector<int> total_size_vector(total_split_size);
             child_data_tracker[0] = this->trees_data[k][0];
             total_size_vector[0] = this->total_data_set_size;
-            for (int i = 0; i < this->tree_depth-1; i++) {
-                cout<< " working on tree depth"<<i<<endl;
+            for (int i = 0; i < this->tree_depth - 1; i++) {
+                cout << " working on tree depth" << i << endl;
                 this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
             }
         }
@@ -168,15 +168,15 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     int current_nodes = (1 << (depth));
     int number_of_childs = (1 << (depth + 1));
     int split_starting_index = (1 << (depth)) - 1;
-    int next_split = (1<< (depth+1))-1;
+    int next_split = (1 << (depth + 1)) - 1;
 
-    if (depth==0){
+    if (depth == 0) {
         split_starting_index = 0;
     }
 
     MathOp mathOp;
     for (int i = 0; i < current_nodes; i++) {
-        vector <DataPoint> data_vector = child_data_tracker[split_starting_index+i];
+        vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         int data_vec_size = data_vector.size();
         VALUE_TYPE *data = new VALUE_TYPE[data_vec_size];
 
@@ -188,7 +188,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
 
-        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1, total_size_vector[split_starting_index+i],
+        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
+                                                       total_size_vector[split_starting_index + i],
                                                        28, dmrpt::StorageFormat::RAW, this->rank);
 
         VALUE_TYPE median = result[0];
@@ -225,22 +226,26 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         }
 
 
-        int left_index = (next_split+2*i);
+        int left_index = (next_split + 2 * i);
         int right_index = left_index + 1;
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
-        cout<< " depth"<<i<<" left index "<<left_index<<" left size "<<left_childs_global.size()<<" right index"
-        <<right_index<<" right size"<<right_childs_global.size() <<endl;
+        cout << " depth" << i << " left index " << left_index << " left size " << left_childs_global.size()
+             << " right index"
+             << right_index << " right size" << right_childs_global.size() << endl;
         if (depth == this->tree_depth - 2) {
             int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
-            cout<<" selected leaf left "<<selected_leaf_left<<endl;
+            cout << " selected leaf left " << selected_leaf_left << endl;
             this->trees_leaf_first_indices[tree][selected_leaf_left] = left_childs_global;
-            this->trees_leaf_first_indices[tree][selected_leaf_left+1] = right_childs_global;
-            return;
+            this->trees_leaf_first_indices[tree][selected_leaf_left + 1] = right_childs_global;
+
         }
         free(data);
     }
 
+    if (depth == this->tree_depth - 2) {
+        return;
+    }
 
 
 // Displacements in the receive buffer for MPI_GATHERV
@@ -259,9 +264,9 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         process_counts[k] = 2 * current_nodes;
     }
     for (int j = 0; j < current_nodes; j++) {
-        int id = (next_split+2*j);
+        int id = (next_split + 2 * j);
         total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size();
-        total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id+1].size();
+        total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id + 1].size();
     }
 
     MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
@@ -277,7 +282,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     for (int j = 0; j < current_nodes; j++) {
         int left_totol = 0;
         int right_total = 0;
-        int id = (next_split+2*j);
+        int id = (next_split + 2 * j);
         for (int k = 0; k < this->world_size; k++) {
 
             left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];

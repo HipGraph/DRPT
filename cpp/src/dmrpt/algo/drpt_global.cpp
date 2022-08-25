@@ -852,6 +852,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
             vector <DataPoint> vec(data_points.size());
 #pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
+                if (data_points[j].index>=60000 || data_points[j].index<0){
+                    cout<<" index error in calc "<<data_points[j].index<<endl;
+                }
 
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);

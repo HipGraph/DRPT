@@ -920,8 +920,10 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
         for(int l=0;l<data.size();l++){
-            if (data[l].index>=60000 || data[l].index<0){
-                cout<<" index error in calc after "<<data[l].index<<endl;
+            for(int y=0;y<data[l].size();y++) {
+                if (data[l][y].index>= 60000 || data[l][y].index < 0) {
+                    cout << " index error in calc after " <<data[l][y].index << endl;
+                }
             }
         }
 

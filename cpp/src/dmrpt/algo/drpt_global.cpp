@@ -229,7 +229,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int right_index = left_index + 1;
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
-
+        cout<< " depth"<<i<<" left index "<<left_index<<" left size "<<left_childs_global.size()<<" right index"
+        <<right_index<<" right size"<<right_childs_global.size() <<endl;
         if (depth == this->tree_depth - 2) {
             int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
             cout<<" selected leaf left "<<selected_leaf_left<<endl;

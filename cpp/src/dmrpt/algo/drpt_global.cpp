@@ -211,7 +211,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> child_data_tra
             {
                 left_childs_global.insert(left_childs_global.end(), left_childs.begin(), left_childs.end());
                 right_childs_global.insert(right_childs_global.end(), right_childs.begin(), right_childs.end());
-                );
+
             }
         }
         int left_index = 2 * i;

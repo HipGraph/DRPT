@@ -168,6 +168,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> child_data_tra
     int current_nodes = (1 << (depth));
     int number_of_childs = (1 << (depth + 1));
     int split_starting_index = (1 << (depth)) - 1;
+    cout<<" current nodes "<<current_nodes << " number_of_childs  "
+    <<number_of_childs <<" split_starting_index  "<<split_starting_index<<endl;
 
     MathOp mathOp;
     for (int i = 0; i < current_nodes; i++) {
@@ -227,6 +229,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> child_data_tra
         }
         free(data);
     }
+
+    cout<<" major work done for  depth "<< depth << endl;
 
 // Displacements in the receive buffer for MPI_GATHERV
     int *disps = new int[this->world_size];

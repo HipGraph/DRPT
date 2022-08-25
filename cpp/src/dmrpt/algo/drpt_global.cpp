@@ -153,6 +153,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
             child_data_tracker[0] = this->trees_data[k][0];
             total_size_vector[0] = this->total_data_set_size;
             for (int i = 0; i < this->tree_depth; i++) {
+                cout<< " working on tree depth"<<i<<endl;
                 this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
             }
         }

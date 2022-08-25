@@ -145,7 +145,11 @@ int main(int argc, char *argv[]) {
     MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, data_set_size,
                         donate_per, transfer_threshold, dmrpt::StorageFormat::RAW, rank, size, input_path, output_path);
     auto start_index_buildling = high_resolution_clock::now();
+
+    cout<<" start growing trees "<<rank<<endl;
+
     mdrpt.grow_trees(density);
+    cout<<" completed growing trees "<<rank<<endl;
     auto stop_index_building = high_resolution_clock::now();
 
     auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);

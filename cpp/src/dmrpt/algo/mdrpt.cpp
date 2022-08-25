@@ -160,6 +160,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
 
         auto start_grow_index = high_resolution_clock::now();
+        cout << " rank " << rank << " starting growing trees" << endl;
         this->drpt_global.grow_global_tree();
         auto stop_grow_index = high_resolution_clock::now();
         auto index_time = duration_cast<microseconds>(stop_grow_index - start_grow_index);

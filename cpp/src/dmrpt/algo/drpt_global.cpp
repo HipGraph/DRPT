@@ -1083,7 +1083,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                     for(int  f=0;f<collected_nns.size();f++){
                         for(int r=0;r<collected_nns[f].size();r++){
                             if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
-                               || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
+                               || collected_nns[f][r].src_index>=60000 || collected_nns[f][r].src_index<0){
                                 cout<<" after collected final stage error"<<collected_nns[f][r].index<<endl;
                             }
                         }
@@ -1128,6 +1128,16 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     auto query_time = duration_cast<microseconds>(end_query - start_query);
 
     fout << rank << " distance  " << distance_time.count() << " query " << query_time.count() << endl;
+    for(int  f=0;f<collected_nns.size();f++){
+        for(int r=0;r<collected_nns[f].size();r++){
+            if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
+               || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
+                cout<<" final sending final stage error"<<collected_nns[f][r].index<<endl;
+            }
+        }
+
+    }
+
 
     return collected_nns;
 }

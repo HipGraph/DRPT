@@ -1047,15 +1047,21 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                         dataPoint.src_index = source;
                         int get_index = my_start + 2 * nn * h + y;
                         dataPoint.index = total_nn_indices[get_index];
-                        if(dataPoint.index>=60000||dataPoint.index<0  || dataPoint.src_index>60000 || dataPoint.src_index<0){
-                            cout<<" oopsss final stage error"<<dataPoint.index<<endl;
-                        }
                         dataPoint.distance = total_nn_distances[get_index];
                         gathred_knns[y] = dataPoint;
                     }
 
                     if (collected_nns[source].empty()) {
                         collected_nns[source] = gathred_knns;
+                        for(int  f=0;f<collected_nns.size();f++){
+                            for(int r=0;r<collected_nns[f].size();r++){
+                                if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
+                                        || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
+                                    cout<<" first collected final stage error"<<collected_nns[f][r].index<<endl;
+                                }
+                            }
+
+                        }
 
                     } else {
                         std::vector <DataPoint> v3;
@@ -1073,6 +1079,16 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                                                           const DataPoint &rhs) {
                                                            return lhs.index == rhs.index;
                                                        }), collected_nns[source].end());
+
+                    for(int  f=0;f<collected_nns.size();f++){
+                        for(int r=0;r<collected_nns[f].size();r++){
+                            if(collected_nns[f][r].index>=60000||collected_nns[f][r].index<0
+                               || collected_nns[f][r].src_index>60000 || collected_nns[f][r].src_index<0){
+                                cout<<" after collected final stage error"<<collected_nns[f][r].index<<endl;
+                            }
+                        }
+
+                    }
 
                 }
             }

@@ -182,9 +182,6 @@ int main(int argc, char *argv[]) {
                                 if (algo == 0) {
                                     fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
                                 } else {
-                                    if(vec[l].index>=60000||vec[l].index<0  || vec[l].src_index>=60000 || vec[l].src_index<0){
-                                        cout<<" printing stage error "<<vec[l].index<<endl;
-                                    }
                                     fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
                                 }
                             }

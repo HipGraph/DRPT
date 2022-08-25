@@ -230,7 +230,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         }
 
 
-        int left_index = (next_split+i);
+        int left_index = (next_split+2*i);
         int right_index = left_index + 1;
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;

@@ -148,8 +148,8 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
             }
 
 
-            vector <vector<DataPoint>> child_data_tracker(total_child_size);
-            vector<int> total_size_vector(total_child_size);
+            vector <vector<DataPoint>> child_data_tracker(total_split_size);
+            vector<int> total_size_vector(total_split_size);
             child_data_tracker[0] = this->trees_data[k][0];
             total_size_vector[0] = this->total_data_set_size;
             for (int i = 0; i < this->tree_depth; i++) {
@@ -176,7 +176,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
     MathOp mathOp;
     for (int i = 0; i < current_nodes; i++) {
-        vector <DataPoint> data_vector = child_data_tracker[i];
+        vector <DataPoint> data_vector = child_data_tracker[split_starting_index+i];
         int data_vec_size = data_vector.size();
         cout<<" data vec size  "<<data_vec_size <<" depth "<<depth<< endl;
         VALUE_TYPE *data = new VALUE_TYPE[data_vec_size];
@@ -188,9 +188,9 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
-        cout<<" total vector size"<<total_size_vector[i] <<" depth "<<depth<<" data vec size"<<data_vec_size<< endl;
+        cout<<" total vector size"<<total_size_vector[split_starting_index+i] <<" depth "<<depth<<" data vec size"<<data_vec_size<< endl;
 
-        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1, total_size_vector[i],
+        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1, total_size_vector[split_starting_index+i],
                                                        28, dmrpt::StorageFormat::RAW, this->rank);
         cout<<" calculated completed for "<<i <<" depth "<<depth<< endl;
         VALUE_TYPE median = result[0];
@@ -225,7 +225,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
             }
         }
-        int left_index = 2 * i;
+        int left_index = 2 * (split_starting_index+i);
         int right_index = left_index + 1;
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
@@ -259,10 +259,11 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     }
 
     for (int j = 0; j < current_nodes; j++) {
-        cout<<" updating before  "<< 2 * j<<child_data_tracker[2 * j].size()<<endl;
-        cout<<" updating before  "<< 2 * j+1<<child_data_tracker[2 * j + 1].size()<<endl;
-        total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[2 * j].size();
-        total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[2 * j + 1].size();
+        int id = 2*(split_starting_index+j)
+        cout<<" updating before  "<< 2 * j<<child_data_tracker[id].size()<<endl;
+        cout<<" updating before  "<< 2 * j+1<<child_data_tracker[id + 1].size()<<endl;
+        total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size();
+        total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id+1].size();
     }
 
     MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
@@ -278,6 +279,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     for (int j = 0; j < current_nodes; j++) {
         int left_totol = 0;
         int right_total = 0;
+        int id = 2*(split_starting_index+j)
         for (int k = 0; k < this->world_size; k++) {
 
             left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];
@@ -286,8 +288,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         cout<<" updating  "<< 2 * j<<left_totol<<endl;
         cout<<" updating  "<< 2 * j+1<<right_total<<endl;
 
-        total_size_vector[2 * j] = left_totol;
-        total_size_vector[2 * j + 1] = right_total;
+        total_size_vector[id] = left_totol;
+        total_size_vector[id + 1] = right_total;
     }
 
     free(process_counts);

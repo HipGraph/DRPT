@@ -919,10 +919,16 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
+        for(int l=0;l<data.size();l++){
+            if (data[l].index>=60000 || data[l].index<0){
+                cout<<" index error in calc after "<<data[l].index<<endl;
+            }
+        }
 
 #pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
             if (!data[j].empty()) {
+
                 final_data[j].insert(final_data[j].end(), data[j].begin(),
                                      data[j].end());
             }
@@ -1038,6 +1044,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
                         dataPoint.src_index = source;
                         int get_index = my_start + 2 * nn * h + y;
                         dataPoint.index = total_nn_indices[get_index];
+                        if(dataPoint.index>=60000||dataPoint.index<0  || dataPoint.src_index>60000 || dataPoint.src_index<0){
+                            cout<<" oopsss final stage error"<<dataPoint.index<<endl;
+                        }
                         dataPoint.distance = total_nn_distances[get_index];
                         gathred_knns[y] = dataPoint;
                     }

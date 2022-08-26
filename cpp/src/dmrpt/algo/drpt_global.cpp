@@ -295,7 +295,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 }
 
 
-vector vector<dmrpt::DataPoint>
+vector <vector<dmrpt::DataPoint>>
 dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     dmrpt::MathOp mathOp;

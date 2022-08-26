@@ -567,8 +567,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         my_total +=send_counts[i];
     }
 
-    MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
-                 MPI_INT, MPI_COMM_WORLD);
+//    MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
+//                 MPI_INT, MPI_COMM_WORLD);
 
 
 

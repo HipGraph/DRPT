@@ -68,31 +68,7 @@ namespace dmrpt {
         void
         grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);
 
-
-        vector <DataPoint> send_receive_data_points_if_zero(vector <DataPoint> data_points, int *total_counts,
-                                                            int *process_counts, int *disps, int depth, int direction,
-                                                            int tree);
-
-        int detect_max_rank(int *total_counts, int direction);
-
-        int detect_min_rank(int *total_counts, int direction);
-
-        vector <DataPoint>
-        send_receive_data_points_if_zero(vector <DataPoint> data_points, int *total_counts, int i, int direction,
-                                         int depth, int tree);
-
-        bool is_transfer_needed(int *total_counts, int direction);
-
-        void gather_sibling_indexes();
-
-
         vector <DataPoint> collect_similar_data_points(int tree);
-
-        void collect_similar_data_points_for_all_tree_indices(int tree, int index, int depth);
-
-        vector <DataPoint> request_data_points_for_given_index(vector <DataPoint> all_my_points);
-
-        vector <DataPoint> send_data_points_for_requested_node(vector <DataPoint> all_my_points, int sending_rank);
 
         vector <vector<dmrpt::DataPoint>> calculate_nns(int tree, int nn);
 

@@ -618,9 +618,28 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         }
     }
 
+    int *send_ind  = new int[2];
+    send_ind[0]=1000;
+    send_ind[1]=1001;
 
-    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
-                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
+    int *send_ind_count = new int[1];
+    send_ind_count[0]=2;
+
+    int *disps_ind_count = new int[1];
+    disps_ind_count[0]=0;
+
+    int *receive_ind = new int[2];
+    int *recev_ind_count = new int[1];
+    recev_ind_count[0]=2;
+
+    int *recev_disp_count = new int[1];
+    recev_disp_count[0]=0;
+
+//    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
+//                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
+
+    MPI_Alltoallv(send_ind,send_ind_count,disps_ind_count,MPI_INT,receive_ind,
+                  recev_ind_count,recev_disp_count,MPI_INT,MPI_COMM_WORLD);
 
 
      if(this->rank==0)    {

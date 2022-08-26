@@ -534,7 +534,7 @@ vector <dmrpt::DataPoint>
 dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     dmrpt::MathOp mathOp;
-    int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
+//    int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 

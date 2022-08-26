@@ -420,6 +420,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     vector<int> process_read_offsets(this->world_size);
     vector<int> process_read_offsets_value(this->world_size);
+    vector<vector<DataPoint>> all_leaf_nodes(leafs_per_node);
 
     for (int i = 0; i < leafs_per_node; i++) {
         vector <DataPoint> datavec(total_leaf_count[i]);
@@ -455,9 +456,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
         }
         this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;
+        all_leaf_nodes[i]=datavec;
     }
 
-    return this->trees_leaf_first_indices_all[tree];
+    return all_leaf_nodes;
 
 }
 

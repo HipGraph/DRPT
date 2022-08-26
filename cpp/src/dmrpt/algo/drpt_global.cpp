@@ -446,6 +446,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             for (int k = read_offset; k < process_read_offsets[j]; k++) {
                 DataPoint dataPoint;
                 dataPoint.index = receive_indices[k];
+                if (dataPoint.index <= 0 || dataPoint.index >= 60000){
+                    cout<< " index zero for k "<< read_offset<<endl;
+                }
                 dataPoint.image_data = vector<VALUE_TYPE>(this->data_dimension);
                 for (int m = value_read_count; m < value_read_count + this->data_dimension; m++) {
                     dataPoint.image_data[m - value_read_count] = receive_values[m];

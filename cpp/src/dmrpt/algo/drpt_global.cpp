@@ -551,7 +551,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         send_counts[i]=all_points.size();
     }
 
-    MPI_Alltoall(send_counts, 2, MPI_INT, recv_counts, 2,
+    MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
                  MPI_INT, MPI_COMM_WORLD);
 
 

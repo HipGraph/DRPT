@@ -592,12 +592,17 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             count += recv_counts[j + i * leafs_per_node];
         }
         recev_indices_count[i] = count;
+        cout<<" rank "<<rank <<" count "<< recev_indices_count[i]<< endl;
     }
 
     for (int i = 0; i < this->world_size; i++) {
         disps_indices_count[i] = (i > 0) ? (disps_indices_count[i - 1] + send_indices_count[i - 1]) : 0;
         recev_disps_count[i]=(i > 0) ? (recev_disps_count[i - 1] + recev_indices_count[i - 1]) : 0;
     }
+
+
+    cout<<" total sum"<< total_sum << endl;
+
 
     int *receive_indices = new int[total_sum];
 

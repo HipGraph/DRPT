@@ -682,11 +682,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 DataPoint dataPoint;
                 dataPoint.index = receive_indices[k];
                 dataPoint.image_data = vector<VALUE_TYPE>(this->data_dimension);
-                cout<<" processing image data"<<endl;
                 for (int m=value_read_count;m<value_read_count+this->data_dimension;m++){
                     dataPoint.image_data[m-value_read_count]=receive_values[m];
                 }
-                cout<<"  completing image data"<<endl;
                 datavec.push_back(dataPoint);
                 value_read_count += this->data_dimension;
 

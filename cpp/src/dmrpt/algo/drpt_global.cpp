@@ -618,28 +618,40 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         }
     }
 
-    int *send_ind  = new int[2];
-    send_ind[0]=1000;
-    send_ind[1]=1001;
 
-    int *send_ind_count = new int[1];
-    send_ind_count[0]=2;
 
-    int *disps_ind_count = new int[1];
-    disps_ind_count[0]=0;
+    for(int i=0;i<this->world_size;i++){
+        cout<<"send count "<<send_ind_count[i]<<endl;
+        cout<<"disps count "<<disps_ind_count[i]<<endl;
+        cout<<"receive count "<<recev_ind_count[i]<<endl;
+        cout<<"receive dip count "<<recev_disp_count[i]<<endl;
+    }
 
-    int *receive_ind = new int[2];
-    int *recev_ind_count = new int[1];
-    recev_ind_count[0]=2;
+//    int *send_ind  = new int[2];
+//    send_ind[0]=1000;
+//    send_ind[1]=1001;
+//
+//    int *send_ind_count = new int[1];
+//    send_ind_count[0]=2;
+//
+//    int *disps_ind_count = new int[1];
+//    disps_ind_count[0]=0;
+//
+//    int *receive_ind = new int[2];
+//    int *recev_ind_count = new int[1];
+//    recev_ind_count[0]=2;
+//
+//    int *recev_disp_count = new int[1];
+//    recev_disp_count[0]=0;
 
-    int *recev_disp_count = new int[1];
-    recev_disp_count[0]=0;
 
-//    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
-//                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
 
-    MPI_Alltoallv(send_ind,send_ind_count,disps_ind_count,MPI_INT,receive_ind,
-                  recev_ind_count,recev_disp_count,MPI_INT,MPI_COMM_WORLD);
+
+    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
+                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
+
+//    MPI_Alltoallv(send_ind,send_ind_count,disps_ind_count,MPI_INT,receive_ind,
+//                  recev_ind_count,recev_disp_count,MPI_INT,MPI_COMM_WORLD);
 
 
 //     if(this->rank==0)    {

@@ -413,6 +413,22 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     MPI_Alltoallv(send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
+    char results[500];
+
+    char hostname[HOST_NAME_MAX];
+
+    gethostname(hostname, HOST_NAME_MAX);
+    string file_path_stat = output_path + "data_received.txt.";
+    std::strcpy(results, file_path_stat.c_str());
+    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
+    ofstream fout(results, std::ios_base::app);
+
+    for(int k=0; k< total_sum * this->data_dimension;k++){
+        fout<<receive_values[k]<<' ';
+        if (k> 0  and k % this->data_dimension == 0) {
+            fout<<endl;
+        }
+    }
 
     my_start_count = leafs_per_node * this->rank;
     if (this->rank < this->world_size - 1) {

@@ -621,10 +621,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
 
     for(int i=0;i<this->world_size;i++){
-        cout<<"send count "<<send_ind_count[i]<<endl;
-        cout<<"disps count "<<disps_ind_count[i]<<endl;
-        cout<<"receive count "<<recev_ind_count[i]<<endl;
-        cout<<"receive dip count "<<recev_disp_count[i]<<endl;
+        cout<<"send count "<<send_indices_count[i]<<endl;
+        cout<<"disps count "<<disps_indices_count[i]<<endl;
+        cout<<"receive count "<<recev_indices_count[i]<<endl;
+        cout<<"receive dip count "<<recev_disps_count[i]<<endl;
     }
 
 //    int *send_ind  = new int[2];

@@ -586,9 +586,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         total_sum +=count;
     }
 
-    for (int i = 0; i < this->world_size; j++) {
+    for (int i = 0; i < this->world_size; i++) {
         int count = 0;
-        for (int j = 0; j < leafs_per_node; i++) {
+        for (int j = 0; j < leafs_per_node; j++) {
             count += recv_counts[j + i * leafs_per_node];
         }
         recev_indices_count[i] = count;

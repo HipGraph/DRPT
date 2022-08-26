@@ -642,11 +642,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                   recev_ind_count,recev_disp_count,MPI_INT,MPI_COMM_WORLD);
 
 
-     if(this->rank==0)    {
-        for(int i=0;i<total_sum;i++){
-            cout<<receive_indices[i]<<' '<<endl;
-        }
-     }
+//     if(this->rank==0)    {
+//        for(int i=0;i<total_sum;i++){
+//            cout<<receive_indices[i]<<' '<<endl;
+//        }
+//     }
 
 
 

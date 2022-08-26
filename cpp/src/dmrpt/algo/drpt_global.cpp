@@ -535,7 +535,6 @@ vector <dmrpt::DataPoint>
 dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     dmrpt::MathOp mathOp;
-//    int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
@@ -562,7 +561,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     for (int i = 0; i < total_leaf_size; i++) {
         if (i > 0 && i % leafs_per_node == 0) {
             send_indices_count[process] = sum_per_node;
-            send_values_count[process] = sum_per_node*this->data_dimension;
+            send_values_count[process] = sum_per_node * this->data_dimension;
             sum_per_node = 0;
             process++;
         }
@@ -573,7 +572,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     }
 
     send_indices_count[process] = sum_per_node;
-    send_values_count[process] = sum_per_node*this->data_dimension;
+    send_values_count[process] = sum_per_node * this->data_dimension;
 
 
     MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
@@ -604,7 +603,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             count += recv_counts[j + i * leafs_per_node];
         }
         recev_indices_count[i] = count;
-        recev_values_count[i] = count*this->data_dimension;
+        recev_values_count[i] = count * this->data_dimension;
 
     }
 
@@ -621,10 +620,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     int *receive_indices = new int[total_sum];
 
-    VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum*this->data_dimension];
+    VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * this->data_dimension];
 
     int *send_indices = new int[my_total];
-    VALUE_TYPE *send_values= new VALUE_TYPE[my_total*this->data_dimension];
+    VALUE_TYPE *send_values = new VALUE_TYPE[my_total * this->data_dimension];
 
 
     int co = 0;
@@ -633,11 +632,12 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         for (int j = 0; j < all_points.size(); j++) {
             send_indices[co] = all_points[j].index;
 #pragma omp parallel for
-            for(int k=0;k<this->data_dimension;k++){
-                send_values[co+k]=all_points[j].image_data[k];
+            for (int k = 0; k < this->data_dimension; k++) {
+                send_values[co + k] = all_points[j].image_data[k];
             }
             co++;
         }
+        this->trees_leaf_first_indices[tree][i].clear();
     }
 
 
@@ -648,48 +648,52 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
+    my_start_count = leafs_per_node * this->rank;
+    if (this->rank < this->world_size - 1) {
+        end_count = leafs_per_node * (this->rank + 1);
+    } else {
+        end_count = total_leaf_size;
+    }
 
+    vector<int> process_read_offsets(this->world_size);
+    vector<int> process_read_offsets_value(this->world_size);
 
+    for (int i = 0; i < leafs_per_node; i++) {
+        vector<DataPoint> datavec( total_leaf_count[i]);
+        for (int j = 0; j < this->world_size; j++) {
+            int count_per_leaf_per_node =   recv_counts[i + j * leafs_per_node];
+            int read_offset = recev_disps_count[j];
+            int read_offset_data = recev_disps_values_count[j];
 
+            if (i==0){
+                process_read_offsets[j]=read_offset+count_per_leaf_per_node;
+                process_read_offsets_value[j]=read_offset_data+count_per_leaf_per_node*this->data_dimension;
+            }else {
+                read_offset = process_read_offsets[j];
+                process_read_offsets[j]=read_offset+count_per_leaf_per_node;
+                read_offset_data = process_read_offsets_value[j];
+                process_read_offsets_value[j]=read_offset_data+count_per_leaf_per_node*this->data_dimension;
+            }
+
+            int value_read_count=read_offset_data;
+            for(int k=read_offset;k<process_read_offsets[j];k++){
+                DataPoint dataPoint;
+                dataPoint.index = receive_indices[k];
+
+                for (int m=value_read_count;m<value_read_count+this->data_dimension;m++){
+                    dataPoint.image_data[m-value_read_count]=receive_values[m];
+                }
+                datavec.push_back(dataPoint);
+                value_read_count += this->data_dimension;
+
+            }
+        }
+        this->trees_leaf_first_indices_all[tree][i+my_start_count]=datavec;
+    }
 
 
     cout << " completed for loop" << rank << endl;
 
-
-
-
-
-
-
-//    //large trees
-//    if (total_leaf_size >= this->world_size) {
-//        my_start_count = leafs_per_node * this->rank;
-//        if (this->rank < this->world_size - 1) {
-//            end_count = leafs_per_node * (this->rank + 1);
-//        } else {
-//            end_count = total_leaf_size;
-//        }
-//
-//        if (selected_leaf >= my_start_count && selected_leaf < end_count) {
-//            vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
-//            return dps;
-//        } else {
-//
-//            for (int ra = 0; ra < this->world_size; ra++) {
-//                if (ra < (this->world_size - 1) && selected_leaf >= leafs_per_node * ra &&
-//                    selected_leaf < leafs_per_node * (ra + 1)) {
-//                    sending_rank = ra;
-//                    break;
-//                } else if (ra == (this->world_size - 1) && selected_leaf >= leafs_per_node * ra) {
-//                    sending_rank = ra;
-//                    break;
-//                }
-//            }
-////            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
-////                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
-//            return this->send_data_points_for_requested_node(all_points, sending_rank);
-//        }
-//    }
 
 }
 

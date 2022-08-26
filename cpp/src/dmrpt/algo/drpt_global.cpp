@@ -550,8 +550,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     int sum_per_node=0;
     int process=0;
-    int send_indices_count = new int[this->world_size];
-    int disps_indices_count = new int[this->world_size];
+    int *send_indices_count = new int[this->world_size];
+    int *disps_indices_count = new int[this->world_size];
 
 
     int my_total=0;

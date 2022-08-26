@@ -637,7 +637,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
             co++;
         }
-        this->trees_leaf_first_indices[tree][i].clear();
     }
 
 
@@ -660,6 +659,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     for (int i = 0; i < leafs_per_node; i++) {
         vector<DataPoint> datavec( total_leaf_count[i]);
+        cout<<" processing leaf "<<i<<endl;
         for (int j = 0; j < this->world_size; j++) {
             int count_per_leaf_per_node =   recv_counts[i + j * leafs_per_node];
             int read_offset = recev_disps_count[j];

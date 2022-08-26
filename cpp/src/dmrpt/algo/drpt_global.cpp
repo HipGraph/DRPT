@@ -599,12 +599,12 @@ void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tre
     int id_left = 2 * index + 1;
     int id_right = id_left + 1;
 
-    if (depth == this->tree_depth - 1) {
-        int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
-        this->trees_leaf_first_indices_all[tree][selected_leaf] = this->collect_similar_data_points_for_given_tree_index(
-                tree, index);
-        return;
-    }
+//    if (depth == this->tree_depth - 1) {
+//        int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
+//        this->trees_leaf_first_indices_all[tree][selected_leaf] = this->collect_similar_data_points_for_given_tree_index(
+//                tree, index);
+//        return;
+//    }
 
     collect_similar_data_points_for_all_tree_indices(tree, id_left, depth + 1);
     collect_similar_data_points_for_all_tree_indices(tree, id_right, depth + 1);

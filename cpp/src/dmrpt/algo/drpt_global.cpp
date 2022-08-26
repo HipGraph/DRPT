@@ -142,7 +142,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                     DataPoint dataPoint;
                     dataPoint.value = this->projected_matrix[index];
                     dataPoint.index = j + this->starting_data_index;
-                    dataPoint.image_data = this->original_data_processed[j].value
+                    dataPoint.image_data = this->original_data_processed[j].value;
                     this->trees_data[k][i][j] = dataPoint;
                 }
 //                }

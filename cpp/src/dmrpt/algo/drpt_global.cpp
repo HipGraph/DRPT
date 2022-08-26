@@ -558,7 +558,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     for (int i = 0; i < total_leaf_size; i++) {
         if (i>0 && i % leafs_per_node == 0){
             send_indices_count[process]=sum_per_node;
-            sum_per_node=0
+            sum_per_node=0;
             process++;
         }
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];

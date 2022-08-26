@@ -449,7 +449,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 dataPoint.image_data = vector<VALUE_TYPE>(this->data_dimension);
                 for (int m = value_read_count; m < value_read_count + this->data_dimension; m++) {
                     dataPoint.image_data[m - value_read_count] = receive_values[m];
-                    if ( dataPoint.image_data[m - value_read_count] <= 0 ||  dataPoint.image_data[m - value_read_count] > 255){
+                    if ( dataPoint.image_data[m - value_read_count] < 0 ||  dataPoint.image_data[m - value_read_count] > 255){
                         cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
                     }
                 }

@@ -519,6 +519,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
                 dataPoint.src_index = data_points[k].index;
                 dataPoint.index = data_points[j].index;
                 dataPoint.distance = distance;
+                fout<<dataPoint.src_index << ' '<<dataPoint.index<<' '<<dataPoint.distance<<endl;
                 vec[j] = dataPoint;
 
             }

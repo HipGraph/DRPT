@@ -619,8 +619,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     }
 
 
-    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_VALUE_TYPE,receive_indices,
-                  recev_indices_count,recev_disps_count,MPI_VALUE_TYPE,MPI_COMM_WORLD);
+    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
+                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
 
 
      if(this->rank==0)    {

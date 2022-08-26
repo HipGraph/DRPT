@@ -594,7 +594,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tree) {
+void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tree, int index, int depth) {
 
     int id_left = 2 * index + 1;
     int id_right = id_left + 1;

@@ -439,9 +439,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 process_read_offsets_value[j] = read_offset_data + count_per_leaf_per_node * this->data_dimension;
             }
 
-            cout << " processing leaf " << i << " world " << j << " read_offset "
-                 << read_offset << " read_offset_data " << read_offset_data << endl;
-
             int value_read_count = read_offset_data;
             for (int k = read_offset; k < process_read_offsets[j]; k++) {
                 DataPoint dataPoint;
@@ -452,6 +449,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 dataPoint.image_data = vector<VALUE_TYPE>(this->data_dimension);
                 for (int m = value_read_count; m < value_read_count + this->data_dimension; m++) {
                     dataPoint.image_data[m - value_read_count] = receive_values[m];
+                    if ( dataPoint.image_data[m - value_read_count] <= 0 ||  dataPoint.image_data[m - value_read_count] > 255){
+                        cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
+                    }
                 }
                 datavec.push_back(dataPoint);
                 value_read_count += this->data_dimension;

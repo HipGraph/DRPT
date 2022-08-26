@@ -398,6 +398,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 #pragma omp parallel for
             for (int k = 0; k < this->data_dimension; k++) {
                 send_values[co + k] = all_points[j].image_data[k];
+                if (send_values[co + k]<0 || send_values[co + k]>255){
+                    cout<< " original value out of range "<<co + k<<" index  "<<send_indices[co]<<endl;
+                }
             }
             co++;
         }
@@ -450,7 +453,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 for (int m = value_read_count; m < value_read_count + this->data_dimension; m++) {
                     dataPoint.image_data[m - value_read_count] = receive_values[m];
                     if ( dataPoint.image_data[m - value_read_count] < 0 ||  dataPoint.image_data[m - value_read_count] > 255){
-                        cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
+//                        cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
                     }
                 }
                 datavec.push_back(dataPoint);

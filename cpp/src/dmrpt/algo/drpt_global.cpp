@@ -142,6 +142,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                     DataPoint dataPoint;
                     dataPoint.value = this->projected_matrix[index];
                     dataPoint.index = j + this->starting_data_index;
+                    dataPoint.image_data = this->original_data_processed[j].value
                     this->trees_data[k][i][j] = dataPoint;
                 }
 //                }
@@ -548,45 +549,53 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     cout << "total leaf size" << total_leaf_size << endl;
 
-    int sum_per_node=0;
-    int process=0;
+    int sum_per_node = 0;
+    int process = 0;
     int *send_indices_count = new int[this->world_size];
     int *disps_indices_count = new int[this->world_size];
 
+    int *send_values_count = new int[this->world_size];
+    int *disps_values_count = new int[this->world_size];
 
-    int my_total=0;
+
+    int my_total = 0;
     for (int i = 0; i < total_leaf_size; i++) {
-        if (i>0 && i % leafs_per_node == 0){
-            send_indices_count[process]=sum_per_node;
-            sum_per_node=0;
+        if (i > 0 && i % leafs_per_node == 0) {
+            send_indices_count[process] = sum_per_node;
+            send_values_count[process] = sum_per_node*this->data_dimension;
+            sum_per_node = 0;
             process++;
         }
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
         send_counts[i] = all_points.size();
-        sum_per_node +=send_counts[i];
-        my_total +=send_counts[i];
+        sum_per_node += send_counts[i];
+        my_total += send_counts[i];
     }
 
-    send_indices_count[process]=sum_per_node;
+    send_indices_count[process] = sum_per_node;
+    send_values_count[process] = sum_per_node*this->data_dimension;
 
 
     MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
                  MPI_INT, MPI_COMM_WORLD);
 
 
-
     int *total_leaf_count = new int[leafs_per_node];
-    int *disps_indices = new int[this->world_size];
+
     int *recev_indices_count = new int[this->world_size];
+    int *recev_values_count = new int[this->world_size];
     int *recev_disps_count = new int[this->world_size];
-    int total_sum=0;
+    int *recev_disps_values_count = new int[this->world_size];
+
+
+    int total_sum = 0;
     for (int j = 0; j < leafs_per_node; j++) {
         int count = 0;
         for (int i = 0; i < this->world_size; i++) {
             count += recv_counts[j + i * leafs_per_node];
         }
         total_leaf_count[j] = count;
-        total_sum +=count;
+        total_sum += count;
     }
 
     for (int i = 0; i < this->world_size; i++) {
@@ -595,73 +604,52 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             count += recv_counts[j + i * leafs_per_node];
         }
         recev_indices_count[i] = count;
-        cout<<" rank "<<rank <<" count "<< recev_indices_count[i]<< endl;
+        recev_values_count[i] = count*this->data_dimension;
+
     }
 
     for (int i = 0; i < this->world_size; i++) {
         disps_indices_count[i] = (i > 0) ? (disps_indices_count[i - 1] + send_indices_count[i - 1]) : 0;
-        recev_disps_count[i]=(i > 0) ? (recev_disps_count[i - 1] + recev_indices_count[i - 1]) : 0;
+        recev_disps_count[i] = (i > 0) ? (recev_disps_count[i - 1] + recev_indices_count[i - 1]) : 0;
+        disps_values_count[i] = (i > 0) ? (disps_values_count[i - 1] + send_values_count[i - 1]) : 0;
+        recev_disps_values_count[i] = (i > 0) ? (recev_disps_values_count[i - 1] + recev_values_count[i - 1]) : 0;
     }
 
 
-    cout<<" total sum"<< total_sum << endl;
+    cout << " total sum" << total_sum << endl;
 
 
     int *receive_indices = new int[total_sum];
 
+    VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum*this->data_dimension];
+
     int *send_indices = new int[my_total];
+    VALUE_TYPE *send_values= new VALUE_TYPE[my_total*this->data_dimension];
 
 
-    int co=0;
+    int co = 0;
     for (int i = 0; i < total_leaf_size; i++) {
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
-        for(int j=0; j<all_points.size();j++){
-            send_indices[co]=all_points[j].index;
+        for (int j = 0; j < all_points.size(); j++) {
+            send_indices[co] = all_points[j].index;
+#pragma omp parallel for
+            for(int k=0;k<this->data_dimension;k++){
+                send_values[co+k]=all_points[j].image_data[k];
+            }
             co++;
         }
     }
 
 
+    MPI_Alltoallv(send_indices, send_indices_count, disps_indices_count, MPI_INT, receive_indices,
+                  recev_indices_count, recev_disps_count, MPI_INT, MPI_COMM_WORLD);
 
-    for(int i=0;i<this->world_size;i++){
-        cout<<"send count "<<send_indices_count[i]<<endl;
-        cout<<"disps count "<<disps_indices_count[i]<<endl;
-        cout<<"receive count "<<recev_indices_count[i]<<endl;
-        cout<<"receive dip count "<<recev_disps_count[i]<<endl;
-    }
-
-//    int *send_ind  = new int[2];
-//    send_ind[0]=1000;
-//    send_ind[1]=1001;
-//
-//    int *send_ind_count = new int[1];
-//    send_ind_count[0]=2;
-//
-//    int *disps_ind_count = new int[1];
-//    disps_ind_count[0]=0;
-//
-//    int *receive_ind = new int[2];
-//    int *recev_ind_count = new int[1];
-//    recev_ind_count[0]=2;
-//
-//    int *recev_disp_count = new int[1];
-//    recev_disp_count[0]=0;
+    MPI_Alltoallv(send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
+                  recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
 
 
-    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_INT,receive_indices,
-                  recev_indices_count,recev_disps_count,MPI_INT,MPI_COMM_WORLD);
-
-//    MPI_Alltoallv(send_ind,send_ind_count,disps_ind_count,MPI_INT,receive_ind,
-//                  recev_ind_count,recev_disp_count,MPI_INT,MPI_COMM_WORLD);
-
-
-//     if(this->rank==0)    {
-//        for(int i=0;i<total_sum;i++){
-//            cout<<receive_indices[i]<<' '<<endl;
-//        }
-//     }
 
 
 

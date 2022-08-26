@@ -607,15 +607,15 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int co=0;
     for (int i = 0; i < total_leaf_size; i++) {
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
-        for(int j=0j<all_points.size();j++){
-            send_indices[co]=all_points[j];
+        for(int j=0; j<all_points.size();j++){
+            send_indices[co]=all_points[j].index;
             co++;
         }
     }
 
 
-    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,VALUE_TYPE,receive_indices,
-                  recev_indices_count,recev_disps_count,VALUE_TYPE,MPI_COMM_WORLD);
+    MPI_Alltoallv(send_indices,send_indices_count,disps_indices_count,MPI_VALUE_TYPE,receive_indices,
+                  recev_indices_count,recev_disps_count,MPI_VALUE_TYPE,MPI_COMM_WORLD);
 
 
      if(this->rank==0)    {

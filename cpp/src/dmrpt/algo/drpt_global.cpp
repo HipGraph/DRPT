@@ -531,7 +531,7 @@ bool dmrpt::DRPTGlobal::is_transfer_needed(int *total_counts, int direction) {
 
 
 vector <dmrpt::DataPoint>
-dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, int index) {
+dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     dmrpt::MathOp mathOp;
     int selected_leaf = index - (1 << (this->tree_depth - 1)) + 1;
@@ -543,59 +543,58 @@ dmrpt::DRPTGlobal::collect_similar_data_points_for_given_tree_index(int tree, in
     int end_count = 0;
     int sending_rank = -1;
 
+    int *send_counts = new int[total_leaf_size];
+    int *recv_counts = new int[total_leaf_size];
 
-    // merge all trees
-    vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][selected_leaf];
-
-
-    //large trees
-    if (total_leaf_size >= this->world_size) {
-        my_start_count = leafs_per_node * this->rank;
-        if (this->rank < this->world_size - 1) {
-            end_count = leafs_per_node * (this->rank + 1);
-        } else {
-            end_count = total_leaf_size;
-        }
-
-        if (selected_leaf >= my_start_count && selected_leaf < end_count) {
-            vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
-            return dps;
-        } else {
-
-            for (int ra = 0; ra < this->world_size; ra++) {
-                if (ra < (this->world_size - 1) && selected_leaf >= leafs_per_node * ra &&
-                    selected_leaf < leafs_per_node * (ra + 1)) {
-                    sending_rank = ra;
-                    break;
-                } else if (ra == (this->world_size - 1) && selected_leaf >= leafs_per_node * ra) {
-                    sending_rank = ra;
-                    break;
-                }
-            }
-//            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
-//                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
-            return this->send_data_points_for_requested_node(all_points, sending_rank);
-        }
-    } else {
-        //small trees
-
-        sending_rank = (tree * total_leaf_size + selected_leaf) % this->world_size;
-
-        if (this->rank == sending_rank) {
-            vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
-
-            return dps;
-        } else {
-//            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
-//                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
-            return this->send_data_points_for_requested_node(all_points, sending_rank);
-        }
+    for(int i=0;i<total_leaf_size;i++){
+        vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
+        send_counts[i]=all_points.size();
     }
+
+    MPI_Alltoall(send_counts, 2, MPI_INT, recv_counts, 2,
+                 MPI_INT, MPI_COMM_WORLD);
+
+
+    for(int i=0;i<total_leaf_size;i++){
+        cout<<" rank "<<this->rank<<" i "<<i<<" count "<<recv_counts[i]<<endl;
+    }
+
+
+
+//    //large trees
+//    if (total_leaf_size >= this->world_size) {
+//        my_start_count = leafs_per_node * this->rank;
+//        if (this->rank < this->world_size - 1) {
+//            end_count = leafs_per_node * (this->rank + 1);
+//        } else {
+//            end_count = total_leaf_size;
+//        }
+//
+//        if (selected_leaf >= my_start_count && selected_leaf < end_count) {
+//            vector <DataPoint> dps = this->request_data_points_for_given_index(all_points);
+//            return dps;
+//        } else {
+//
+//            for (int ra = 0; ra < this->world_size; ra++) {
+//                if (ra < (this->world_size - 1) && selected_leaf >= leafs_per_node * ra &&
+//                    selected_leaf < leafs_per_node * (ra + 1)) {
+//                    sending_rank = ra;
+//                    break;
+//                } else if (ra == (this->world_size - 1) && selected_leaf >= leafs_per_node * ra) {
+//                    sending_rank = ra;
+//                    break;
+//                }
+//            }
+////            cout<<" rank "<<this->rank<<" sending data to "<<sending_rank <<" size "<<all_points.size()
+////                << " tree "<<tree<<" leaf "<<selected_leaf <<endl;
+//            return this->send_data_points_for_requested_node(all_points, sending_rank);
+//        }
+//    }
 
 }
 
 
-void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tree, int index, int depth) {
+void dmrpt::DRPTGlobal::collect_similar_data_points_for_all_tree_indices(int tree) {
 
     int id_left = 2 * index + 1;
     int id_right = id_left + 1;

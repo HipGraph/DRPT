@@ -172,7 +172,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
         auto start_collect = high_resolution_clock::now();
         for (int i = 0; i < ntrees; i++) {
-            this->drpt_global.collect_similar_data_points_for_all_tree_indices(i, 0, 0);
+            this->drpt_global.collect_similar_data_points(i);
         }
         auto stop_collect = high_resolution_clock::now();
         auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
@@ -212,8 +212,6 @@ dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold,int nn) 
 
 vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::get_knn(int nn) {
     return this->drpt_global.gather_nns(nn);
-
-
 }
 
 

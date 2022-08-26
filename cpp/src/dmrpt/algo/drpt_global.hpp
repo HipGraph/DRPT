@@ -86,7 +86,7 @@ namespace dmrpt {
         void gather_sibling_indexes();
 
 
-        vector <DataPoint> collect_similar_data_points_for_given_tree_index(int tree, int index);
+        vector <DataPoint> collect_similar_data_points(int tree);
 
         void collect_similar_data_points_for_all_tree_indices(int tree, int index, int depth);
 

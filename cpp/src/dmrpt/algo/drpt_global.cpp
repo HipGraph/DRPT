@@ -546,6 +546,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int *send_counts = new int[total_leaf_size];
     int *recv_counts = new int[total_leaf_size];
 
+    cout<<"total leaf size"<< total_leaf_size<<endl;
+
     for(int i=0;i<total_leaf_size;i++){
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
         send_counts[i]=all_points.size();
@@ -559,6 +561,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         cout<<" rank "<<this->rank<<" i "<<i<<" count "<<recv_counts[i]<<endl;
     }
 
+    cout<<" completed for loop"<<rank<<endl;
 
 
 //    //large trees

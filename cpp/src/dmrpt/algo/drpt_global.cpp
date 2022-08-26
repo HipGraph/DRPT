@@ -546,22 +546,32 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int *send_counts = new int[total_leaf_size];
     int *recv_counts = new int[total_leaf_size];
 
-    cout<<"total leaf size"<< total_leaf_size<<endl;
+    cout << "total leaf size" << total_leaf_size << endl;
 
-    for(int i=0;i<total_leaf_size;i++){
+    for (int i = 0; i < total_leaf_size; i++) {
         vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
-        send_counts[i]=all_points.size();
+        send_counts[i] = all_points.size();
     }
 
     MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
                  MPI_INT, MPI_COMM_WORLD);
 
 
-    for(int i=0;i<total_leaf_size;i++){
-        cout<<" rank "<<this->rank<<" i "<<i<<" count "<<recv_counts[i]<<endl;
+    int *total_leaf_count = new int[leafs_per_node];
+    for (int j = 0; j < leafs_per_node; j++) {
+        int count = 0;
+        for (int i = 0; i < this->world_size; i++) {
+            count += recv_counts[j + i * leafs_per_node];
+        }
+        total_leaf_count[j] = count;
     }
 
-    cout<<" completed for loop"<<rank<<endl;
+
+    for (int i = 0; i < leafs_per_node; i++) {
+        cout << " rank " << this->rank << " leaf " << i << " count " << total_leaf_count[i] << endl;
+    }
+
+    cout << " completed for loop" << rank << endl;
 
 
 //    //large trees
@@ -870,7 +880,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
 
-    cout<<"gathering started "<<endl;
+    cout << "gathering started " << endl;
     char results[500];
 
     char hostname[HOST_NAME_MAX];

@@ -467,12 +467,15 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                     if ( dataPoint.image_data[m - value_read_count] < 0 ||  dataPoint.image_data[m - value_read_count] > 255){
                         cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
                     }
+                    fout<<endl;
                 }
+                fout<< dataPoint.image_data[m - value_read_count] <<' '<<endl;
                 datavec.push_back(dataPoint);
                 value_read_count += this->data_dimension;
 
             }
         }
+        cout<<" data vec size"<<datavec.size()<<" * "<<datavec[0].image_data.size();
         this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;
         all_leaf_nodes[i]=datavec;
     }

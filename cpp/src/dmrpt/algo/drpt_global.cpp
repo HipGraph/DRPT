@@ -467,9 +467,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                     if ( dataPoint.image_data[m - value_read_count] < 0 ||  dataPoint.image_data[m - value_read_count] > 255){
                         cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
                     }
-                    fout<<endl;
+
+                    fout<< dataPoint.image_data[m - value_read_count] <<' '<<endl;
                 }
-                fout<< dataPoint.image_data[m - value_read_count] <<' '<<endl;
+                fout<<endl;
+
                 datavec.push_back(dataPoint);
                 value_read_count += this->data_dimension;
 

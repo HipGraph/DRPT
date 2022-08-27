@@ -485,7 +485,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         }
 
         int id = i + my_start_count;
-        cout<<" rank "<<" filing tree for "<<id<<endl;
+        cout<<" rank "<<rank <<" filing tree for "<<id<<endl;
 
         this->trees_leaf_first_indices_all[tree][id] = datavec;
         all_leaf_nodes[i] = datavec;
@@ -527,10 +527,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
         } else {
             end_count = total_leaf_size;
         }
-    } else {
-        my_start_count = this->rank % total_leaf_size;
-        end_count = my_start_count + 1;
-
     }
 
     cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
@@ -549,8 +545,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {
+        cout<<"rank "<<rank<<" accessing tree"<<i<<endl;
         vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
-
+        cout<<"rank "<<rank<<" accessing completed"<<i<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());

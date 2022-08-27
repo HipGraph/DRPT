@@ -473,9 +473,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 }
 //                fout<<endl;
 
-                datavec.push_back(dataPoint);
+                datavec[k-read_offset]=dataPoint;
                 value_read_count += this->data_dimension;
-
             }
         }
         for (int l = 0; l < datavec.size(); l++) {

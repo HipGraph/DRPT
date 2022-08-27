@@ -485,12 +485,17 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         }
 
         int id = i + my_start_count;
-        cout<<" rank "<<rank <<" filing tree for "<<id<<endl;
+
 
         this->trees_leaf_first_indices_all[tree][id] = datavec;
         all_leaf_nodes[i] = datavec;
     }
 
+    for(int p=my_start_count;p<end_count;p++){
+        this->trees_leaf_first_indices_all[tree][p];
+    }
+
+    cout<<" rank "<<rank <<"  completed test "<<id<<endl;
     free(send_counts);
     free(recv_counts);
     free(send_indices_count);
@@ -551,14 +556,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
-//#pragma omp parallel for
+#pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
 
-                cout<<"rank "<<rank<<" distance calc  starting for "<<data_points[k].index<<" "<<data_points[j].index<<endl;
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);
-
-                cout<<"rank "<<rank<<" distance calc  completed for "<<data_points[k].index<<" "<<data_points[j].index<<endl;
 
                 DataPoint dataPoint;
                 dataPoint.src_index = data_points[k].index;

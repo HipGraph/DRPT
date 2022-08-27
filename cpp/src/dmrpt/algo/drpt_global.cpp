@@ -450,6 +450,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
 
             int value_read_count = read_offset_data;
+            cout<< " rank " <<this->rank<< " readoffset  "<< read_offset << " process_read_offset  "<<process_read_offsets[j]<<endl;
             for (int k = read_offset; k < process_read_offsets[j]; k++) {
                 DataPoint dataPoint;
                 dataPoint.index = receive_indices[k];

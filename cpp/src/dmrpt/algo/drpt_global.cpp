@@ -550,9 +550,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {
-        cout<<"rank "<<rank<<" accessing tree"<<i<<endl;
         vector <DataPoint> data_points = this->trees_leaf_first_indices_all[tree][i];
-        cout<<"rank "<<rank<<" accessing completed"<<i<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -626,6 +624,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
 
+        cout << " rank " << rank << " inserting started"<<data.size() << endl;
 #pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
             if (!data[j].empty()) {

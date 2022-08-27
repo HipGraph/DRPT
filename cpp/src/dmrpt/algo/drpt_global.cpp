@@ -491,8 +491,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         all_leaf_nodes[i] = datavec;
     }
 
-    int my_start_count = 0;
-    int end_count = 0;
+     my_start_count = 0;
+     end_count = 0;
 
     //large trees
     if (total_leaf_size >= this->world_size) {

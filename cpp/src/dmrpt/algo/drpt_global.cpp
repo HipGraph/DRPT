@@ -468,7 +468,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                         cout<< " value zero for k "<< read_offset<<" m"<<m <<endl;
                     }
 
-                    fout<< dataPoint.image_data[m - value_read_count] <<' '<<endl;
+                    fout<< dataPoint.image_data[m - value_read_count] <<' ';
                 }
                 fout<<endl;
 

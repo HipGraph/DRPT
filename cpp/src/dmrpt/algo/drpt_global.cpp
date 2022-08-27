@@ -480,7 +480,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
         for (int y = 0; y < total_leaf_count[i]; y++) {
             if (datavec[y].index == 0) {
-                cout << "  wrong index " << datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
+                cout << "  wrong index "<<y <<" data index "<< datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
             }
         }
 

@@ -410,16 +410,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     MPI_Alltoallv(send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
-    char results[500];
-
-    char hostname[HOST_NAME_MAX];
-
-    gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "data_received.txt.";
-    std::strcpy(results, file_path_stat.c_str());
-    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-    ofstream fout(results, std::ios_base::app);
-
 
     my_start_count = leafs_per_node * this->rank;
     if (this->rank < this->world_size - 1) {
@@ -544,6 +534,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
 
     ofstream fout(results, std::ios_base::app);
+
     auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {
@@ -586,6 +577,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
     cout << rank << " distance calc returinng " << endl;
     fout << rank << " distance calc " << distance_time.count() << endl;
+    cout << rank << " distance priting  done " << endl;
 
     return final_results;
 }

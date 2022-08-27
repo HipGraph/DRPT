@@ -467,7 +467,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 if (dataPoint.index == 0) {
                     cout << " may be wrong index " << dataPoint.index << endl;
                 }
-                datavec[k - read_offset] = dataPoint;
+                datavec[testcr] = dataPoint;
                 value_read_count += this->data_dimension;
                 testcr++;
             }
@@ -480,13 +480,25 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
         for (int y = 0; y < total_leaf_count[i]; y++) {
             if (datavec[y].index == 0) {
-                cout << "  wrong index "<<y <<" data index "<< datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
+                cout <<"rank "<<rank<< "  wrong index "<<y <<" data index "<< datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
             }
         }
 
         this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;
         all_leaf_nodes[i] = datavec;
     }
+
+    free(send_counts);
+    free(recv_counts);
+    free(send_indices_count);
+    free(disps_indices_count);
+    free(send_values_count);
+    free(disps_values_count);
+    free(recev_indices_count);
+    free(recev_values_count);
+    free(recev_indices_count);
+    free(recev_disps_count);
+    free(recev_disps_values_count);
 
     return all_leaf_nodes;
 

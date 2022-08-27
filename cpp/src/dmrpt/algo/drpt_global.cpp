@@ -420,11 +420,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
     ofstream fout(results, std::ios_base::app);
 
-    for (int k = 0; k < total_sum * this->data_dimension; k++) {
-        if (receive_values[k] != send_values[k]) {
-            cout << " values mismacth " << receive_values[k] << " " << send_values[k] << endl;
-        }
-    }
 
     my_start_count = leafs_per_node * this->rank;
     if (this->rank < this->world_size - 1) {

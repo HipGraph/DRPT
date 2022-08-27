@@ -551,7 +551,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
-#pragma omp parallel for
+//#pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
 
                 cout<<"rank "<<rank<<" distance calc  starting for "<<data_points[k].index<<" "<<data_points[j].index<<endl;

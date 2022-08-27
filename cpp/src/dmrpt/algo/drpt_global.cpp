@@ -464,8 +464,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                     dataPoint.image_data[m - value_read_count] = receive_values[m];
                 }
 
-                if (dataPoint.index==0){
-                    cout<<" may be wrong index "<<dataPoint.index<<endl;
+                if (dataPoint.index == 0) {
+                    cout << " may be wrong index " << dataPoint.index << endl;
                 }
                 datavec[k - read_offset] = dataPoint;
                 value_read_count += this->data_dimension;
@@ -476,6 +476,12 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         if (testcr != total_leaf_count[i]) {
             cout << " rank " << rank << " leaf  " << i << " actual " << total_leaf_count[i] << " collected " << testcr
                  << endl;
+        }
+
+        for (int y = 0; y < total_leaf_count[i]; y++) {
+            if (datavec[y].index == 0) {
+                cout << "  wrong index " << datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
+            }
         }
 
         this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;

@@ -510,7 +510,16 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
     vector <vector<DataPoint>> final_results(total_data_set_size);
 
+    char results[500];
 
+    char hostname[HOST_NAME_MAX];
+
+    gethostname(hostname, HOST_NAME_MAX);
+    string file_path_stat = output_path + "stats_divided.txt.";
+    std::strcpy(results, file_path_stat.c_str());
+    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
+
+    ofstream fout(results, std::ios_base::app);
     auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {

@@ -465,7 +465,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                 }
 
                 if (dataPoint.index == 0 || dataPoint.image_data.size()!=784) {
-                    cout << " may be wrong index " << dataPoint.index<<" "<<dataPoint.image_data << endl;
+                    cout << " may be wrong index " << dataPoint.index<<" "<<dataPoint.image_data.size() << endl;
                 }
                 datavec[testcr] = dataPoint;
                 value_read_count += this->data_dimension;

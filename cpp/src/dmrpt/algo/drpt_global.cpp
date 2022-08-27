@@ -467,6 +467,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
         }
 
+        for(int l=0;l<total_leaf_count[i];l++){
+            cout<<" rank "<<this->rank<< " index "<<datavec[l].index << " size "<<datavec[l].image_data.size()<<endl;
+        }
+
         this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;
         all_leaf_nodes[i] = datavec;
     }

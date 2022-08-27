@@ -495,7 +495,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
         this->trees_leaf_first_indices_all[tree][p];
     }
 
-    cout<<" rank "<<rank <<"  completed test "<<id<<endl;
+    cout<<" rank "<<rank <<" completed test "<<endl;
     free(send_counts);
     free(recv_counts);
     free(send_indices_count);

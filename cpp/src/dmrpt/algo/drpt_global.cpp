@@ -576,7 +576,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     auto distance_time = duration_cast<microseconds>(end_distance - start_distance);
 
     cout << rank << " distance calc returinng " << endl;
-    fout << rank << " distance calc " << distance_time.count() << endl;
+//    fout << rank << " distance calc " << distance_time.count() << endl;
     cout << rank << " distance priting  done " << endl;
 
     return final_results;

@@ -484,7 +484,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
         }
 
-        this->trees_leaf_first_indices_all[tree][i + my_start_count] = datavec;
+        int id = i + my_start_count;
+        cout<<" filing tree for "<<id<< " end count "<<(id+end_count)<<endl;
+
+        this->trees_leaf_first_indices_all[tree][id] = datavec;
         all_leaf_nodes[i] = datavec;
     }
 

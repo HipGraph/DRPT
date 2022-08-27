@@ -70,9 +70,9 @@ namespace dmrpt {
 
         vector <vector<DataPoint>> collect_similar_data_points(int tree);
 
-        vector <vector<dmrpt::DataPoint>> calculate_nns(int tree, int nn);
+        vector <vector<DataPoint>> calculate_nns(int tree, int nn);
 
-        vector <vector<dmrpt::DataPoint>> gather_nns(int nn);
+        vector <vector<DataPoint>> gather_nns(int nn);
 
 
     };

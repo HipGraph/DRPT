@@ -554,8 +554,10 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
 #pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
 
+                cout<<"rank "<<rank<<" starting distance calc"<<i<<" "<<j<<endl;
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);
+                cout<<"rank "<<rank<<" completing distance calc"<<i<<" "<<j<<endl;
                 DataPoint dataPoint;
                 dataPoint.src_index = data_points[k].index;
                 dataPoint.index = data_points[j].index;
@@ -563,6 +565,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
                 vec[j] = dataPoint;
 
             }
+            cout<<"rank "<<rank<<" accessing completed"<<i<<endl;
 
             sort(vec.begin(), vec.end(),
                  [](const DataPoint &lhs, const DataPoint &rhs) {

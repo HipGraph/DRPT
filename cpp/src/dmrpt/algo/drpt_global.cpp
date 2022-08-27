@@ -491,7 +491,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     free(disps_values_count);
     free(recev_indices_count);
     free(recev_values_count);
-    free(recev_indices_count);
     free(recev_disps_count);
     free(recev_disps_values_count);
 
@@ -576,7 +575,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::calculate_nns(int tree, int
     auto distance_time = duration_cast<microseconds>(end_distance - start_distance);
 
     cout << rank << " distance calc returinng " << endl;
-//    fout << rank << " distance calc " << distance_time.count() << endl;
+    fout << rank << " distance calc " << distance_time.count() << endl;
     cout << rank << " distance priting  done " << endl;
 
     return final_results;

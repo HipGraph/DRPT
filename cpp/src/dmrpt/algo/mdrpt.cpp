@@ -364,7 +364,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
 
     std::map<int, vector<DataPoint>> local_nn_map;
-    vector <vector<DataPoint>> collected_nns(this->total_data_set_size);
 
     auto start_distance = high_resolution_clock::now();
 
@@ -447,15 +446,15 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     int final_receiving_nns_count = 0;
 
     for (int m = 0; m < total_indices_count_receving; m++) {
-        final_sending_nns_count += nn_indices_count_per_process_recev[m];
+        final_receiving_nns_count += nn_indices_count_per_process_recev[m];
 
     }
 
     int *nn_indices_send = new int[total_nns_send]();
     int *nn_indices_receive = new int[final_receiving_nns_count]();
 
-    VALUE_TYPE *nn_distance_send = new int[total_nns_send]();
-    VALUE_TYPE *nn_distance_receive = new int[final_receiving_nns_count]();
+    VALUE_TYPE *nn_distance_send = new VALUE_TYPE[total_nns_send]();
+    VALUE_TYPE *nn_distance_receive = new VALUE_TYPE[final_receiving_nns_count]();
 
     int *nn_indices_send_count = new int[this->world_size]();
     int *disps_nn_indices_send = new int[this->world_size];
@@ -476,7 +475,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         }
         disps_nn_indices_send[i] = (i > 0) ? (disps_nn_indices_send[i - 1] + nn_indices_send_count[i - 1]) : 0;
 
-        for (l = 0; l < indices_count_per_process_recev[i]; l++) {
+        for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
             nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[l];
         }
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
@@ -510,7 +509,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
                 vec.push_back(dataPoint);
                 final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
             } else {
-                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
                 final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
             }
             nn_index++;
@@ -522,7 +520,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     std::transform(final_nn_map.begin(), final_nn_map.end(),
                    std::back_inserter(collected_nns),
-                   [](const std::pair <K, V> &p) {
+                   [](const std::pair <int, vector<DataPoint>> &p) {
                        return p;
                    });
 

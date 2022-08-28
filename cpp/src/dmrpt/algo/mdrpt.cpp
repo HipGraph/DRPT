@@ -253,7 +253,13 @@ void dmrpt::MDRPT::grow_trees(float density) {
                 this->trees_leaf_all[i][id] = data_vec;
 
             }
+
+            free(local_data_arr);
+            free(LP);
+
         }
+        free(C);
+
     }
 }
 

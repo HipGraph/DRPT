@@ -238,7 +238,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
     }
 }
 
-map<int, vector<dmrpt::DataPoint> > dmrpt::MDRPT::calculate_nns(int tree, int nn) {
+void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn) {
 
     dmrpt::MathOp mathOp;
 
@@ -260,7 +260,7 @@ map<int, vector<dmrpt::DataPoint> > dmrpt::MDRPT::calculate_nns(int tree, int nn
     }
 
     cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
-    map<int, vector<dmrpt::DataPoint> > final_results;
+
 
     char results[500];
 
@@ -314,11 +314,11 @@ map<int, vector<dmrpt::DataPoint> > dmrpt::MDRPT::calculate_nns(int tree, int nn
             }
 
             int idx = vec[0].src_index;
-            if (final_results.find(idx) == final_results.end()) {
-                final_results.insert(pair < int, vector < dmrpt::DataPoint > > (idx, vec));
+            if (local_nns.find(idx) == local_nns.end()) {
+                local_nns.insert(pair < int, vector < dmrpt::DataPoint > > (idx, vec));
             } else {
-                final_results[vec[0].src_index].insert(final_results[vec[0].src_index].end(), sub_vec.begin(),
-                                                       sub_vec.end());
+                local_nns[vec[0].src_index].insert(final_results[vec[0].src_index].end(), sub_vec.begin(),
+                                                   sub_vec.end());
             }
         }
     }
@@ -361,23 +361,13 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     }
 
 
-    vector <vector<DataPoint>> final_data(this->total_data_set_size);
+    map<int, vector<DataPoint>> local_nn_map;
     vector <vector<DataPoint>> collected_nns(this->total_data_set_size);
 
     auto start_distance = high_resolution_clock::now();
 
     for (int i = 0; i < ntrees; i++) {
-        vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
-
-        cout << " rank " << rank << " inserting started" << data.size() << endl;
-#pragma omp parallel for
-        for (int j = 0; j < total_data_set_size; j++) {
-            if (!data[j].empty()) {
-
-                final_data[j].insert(final_data[j].end(), data[j].begin(),
-                                     data[j].end());
-            }
-        }
+        this->calculate_nns(&local_nn_map, i, 2 * nn);
     }
 
     cout << " rank " << rank << " distance calculation completed " << endl;
@@ -387,15 +377,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
 
     auto start_query = high_resolution_clock::now();
-
-
-
-
-
-
-
-
-
 
 
 

@@ -41,7 +41,7 @@ namespace dmrpt {
 
         void grow_trees(float density);
 
-        map <int, vector<dmrpt::DataPoint> > calculate_nns(int tree, int nn);
+        void calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,int tree, int nn);
 
         vector <vector<dmrpt::DataPoint>> gather_nns(int nn);
 

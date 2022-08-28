@@ -44,7 +44,7 @@ namespace dmrpt {
 
         void calculate_nns(std::map<int, vector<dmrpt::DataPoint> >  &local_nns,int tree, int nn);
 
-        vector <vector<dmrpt::DataPoint>> gather_nns(int nn);
+        std::map<int, vector<DataPoint>> gather_nns(int nn);
 
 
     };

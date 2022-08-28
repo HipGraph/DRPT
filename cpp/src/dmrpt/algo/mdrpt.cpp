@@ -332,7 +332,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
 }
 
-vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
+std::map<int, vector<DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     cout << "gathering started " << endl;
     char results[500];
@@ -515,16 +515,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         }
     }
 
-    cout<<" insertion completed "<<endl;
-    std::vector < std::pair < int, vector < DataPoint>>> collected_nns;
 
-    std::transform(final_nn_map.begin(), final_nn_map.end(),
-                   std::back_inserter(collected_nns),
-                   [](const std::pair <int, vector<DataPoint>> &p) {
-                       return p;
-                   });
-
-    return collected_nns;
+    return final_nn_map;
 }
 
 

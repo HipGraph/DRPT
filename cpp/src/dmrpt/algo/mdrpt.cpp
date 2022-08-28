@@ -215,7 +215,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
         cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
 
-        int data_nodes_count_per_process = 0
+        int data_nodes_count_per_process = 0;
 
         for (int j = 0; j < leafs.size(); j++) {
 //            cout<< " creating leaf " <<j<<endl;

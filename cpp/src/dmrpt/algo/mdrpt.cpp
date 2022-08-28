@@ -351,6 +351,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     int last_chunk_size = this->total_data_set_size - chunk_size * (this->world_size - 1);
 
 
+    int my_chunk_size = chunk_size;
     int my_starting_index = this->rank * chunk_size;
 
     int my_end_index = 0;
@@ -358,6 +359,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         my_end_index = (this->rank + 1) * chunk_size;
     } else {
         my_end_index = this->total_data_set_size;
+        my_chunk_size = last_chunk_size;
     }
 
 
@@ -378,12 +380,23 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-    cout<<" rank "<<rank<<" map size"<<local_nn_map.size()<<endl;
+    cout << " rank " << rank << " map size" << local_nn_map.size() << endl;
+
+
+    int *index_count_per_process = new int[this->world_size];
+    int *index_count_per_process_recev = new int[this->world_size];
 
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
-        vector <DataPoint> value = it->second;
-        cout<<"rank "<<rank <<" key "<<key<<" size"<<value.size()<<endl;
+        int process = it->first / chunk_size;
+        index_count_per_process[process] = index_count_per_process[process] + 1;
+    }
+
+    MPI_Alltoall(index_count_per_process, 1, MPI_INT, index_count_per_process_recev, 1,
+                 MPI_INT, MPI_COMM_WORLD);
+
+    for (int i = 0; i < this->world_size; i++) {
+        cout << " my count " << index_count_per_process_recev[i] << " from " << i << endl;
     }
 
 

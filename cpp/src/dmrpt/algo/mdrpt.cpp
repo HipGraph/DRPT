@@ -390,16 +390,22 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     int *disps_indices_per_process = new int[this->world_size];
     int *disps_indices_per_process_receiv = new int[this->world_size];
 
+
+    int *nn_indices_count_per_process = new int[local_nn_map.size()]();
+
+
+
     vector<vector<int>> indices_for_processes(this->world_size);
 
+    int total_nns_send  =0;
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
-        if (rank == 0) {
-            cout << " key" << key << endl;
-        }
-        int process = it->first / chunk_size;
+        int process = key / chunk_size;
+         vector<dmrpt::DataPoint> nn_data =   it->second;
         indices_for_processes[process].push_back(key);
         indices_count_per_process[process] = indices_count_per_process[process] + 1;
+        nn_indices_count_per_process[key]=nn_data.size();
+        total_nns_send += nn_data.size();
     }
 
     MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
@@ -423,12 +429,17 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     MPI_Alltoallv(indices_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT, indices_per_process_receive,
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
+    int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
 
-    for(int u=0;u<total_indices_count_receving;u++){
+    MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT, nn_indices_count_per_process_recev,
+                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
+
+    for(int m=0;m<total_indices_count_receving;m++){
         if(rank==0) {
-            cout << " value   " << indices_per_process_receive[u]  << endl;
+            cout << " key "<<indices_per_process[m]<< " count "<<indices_count_per_process_recev[m]<<endl;
         }
     }
+
 
 
 

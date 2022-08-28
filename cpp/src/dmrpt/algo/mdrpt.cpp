@@ -386,26 +386,49 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     int *indices_count_per_process = new int[this->world_size]();
     int *indices_count_per_process_recev = new int[this->world_size]();
 
+    int *indices_per_process = new int[local_nn_map.size()]();
+    int *disps_indices_per_process = new int[this->world_size];
+    int *disps_indices_per_process_receiv = new int[this->world_size];
+
+    vector<vector<int>> indices_for_processes(this->world_size);
+
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
         if (rank == 0) {
             cout << " key" << key << endl;
         }
         int process = it->first / chunk_size;
+        indices_for_processes[process].push_back(key);
         indices_count_per_process[process] = indices_count_per_process[process] + 1;
     }
 
     MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
                  MPI_INT, MPI_COMM_WORLD);
 
-    int total_indices_count = 0;
+    int total_indices_count_receving = 0;
+    int count =0;
     for (int i = 0; i < this->world_size; i++) {
-        cout << " my count " << indices_count_per_process_recev[i] << " from " << i << endl;
-        total_indices_count += indices_count_per_process_recev[i];
+        total_indices_count_receving += indices_count_per_process_recev[i];
+        for(int j=0;j<indices_for_processes[i].size();j++){
+            indices_per_process[count]=indices_for_processes[i][j];
+            cout++;
+        }
+
+        disps_indices_per_process[i] = (i > 0) ? (disps_indices_per_process[i - 1] + indices_count_per_process[i - 1]) : 0;
+        disps_indices_per_process_receiv[i] = (i > 0) ? (disps_indices_per_process_receiv[i - 1] + indices_count_per_process_recev[i - 1]) : 0;
     }
 
+    int *indices_per_process_receive = new int[indices_count_per_process_recev]();
 
 
+    MPI_Alltoallv(indices_per_process, disps_indices_per_process, MPI_INT, indices_per_process_receive, disps_indices_per_process_receiv,
+                 MPI_INT, MPI_COMM_WORLD);
+
+    for(int u=0;u<total_indices_count_receving;u++){
+        if(rank==0) {
+            cout << " value   " << indices_per_process_receive[u]  << endl;
+        }
+    }
 
 
 

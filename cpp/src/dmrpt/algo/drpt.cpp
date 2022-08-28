@@ -157,9 +157,9 @@ vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
 
     int leaf_size = this->trees_leaf_first_indices[tree].size();
     cout << " leaf size for tree " << leaf_size << endl;
-    vector <vector<int>> nodes(leaf_size);
+    vector <vector<int>> nodes(leaf_size-1);
 #pragma omp parallel for
-    for (int i = 0; i < leaf_size; i++) {
+    for (int i = 0; i < leaf_size-1; i++) {
         int leaf_begin = this->trees_leaf_first_indices[tree][i];
         int leaf_end = this->trees_leaf_first_indices[tree][i + 1];
         for (int k = leaf_begin; k < leaf_end; ++k) {

@@ -251,6 +251,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
                 }
                 int id = my_start_count + l;
                 this->trees_leaf_all[i][id] = data_vec;
+                cout <<" setting "<<id<<" i "<<i<<" id "<<id<< " datavec "<<this->trees_leaf_all[i][id].size()<<endl;
 
             }
 
@@ -303,6 +304,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::calculate_nns(int tree, int nn) 
 
     for (int i = my_start_count; i < end_count; i++) {
         vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
+        cout <<" obtaining "<<id<<" i "<<tree<<" id "<<i<< " datavec "<<data_points.size()<<endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());

@@ -241,7 +241,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
             cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
 
             for (int l = 0; l < final_clustered_data.size(); l++) {
-                vector <DataPoint> data_vec(final_clustered_data[l].size());
+                vector <DataPoint> data_vec;
                 for (int m = 0; m < final_clustered_data[l].size(); m++) {
                     int index = final_clustered_data[l][m];
                     if (index>59999 || index<0){
@@ -256,9 +256,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
                 }
 
-//                for(int k=0;k<data_vec.size();k++){
-//                    cout << " before src index " << data_vec[k].index << endl;
-//                }
+                for(int k=0;k<data_vec.size();k++){
+                    cout << " before src index " << data_vec[k].index << endl;
+                }
                 int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
                 this->trees_leaf_all[i][id] = data_vec;
 //                cout << " setting " << id << " i " << i << " id " << id << " datavec "

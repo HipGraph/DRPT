@@ -376,12 +376,12 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-    for (const auto &[k, v] : local_nn_map) {
-       int key = k;
-       vector<DataPoint> nns = v;
-       for(int j=0;j<nns.size();j++){
-           cout<<" source "<<key<<" value "<<nns[j]<<endl;
-       }
+    for (const auto &[k, v]: local_nn_map) {
+        int key = k;
+        vector <DataPoint> nns = v;
+        for (int j = 0; j < nns.size(); j++) {
+            cout << " source " << key << " value " << nns[j] << endl;
+        }
     }
 
 

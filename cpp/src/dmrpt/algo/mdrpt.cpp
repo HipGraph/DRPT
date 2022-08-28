@@ -418,7 +418,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         disps_indices_per_process_receiv[i] = (i > 0) ? (disps_indices_per_process_receiv[i - 1] + indices_count_per_process_recev[i - 1]) : 0;
     }
 
-    int *indices_per_process_receive = new int[indices_count_per_process_recev]();
+    int *indices_per_process_receive = new int[total_indices_count_receving]();
 
 
     MPI_Alltoallv(indices_per_process, disps_indices_per_process, MPI_INT, indices_per_process_receive, disps_indices_per_process_receiv,

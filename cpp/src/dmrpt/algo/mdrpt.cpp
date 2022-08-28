@@ -592,9 +592,9 @@ dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn)
 }
 
 
-vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::get_knn(int nn) {
-    return this->drpt_global.gather_nns(nn);
-}
+//vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::get_knn(int nn) {
+//    return this->drpt_global.gather_nns(nn);
+//}
 
 
 

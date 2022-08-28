@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     double density = 0;
     int nn = 0;
     int batch_size = 1000;
-    double tree_depth_ratio= 0.5;
+    double tree_depth_ratio = 0.5;
 
     for (int p = 0; p < argc; p++) {
 
@@ -122,9 +122,8 @@ int main(int argc, char *argv[]) {
     auto start_io_index = high_resolution_clock::now();
 
     vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
-            input_path , data_set_size, dimension,
+            input_path, data_set_size, dimension,
             rank, size);
-
 
 
     auto stop_io_index = high_resolution_clock::now();
@@ -139,13 +138,14 @@ int main(int argc, char *argv[]) {
 
 
     int chunk_size = data_set_size / size;
-    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth,tree_depth_ratio, data_set_size, rank, size, input_path, output_path);
+    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
+                        output_path);
     auto start_index_buildling = high_resolution_clock::now();
 
-    cout<<" start growing trees "<<rank<<endl;
+    cout << " start growing trees " << rank << endl;
 
     mdrpt.grow_trees(density);
-    cout<<" completed growing trees "<<rank<<endl;
+    cout << " completed growing trees " << rank << endl;
     auto stop_index_building = high_resolution_clock::now();
 
     auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
@@ -154,41 +154,37 @@ int main(int argc, char *argv[]) {
 
     auto start_query = high_resolution_clock::now();
     vector <vector<DataPoint>> data_points;
-//    if (algo == 0) {
-//        cout << " starting batch query " << endl;
-//        data_points = mdrpt.batch_query(batch_size, 5000.0, nn);
-//        cout << "  batch querying completed " << endl;
-//    } else {
-//        data_points = mdrpt.get_knn(nn);
-//    }
-//    auto stop_query = high_resolution_clock::now();
-//    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
-//
-//    cout << "Time taken for total query "
-//         << duration_query.count() << " microseconds" << endl;
-//
-//    if (fout.is_open()) {
-//        if (data_points.size() > 0) {
-//            for (int k = 0; k < data_points.size(); k++) {
-//                if (data_points[k].size() > 0) {
-//                    vector <DataPoint> vec = data_points[k];
-//                    if (vec.size() > 0) {
-//                        for (int l = 0; l < (vec.size()>=10?10:vec.size()); l++) {
-//                            if (vec[l].src_index != vec[l].index) {
-//                                if (algo == 0) {
-//                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
-//                                } else {
-//                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
-//    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
-//         << endl;
+    data_points = mdrpt.gather_nns(nn);
+
+    auto stop_query = high_resolution_clock::now();
+    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
+
+    cout << "Time taken for total query "
+         << duration_query.count() << " microseconds" << endl;
+
+    if (fout.is_open()) {
+        if (data_points.size() > 0) {
+            for (int k = 0; k < data_points.size(); k++) {
+                if (data_points[k].size() > 0) {
+                    vector <DataPoint> vec = data_points[k];
+                    if (vec.size() > 0) {
+                        for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
+                            if (vec[l].src_index != vec[l].index) {
+                                if (algo == 0) {
+                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
+                                } else {
+                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
+         << endl;
     MPI_Finalize();
 }

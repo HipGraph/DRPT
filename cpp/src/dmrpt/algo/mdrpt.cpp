@@ -25,19 +25,14 @@ using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_data, int tree_depth, double tree_depth_ratio,
                     int total_data_set_size,
-                    int donate_per,
-                    int transfer_threshold,
-                    dmrpt::StorageFormat storage_format, int rank, int world_size, string input_path, string output_path) {
+                    int rank, int world_size, string input_path, string output_path) {
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
     this->original_data = original_data;
     this->total_data_set_size = total_data_set_size;
-    this->storage_format = storage_format;
-    this->donate_per = donate_per;
     this->rank = rank;
     this->world_size = world_size;
     this->ntrees = ntrees;
-    this->transfer_threshold = transfer_threshold;
     this->algo = algo;
     this->input_path = input_path;
     this->output_path = output_path;

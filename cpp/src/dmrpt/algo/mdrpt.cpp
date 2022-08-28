@@ -380,13 +380,13 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     cout<<" rank "<<rank<<" map size"<<local_nn_map.size()<<endl;
 
-//    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
-//        int key = it->first;
-//        vector <DataPoint> value = it->second;
-//        for (int k = 0; k < value.size(); k++) {
-//            cout << " source " << key << " index " << value[k].index << endl;
-//        }
-//    }
+    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
+        int key = it->first;
+        vector <DataPoint> value = it->second;
+        cout<<" key "<<key<<" size"<<value.size()<<endl;
+    }
+
+
 
 
 

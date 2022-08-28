@@ -388,6 +388,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
+        if (rank == 0) {
+            cout << " key" << key << endl;
+        }
         int process = it->first / chunk_size;
         indices_count_per_process[process] = indices_count_per_process[process] + 1;
     }
@@ -395,10 +398,10 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
                  MPI_INT, MPI_COMM_WORLD);
 
-    int total_indices_count=0;
+    int total_indices_count = 0;
     for (int i = 0; i < this->world_size; i++) {
         cout << " my count " << indices_count_per_process_recev[i] << " from " << i << endl;
-        total_indices_count +=indices_count_per_process_recev[i];
+        total_indices_count += indices_count_per_process_recev[i];
     }
 
 

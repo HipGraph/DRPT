@@ -20,7 +20,6 @@
 #include <cstring>
 
 
-
 using namespace std;
 using namespace std::chrono;
 
@@ -239,7 +238,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
     }
 }
 
-void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> >  &local_nns, int tree, int nn) {
+void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn) {
 
     dmrpt::MathOp mathOp;
 
@@ -316,10 +315,10 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> >  &local_nns
 
             int idx = vec[0].src_index;
             if (local_nns.find(idx) == local_nns.end()) {
-                local_nns.insert(pair <int, vector <dmrpt::DataPoint >> (idx, vec));
+                local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, vec));
             } else {
                 local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),
-                                                   sub_vec.end());
+                                      sub_vec.end());
             }
         }
     }
@@ -378,7 +377,13 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-
+    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
+        int key = it->first;
+        vector <DataPoint> value = it->second;
+        for (int k = 0; k < value.size(); k++) {
+            cout << " source " << key << " index " << value[k].index << endl;
+        }
+    }
 
 
 

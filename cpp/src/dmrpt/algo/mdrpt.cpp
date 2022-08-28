@@ -207,12 +207,15 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     cout << " start count " << my_start_count << " end count " << my_end_count << endl;
 
+
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
         VALUE_TYPE *C = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
-                                                              local_tree_depth , density);
+                                                              local_tree_depth, density);
 
-        cout<<" tree "<<i<< " projection matrix completed and leafs size "<<leafs.size()<<endl;
+        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
+
+        int data_nodes_count_per_process = 0
 
         for (int j = 0; j < leafs.size(); j++) {
 //            cout<< " creating leaf " <<j<<endl;
@@ -235,7 +238,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 //            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
 
             vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(0);
-            cout<<" final_clustered_data size for leaf "<<j<<  final_clustered_data.size()<<endl;
+            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
 
             for (int l = 0; l < final_clustered_data.size(); l++) {
                 vector <DataPoint> data_vec(final_clustered_data[l].size());
@@ -249,9 +252,12 @@ void dmrpt::MDRPT::grow_trees(float density) {
                     data_vec.push_back(*it);
 
                 }
-                int id = my_start_count + l;
+                int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
                 this->trees_leaf_all[i][id] = data_vec;
-                cout <<" setting "<<id<<" i "<<i<<" id "<<id<< " datavec "<<this->trees_leaf_all[i][id].size()<<endl;
+                cout << " setting " << id << " i " << i << " id " << id << " datavec "
+                     << this->trees_leaf_all[i][id].size() << endl;
+                data_nodes_count_per_process++;
+
 
             }
 
@@ -304,7 +310,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::calculate_nns(int tree, int nn) 
 
     for (int i = my_start_count; i < end_count; i++) {
         vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
-        cout <<" obtaining "<<tree<<" id "<<i<< " datavec "<<data_points.size()<<endl;
+        cout << " obtaining " << tree << " id " << i << " datavec " << data_points.size() << endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -567,7 +573,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     return collected_nns;
 }
-
 
 
 vector <vector<dmrpt::DataPoint>>

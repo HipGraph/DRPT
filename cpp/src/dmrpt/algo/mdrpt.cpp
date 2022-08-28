@@ -141,7 +141,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     auto start_matrix_index = high_resolution_clock::now();
     // P= X.R
-    VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, global_tree_depth * this->ntrees, cols, 1.0);
+    VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols, 1.0);
 
     auto stop_matrix_index = high_resolution_clock::now();
 

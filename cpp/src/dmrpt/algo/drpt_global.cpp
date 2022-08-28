@@ -165,7 +165,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
-                                                       no_of_bins, dmrpt::StorageFormat::RAW, this->rank);
+                                                       28, dmrpt::StorageFormat::RAW, this->rank);
         cout<<" completed mean "<<result[0]<<endl;
 
         VALUE_TYPE median = result[0];

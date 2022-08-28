@@ -317,7 +317,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
             if (local_nns.find(idx) == local_nns.end()) {
                 local_nns.insert(pair < int, vector < dmrpt::DataPoint > > (idx, vec));
             } else {
-                local_nns[vec[0].src_index].insert(final_results[vec[0].src_index].end(), sub_vec.begin(),
+                local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),
                                                    sub_vec.end());
             }
         }

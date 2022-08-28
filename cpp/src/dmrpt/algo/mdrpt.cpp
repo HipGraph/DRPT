@@ -229,8 +229,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
                                                  leafs[j].size(), 1.0);
 //            cout<<" creating drpt "<< j <<leafs.size()<<endl;
             DRPT drpt1 = dmrpt::DRPT(LP, C, leafs[j].size(),
-                                     local_tree_depth, local_data, 1, starting_index,
-                                     this->storage_format, this->rank, this->world_size);
+                                     local_tree_depth, local_data, 1, starting_index, this->rank, this->world_size);
 
             drpt1.grow_local_tree();
 //            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;

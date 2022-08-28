@@ -22,10 +22,9 @@ dmrpt::DRPT::DRPT() {
 
 dmrpt::DRPT::DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
                   vector <vector<VALUE_TYPE>> original_data, int ntrees,
-                  int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size) {
+                  int starting_index, int rank, int world_size) {
     this->tree_depth = tree_depth;
     this->no_of_data_points = no_of_data_points;
-    this->storageFormat = storageFormat;
     this->projected_matrix = projected_matrix;
     this->projection_matrix = projection_matrix;
     this->data = vector < vector < VALUE_TYPE >> (tree_depth);
@@ -88,35 +87,32 @@ void dmrpt::DRPT::grow_local_tree() {
 
     int total_split_size = 1 << (this->tree_depth + 1);
 
-    if (dmrpt::StorageFormat::RAW == storageFormat) {
-
 
 #pragma omp parallel for
 //        {
-        for (int k = 0; k < this->ntrees; k++) {
-            this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
-                                               this->tree_depth);
-            this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
-            cout<<"  calcualted leaf size "<< this->trees_leaf_first_indices[k].size()<<" depth "
-            << this->tree_depth <<endl;
-            this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
-            this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
-            this->trees_indices[k] = vector<int>(this->no_of_data_points);;
-            for (int i = 0; i < this->tree_depth; i++) {
-                this->trees_data[k][i] = vector<VALUE_TYPE>(this->no_of_data_points);
-                for (int j = 0; j < this->no_of_data_points; j++) {
-                    int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
-                    this->trees_data[k][i][j] = this->projected_matrix[index];
-                }
+    for (int k = 0; k < this->ntrees; k++) {
+        this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
+                                           this->tree_depth);
+        this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
+        cout << "  calcualted leaf size " << this->trees_leaf_first_indices[k].size() << " depth "
+             << this->tree_depth << endl;
+        this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
+        this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
+        this->trees_indices[k] = vector<int>(this->no_of_data_points);;
+        for (int i = 0; i < this->tree_depth; i++) {
+            this->trees_data[k][i] = vector<VALUE_TYPE>(this->no_of_data_points);
+            for (int j = 0; j < this->no_of_data_points; j++) {
+                int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+                this->trees_data[k][i][j] = this->projected_matrix[index];
             }
-
-
-            iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
-            grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
-
         }
+
+
+        iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
+        grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
+
     }
-//    }
+
 
 }
 
@@ -160,24 +156,23 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
 
     int leaf_size = this->trees_leaf_first_indices[tree].size();
-    cout<<" leaf size for tree "<<leaf_size<<endl;
-    vector<vector<int>> nodes(leaf_size);
+    cout << " leaf size for tree " << leaf_size << endl;
+    vector <vector<int>> nodes(leaf_size);
 #pragma omp parallel for
-    for(int i=0;i<leaf_size;i++){
+    for (int i = 0; i < leaf_size; i++) {
         int leaf_begin = this->trees_leaf_first_indices[tree][i];
         int leaf_end = this->trees_leaf_first_indices[tree][i + 1];
         for (int k = leaf_begin; k < leaf_end; ++k) {
             int orginal_data_index = this->trees_indices[tree][k];
             int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
             if (reconstrcutedIndex < 0) {
-                cout << " error in reconstructing index" << reconstrcutedIndex <<" i"<<i<< endl;
+                cout << " error in reconstructing index" << reconstrcutedIndex << " i" << i << endl;
             }
             nodes[i].push_back(reconstrcutedIndex);
         }
     }
     return nodes;
 }
-
 
 
 vector <vector<int>>

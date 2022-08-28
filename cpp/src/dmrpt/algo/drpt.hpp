@@ -53,7 +53,7 @@ namespace dmrpt {
         DRPT();
         DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
              vector <vector<VALUE_TYPE>> original_data, int ntrees,
-             int starting_index, dmrpt::StorageFormat storageFormat, int rank, int world_size);
+             int starting_index,  int rank, int world_size);
 
         void grow_local_tree();
 

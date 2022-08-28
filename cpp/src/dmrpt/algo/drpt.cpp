@@ -164,11 +164,10 @@ vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
         int leaf_begin = this->trees_leaf_first_indices[tree][i];
         int leaf_end = this->trees_leaf_first_indices[tree][i + 1];
         for (int k = leaf_begin; k < leaf_end; ++k) {
-            int orginal_data_index = this->trees_indices[m][k];
+            int orginal_data_index = this->trees_indices[tree][k];
             int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
             if (reconstrcutedIndex < 0) {
-                cout << " error in reconstructing index" << reconstrcutedIndex
-                     << " selected index " << selected_leaf << endl;
+                cout << " error in reconstructing index" << reconstrcutedIndex <<" i"<<i<< endl;
             }
             nodes[i].push_back(reconstrcutedIndex);
         }

@@ -97,6 +97,8 @@ void dmrpt::DRPT::grow_local_tree() {
             this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
                                                this->tree_depth);
             this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
+            cout<<"  calcualted leaf size "<< this->trees_leaf_first_indices[k].size()<<" depth "
+            << this->tree_depth <<endl;
             this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
             this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
             this->trees_indices[k] = vector<int>(this->no_of_data_points);;

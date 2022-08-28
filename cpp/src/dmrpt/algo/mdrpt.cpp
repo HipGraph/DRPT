@@ -325,6 +325,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::calculate_nns(int tree, int nn) 
                 dataPoint.src_index = data_points[k].index;
                 dataPoint.index = data_points[j].index;
                 dataPoint.distance = distance;
+                cout<<" src index "<<dataPoint.src_index<<" index  "<<dataPoint.index<<endl;
                 vec[j] = dataPoint;
 
             }

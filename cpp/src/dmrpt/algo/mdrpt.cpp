@@ -411,7 +411,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         total_indices_count_receving += indices_count_per_process_recev[i];
         for(int j=0;j<indices_for_processes[i].size();j++){
             indices_per_process[count]=indices_for_processes[i][j];
-            cout++;
+            count++;
         }
 
         disps_indices_per_process[i] = (i > 0) ? (disps_indices_per_process[i - 1] + indices_count_per_process[i - 1]) : 0;

@@ -215,11 +215,14 @@ void dmrpt::MDRPT::grow_trees(float density) {
         cout<<" tree "<<i<< " projection matrix completed and leafs size "<<leafs.size()<<endl;
 
         for (int j = 0; j < leafs.size(); j++) {
+            cout<< " creating leaf " <<j<<endl;
             vector <vector<VALUE_TYPE>> local_data(leafs[j].size());
             for (int k = 0; k < leafs[j].size(); k++) {
                 local_data[j] = leafs[j][k].image_data;
             }
+            cout<< " data filling complete for  leaf " <<j<<endl;
             VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format(local_data);
+            cout<< " row major version completed " <<j<<endl;
 
             VALUE_TYPE *LP = mathOp.multiply_mat(local_data_arr, C, this->data_dimension,
                                                  local_tree_depth,

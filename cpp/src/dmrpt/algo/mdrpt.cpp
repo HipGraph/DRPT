@@ -329,7 +329,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
     fout << rank << " distance calc " << distance_time.count() << endl;
     cout << rank << " distance priting  done " << endl;
 
-    return final_results;
 }
 
 vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {

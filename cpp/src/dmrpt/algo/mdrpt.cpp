@@ -445,7 +445,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     for(int m=0;m<total_indices_count_receving;m++){
         if(rank==0) {
-            cout << " key "<<indices_per_process[m]<< " count "<<indices_count_per_process_recev[m]<<endl;
+            cout << " key "<<indices_per_process[m]<< " count "<<nn_indices_count_per_process_recev[m]<<endl;
         }
     }
 

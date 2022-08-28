@@ -256,7 +256,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
             free(local_data_arr);
             free(LP);
-            delete drpt1;
+
 
         }
         free(C);

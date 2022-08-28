@@ -244,14 +244,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
                 vector <DataPoint> data_vec;
                 for (int m = 0; m < final_clustered_data[l].size(); m++) {
                     int index = final_clustered_data[l][m];
-                    cout<<" index "<<index<<endl;
-                    std::vector<DataPoint>::iterator it = std::find_if(leafs[j].begin(),
-                                                                       leafs[j].end(),
-                                                                       [index](DataPoint const &n) {
-                                                                           return n.index == index;
-                                                                       });
-                    data_vec.push_back(*it);
-
+                    int real_index = leafs[j][index].index;
+                    cout<<" cindex "<<index<<" real index "<<real_index<<endl;
+                    data_vec.push_back(leafs[j][index]);
                 }
 
 //                for(int k=0;k<data_vec.size();k++){

@@ -457,9 +457,9 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     VALUE_TYPE *nn_distance_receive = new VALUE_TYPE[final_receiving_nns_count]();
 
     int *nn_indices_send_count = new int[this->world_size]();
-    int *disps_nn_indices_send = new int[this->world_size];
+    int *disps_nn_indices_send = new int[this->world_size]();
     int *nn_indices_recieve_count = new int[this->world_size]();
-    int *disps_nn_indices_recieve = new int[this->world_size];
+    int *disps_nn_indices_recieve = new int[this->world_size]();
 
 
     int nn_indices_send_index = 0;
@@ -516,6 +516,18 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     }
 
 
+    free(indices_count_per_process);
+    free(indices_count_per_process_recev);
+    free(indices_per_process);
+    free(disps_indices_per_process);
+    free(disps_indices_per_process_receiv);
+    free(indices_per_process_receive);
+    free(nn_indices_send);
+    free(nn_indices_receive);
+    free(nn_indices_recieve_count);
+    free(disps_nn_indices_recieve);
+    free(nn_distance_send);
+    free(nn_distance_receive);
     return final_nn_map;
 }
 

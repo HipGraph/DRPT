@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     double density = 0;
     int nn = 0;
     int batch_size = 1000;
-    double tree_depth_ratio= 1;
+    double tree_depth_ratio= 0.5;
 
     for (int p = 0; p < argc; p++) {
 

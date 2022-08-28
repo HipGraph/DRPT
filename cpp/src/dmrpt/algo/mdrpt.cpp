@@ -314,10 +314,10 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
             int idx = vec[0].src_index;
             if (local_nns.find(idx) == local_nns.end()) {
-                cout<<" creating new "<<idx<<endl;
+//                cout<<" creating new "<<idx<<endl;
                 local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, vec));
             } else {
-                cout<<" inserting "<<idx<<endl;
+//                cout<<" inserting "<<idx<<endl;
                 local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),
                                       sub_vec.end());
             }
@@ -378,7 +378,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-    cout<<"map size"<<local_nn_map.size()<<endl;
+    cout<<" rank "<<rank<<" map size"<<local_nn_map.size()<<endl;
 
 //    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
 //        int key = it->first;

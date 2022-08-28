@@ -9,6 +9,7 @@
 #include <string>
 #include <omp.h>
 #include "drpt_global.hpp"
+#include<map>
 
 namespace dmrpt {
     class MDRPT {
@@ -41,7 +42,7 @@ namespace dmrpt {
 
         void grow_trees(float density);
 
-        void calculate_nns(map<int, vector<dmrpt::DataPoint> > const &local_nns,int tree, int nn);
+        void calculate_nns(std::map<int, vector<dmrpt::DataPoint> >  &local_nns,int tree, int nn);
 
         vector <vector<dmrpt::DataPoint>> gather_nns(int nn);
 

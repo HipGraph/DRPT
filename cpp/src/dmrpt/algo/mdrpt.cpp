@@ -279,9 +279,9 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
         vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
         cout << " obtaining completed " << tree << " id " << i << " datavec " << data_points.size() << endl;
 
-        for (int k = 0; k < data_points.size(); k++) {
-            cout << " src index " << data_points[k].index << endl;
-        }
+//        for (int k = 0; k < data_points.size(); k++) {
+//            cout << " src index " << data_points[k].index << endl;
+//        }
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -314,8 +314,10 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
             int idx = vec[0].src_index;
             if (local_nns.find(idx) == local_nns.end()) {
+                cout<<" creating new "<<idx<<endl;
                 local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, vec));
             } else {
+                cout<<" inserting "<<idx<<endl;
                 local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),
                                       sub_vec.end());
             }

@@ -397,11 +397,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     int total_indices_count=0;
     for (int i = 0; i < this->world_size; i++) {
-        cout << " my count " << index_count_per_process_recev[i] << " from " << i << endl;
-        total_indices_count +=index_count_per_process_recev[i];
+        cout << " my count " << indices_count_per_process_recev[i] << " from " << i << endl;
+        total_indices_count +=indices_count_per_process_recev[i];
     }
 
-    int *
+
 
 
 

@@ -212,7 +212,6 @@ void dmrpt::MDRPT::grow_trees(float density) {
                 for (int m = 0; m < final_clustered_data[l].size(); m++) {
                     int index = final_clustered_data[l][m];
                     int real_index = leafs[j][index].index;
-                    cout << " cindex " << index << " real index " << real_index << endl;
                     data_vec.push_back(leafs[j][index]);
                 }
 
@@ -377,12 +376,12 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
-        int key = it->first;
-        vector <DataPoint> value = it->second;
-        for (int k = 0; k < value.size(); k++) {
-            cout << " source " << key << " index " << value[k].index << endl;
-        }
+    for (const auto &[k, v] : local_nn_map) {
+       int key = k;
+       vector<DataPoint> nns = v;
+       for(int j=0;j<nns.size();j++){
+           cout<<" source "<<key<<" value "<<nns[j]<<endl;
+       }
     }
 
 

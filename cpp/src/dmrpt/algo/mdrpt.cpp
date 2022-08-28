@@ -504,7 +504,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
             dataPoint.src_index = src_index;
             dataPoint.index = nn_indi;
             dataPoint.distance = distance;
-            cout<<" src  index"<<src_index <<" index "<<index << " distance "<<distance<<endl;
+            cout<<" src  index"<<src_index <<" index "<<nn_indi << " distance "<<distance<<endl;
             if (final_nn_map.find(src_index) == final_nn_map.end()) {
                 vector <DataPoint> vec;
                 vec.push_back(dataPoint);

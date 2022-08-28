@@ -252,6 +252,10 @@ void dmrpt::MDRPT::grow_trees(float density) {
                     data_vec.push_back(*it);
 
                 }
+
+                for(int k=0;k<data_vec.size();k++){
+                    cout << " before src index " << data_vec[k].index << endl;
+                }
                 int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
                 this->trees_leaf_all[i][id] = data_vec;
                 cout << " setting " << id << " i " << i << " id " << id << " datavec "

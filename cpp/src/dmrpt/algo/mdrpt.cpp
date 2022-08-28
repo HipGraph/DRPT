@@ -55,40 +55,6 @@ vec;
 }
 
 
-vector <vector<dmrpt::DataPoint>>
-dmrpt::MDRPT::get_filtered_results(vector <vector<dmrpt::DataPoint>> results, int nn) {
-
-    vector <vector<dmrpt::DataPoint>> final_results(results.size());
-
-#pragma omp parallel for
-//    {
-    for (int i = 0; i < results.size(); i++) {
-
-        if (!results[i].empty()) {
-
-            sort(results[i].begin(), results[i].end(),
-                 [](const dmrpt::DataPoint &lhs, const dmrpt::DataPoint &rhs) {
-                     return lhs.distance < rhs.distance;
-                 });
-
-
-            results[i].erase(unique(results[i].begin(), results[i].end(),
-                                    [](const dmrpt::DataPoint &lhs,
-                                       const dmrpt::DataPoint &rhs) {
-                                        return lhs.index == rhs.index;
-                                    }), results[i].end());
-
-            vector <dmrpt::DataPoint> sub_vec = slice(results[i], 0, nn - 1);
-
-            final_results[i].insert(final_results[i].end(), sub_vec.begin(), sub_vec.end());
-        }
-
-    }
-
-//    }
-    return final_results;
-}
-
 template<typename T> bool allEqual(std::vector < T >
 const &v) {
 return
@@ -141,7 +107,8 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     auto start_matrix_index = high_resolution_clock::now();
     // P= X.R
-    VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols, 1.0);
+    VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
+                                        1.0);
 
     auto stop_matrix_index = high_resolution_clock::now();
 
@@ -245,7 +212,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
                 for (int m = 0; m < final_clustered_data[l].size(); m++) {
                     int index = final_clustered_data[l][m];
                     int real_index = leafs[j][index].index;
-                    cout<<" cindex "<<index<<" real index "<<real_index<<endl;
+                    cout << " cindex " << index << " real index " << real_index << endl;
                     data_vec.push_back(leafs[j][index]);
                 }
 
@@ -579,34 +546,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
     return collected_nns;
 }
 
-
-vector <vector<dmrpt::DataPoint>>
-dmrpt::MDRPT::batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn) {
-    vector <vector<dmrpt::DataPoint>> results(this->original_data.size());
-    cout << " rank " << this->rank << " runnnig batch query" << endl;
-    for (int j = 0; j < this->world_size; j++) {
-        auto start = high_resolution_clock::now();
-        vector <vector<dmrpt::DataPoint>> result = this->drpt.batch_query(this->original_data, batch_size,
-                                                                          j, distance_threshold);
-        auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<microseconds>(stop - start);
-        cout << "Time taken for batch_query tree  " << j << " duration" <<
-             duration.count() << " microseconds" << endl;
-
-        for (int k = 0; k < result.size(); k++) {
-            results[k].insert(results[k].end(), result[k].begin(), result[k].end());
-        }
-    }
-
-
-    return this->get_filtered_results(results, nn);
-
-}
-
-
-//vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::get_knn(int nn) {
-//    return this->drpt_global.gather_nns(nn);
-//}
 
 
 

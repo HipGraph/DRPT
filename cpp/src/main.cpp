@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     double density = 0;
     int nn = 0;
     int batch_size = 1000;
+    double tree_depth_ratio= 0.5
 
     for (int p = 0; p < argc; p++) {
 
@@ -50,7 +51,9 @@ int main(int argc, char *argv[]) {
             ntrees = atoi(argv[p + 1]);
         } else if (strcmp(argv[p], "-tree-depth") == 0) {
             tree_depth = atoi(argv[p + 1]);
-        } else if (strcmp(argv[p], "-transfer_threshold") == 0) {
+        } else if (strcmp(argv[p], "-tree-depth-ratio") == 0) {
+            tree_depth_ratio = stof(argv[p + 1]);
+        }else if (strcmp(argv[p], "-transfer_threshold") == 0) {
             transfer_threshold = atof(argv[p + 1]);
         } else if (strcmp(argv[p], "-donate_per") == 0) {
             donate_per = atoi(argv[p + 1]);

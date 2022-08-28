@@ -14,6 +14,7 @@ namespace dmrpt {
     private:
         int ntrees;
         int tree_depth;
+        double tree_depth_ratio;
         int data_dimension;
         dmrpt::StorageFormat storage_format;
         vector<vector<VALUE_TYPE>> original_data;
@@ -29,8 +30,9 @@ namespace dmrpt {
         string input_path;
         string output_path;
 
+
     public:
-        MDRPT(int ntrees, int algo,vector<vector<VALUE_TYPE>> original_data,int tree_depth,int total_data_set_size,int donate_per, int transfer_threshold,
+        MDRPT(int ntrees, int algo,vector<vector<VALUE_TYPE>> original_data,int tree_depth,double tree_depth_ratio, int total_data_set_size,int donate_per, int transfer_threshold,
               dmrpt::StorageFormat storageFormat, int rank, int world_size, string input_path,string output_path);
         void grow_trees(float density);
         vector<vector<dmrpt::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn);

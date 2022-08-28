@@ -23,7 +23,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_data, int tree_depth,
+dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_data, int tree_depth, double tree_depth_ratio,
                     int total_data_set_size,
                     int donate_per,
                     int transfer_threshold,
@@ -41,6 +41,7 @@ dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_d
     this->algo = algo;
     this->input_path = input_path;
     this->output_path = output_path;
+    this->tree_depth_ratio= tree_depth_ratio;
 }
 
 template<typename T> vector <T> slice(vector < T >
@@ -136,6 +137,8 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     ofstream fout1(data, std::ios_base::app);
 
+
+
     auto start_matrix_index = high_resolution_clock::now();
     // P= X.R
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, rows, this->tree_depth * this->ntrees, cols, 1.0);
@@ -153,10 +156,8 @@ void dmrpt::MDRPT::grow_trees(float density) {
         cout << " rank " << rank << " completing growing trees" << endl;
     } else {
 
-        this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees,
-                                              starting_index, this->total_data_set_size, this->donate_per,
-                                              this->transfer_threshold, this->storage_format, this->rank,
-                                              this->world_size,input_path,output_path);
+        this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->tree_depth, this->original_data, this->ntrees, starting_index,
+                                              this->total_data_set_size,  this->rank,this->world_size,input_path,output_path);
 
 
         auto start_grow_index = high_resolution_clock::now();

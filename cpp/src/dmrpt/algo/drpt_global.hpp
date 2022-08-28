@@ -27,12 +27,8 @@ namespace dmrpt {
         int starting_data_index;
         int rank;
         int world_size;
-        StorageFormat storage_format;
         int total_data_set_size;
-        int donate_per;
         int data_dimension;
-        int transfer_threshold;
-        unordered_map<string, VALUE_TYPE> distance_map;
 
         //multiple trees
         vector <vector<vector < dmrpt::DataPoint>>>
@@ -43,11 +39,7 @@ namespace dmrpt {
         vector <vector<vector < DataPoint>>>
         trees_leaf_first_indices;
 
-        vector <ImageDataPoint> original_data_processed;
-        vector <ImageDataPoint> final_collected_data;
-
-        vector <vector<DataPoint>> leaf_data;
-
+        vector<vector<VALUE_TYPE>> data_points;
 
         string input_path;
         string output_path;
@@ -59,8 +51,7 @@ namespace dmrpt {
 
         DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
                    vector <vector<VALUE_TYPE>> original_data, int ntrees,
-                   int starting_index, int total_data_set_size, int donate_per, int transfer_threshold,
-                   dmrpt::StorageFormat storage_format,
+                   int starting_index, int total_data_set_size,
                    int rank, int world_size, string input_path, string output_path);
 
         void grow_global_tree();

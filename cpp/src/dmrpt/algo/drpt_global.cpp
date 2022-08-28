@@ -30,17 +30,14 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
                               int tree_depth,
                               vector <vector<VALUE_TYPE>> original_data, int ntrees,
-                              int starting_index, int total_data_set_size, int donate_per, int transfer_threshold,
-                              dmrpt::StorageFormat storage_format, int rank, int world_size, string input_path,
+                              int starting_index, int total_data_set_size, int rank, int world_size, string input_path,
                               string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
-    this->storage_format = storage_format;
     this->projected_matrix = projected_matrix;
     this->projection_matrix = projection_matrix;
     this->total_data_set_size = total_data_set_size;
     this->data_dimension = original_data[0].size();
-    this->transfer_threshold = transfer_threshold;
 
 
     this->ntrees = ntrees;
@@ -53,22 +50,12 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->starting_data_index = starting_index;
     this->rank = rank;
     this->world_size = world_size;
-    this->leaf_data = vector < vector < DataPoint >> (this->ntrees);
-    this->donate_per = donate_per;
-    this->original_data_processed = vector<ImageDataPoint>(intial_no_of_data_points);
 
+    this->data_points = original_data;
 
     this->input_path = input_path;
     this->output_path = output_path;
 
-
-#pragma omp parallel for
-    for (int i = 0; i < this->intial_no_of_data_points; i++) {
-        ImageDataPoint imageDataPoint;
-        imageDataPoint.index = i + this->starting_data_index;
-        imageDataPoint.value = original_data[i];
-        this->original_data_processed[i] = imageDataPoint;
-    }
 }
 
 template<typename T> vector <T> slice(vector < T >
@@ -114,51 +101,35 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-//    cout << " tree size " << total_child_size << " tree depth" << tree_depth << " rank " << this->rank << endl;
+    for (int k = 0; k < this->ntrees; k++) {
+        this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
+        this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
+        this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
+        this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
 
-//    //TODO:remove
-//    for (int i = 0; i <  this->original_data_processed.size(); i++) {
-//        if (allEqual(this->original_data_processed[i].value) || this->original_data_processed[i].value.size() == 0) {
-//            cout << "  original data zero for index ######" << this->original_data_processed[i].index << endl;
-//        }
-//    }
-
-
-
-    if (dmrpt::StorageFormat::RAW == storage_format) {
-
-        for (int k = 0; k < this->ntrees; k++) {
-            this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
-            this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
-            this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
-            this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-
-            for (int i = 0; i < this->tree_depth; i++) {
-                this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
+        for (int i = 0; i < this->tree_depth; i++) {
+            this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
 #pragma  omp parallel for
-//                {
-                for (int j = 0; j < this->intial_no_of_data_points; j++) {
-                    int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
-                    DataPoint dataPoint;
-                    dataPoint.value = this->projected_matrix[index];
-                    dataPoint.index = j + this->starting_data_index;
-                    dataPoint.image_data = this->original_data_processed[j].value;
-                    this->trees_data[k][i][j] = dataPoint;
-                }
-//                }
-            }
-
-
-            vector <vector<DataPoint>> child_data_tracker(total_split_size);
-            vector<int> total_size_vector(total_split_size);
-            child_data_tracker[0] = this->trees_data[k][0];
-            total_size_vector[0] = this->total_data_set_size;
-            for (int i = 0; i < this->tree_depth - 1; i++) {
-                cout << " working on tree depth" << i << endl;
-                this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
+            for (int j = 0; j < this->intial_no_of_data_points; j++) {
+                int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+                DataPoint dataPoint;
+                dataPoint.value = this->projected_matrix[index];
+                dataPoint.index = j + this->starting_data_index;
+                dataPoint.image_data = this->data_points[j];
+                this->trees_data[k][i][j] = dataPoint;
             }
         }
+
+        vector <vector<DataPoint>> child_data_tracker(total_split_size);
+        vector<int> total_size_vector(total_split_size);
+        child_data_tracker[0] = this->trees_data[k][0];
+        total_size_vector[0] = this->total_data_set_size;
+        for (int i = 0; i < this->tree_depth - 1; i++) {
+            cout << " working on tree depth" << i << endl;
+            this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
+        }
     }
+
 }
 
 
@@ -266,13 +237,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     }
 
     MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
-
-//    left_childs_global = this->send_receive_data_points_if_zero(left_childs_global, total_counts, process_counts,
-//                                                                disps,
-//                                                                depth, 0, tree);
-//    right_childs_global = this->send_receive_data_points_if_zero(right_childs_global, total_counts, process_counts,
-//                                                                 disps,
-//                                                                 depth, 1, tree);
 
 
     for (int j = 0; j < current_nodes; j++) {
@@ -455,8 +419,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                     dataPoint.image_data[r] = receive_values[m];
                 }
 
-                if (dataPoint.index == 0 || dataPoint.image_data.size()!=784) {
-                    cout << " may be wrong index " << dataPoint.index<<" "<<dataPoint.image_data.size() << endl;
+                if (dataPoint.index == 0 || dataPoint.image_data.size() != 784) {
+                    cout << " may be wrong index " << dataPoint.index << " " << dataPoint.image_data.size() << endl;
                 }
                 datavec[testcr] = dataPoint;
                 value_read_count += this->data_dimension;
@@ -464,24 +428,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
         }
 
-        if (testcr != total_leaf_count[i]) {
-            cout << " rank " << rank << " leaf  " << i << " actual " << total_leaf_count[i] << " collected " << testcr
-                 << endl;
-        }
-
-        for (int y = 0; y < total_leaf_count[i]; y++) {
-            if (datavec[y].index == 0) {
-                cout <<"rank "<<rank<< "  wrong index "<<y <<" data index "<< datavec[y].index <<" "<<datavec[y].image_data.size()<< endl;
-            }
-        }
-
         int id = i + my_start_count;
-
-
         this->trees_leaf_first_indices_all[tree][id] = datavec;
         all_leaf_nodes[i] = datavec;
     }
-
 
     free(send_counts);
     free(recv_counts);
@@ -614,7 +564,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::gather_nns(int nn) {
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> data = this->calculate_nns(i, 2 * nn);
 
-        cout << " rank " << rank << " inserting started"<<data.size() << endl;
+        cout << " rank " << rank << " inserting started" << data.size() << endl;
 #pragma omp parallel for
         for (int j = 0; j < total_data_set_size; j++) {
             if (!data[j].empty()) {

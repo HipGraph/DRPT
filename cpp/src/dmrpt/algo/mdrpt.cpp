@@ -479,6 +479,9 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
             nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[l];
         }
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
+
+        cout<<" process "<<i<<" send count "<<nn_indices_send_count[i]<< " disps_nn_indices_send "<<disps_nn_indices_send[i]
+        <<" recevice count  "<<nn_indices_recieve_count[i] <<" disps count "<<disps_nn_indices_recieve[i]<<endl;
     }
 
 

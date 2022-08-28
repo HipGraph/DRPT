@@ -218,9 +218,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
             cout<< " creating leaf " <<j<<endl;
             vector <vector<VALUE_TYPE>> local_data(leafs[j].size());
             for (int k = 0; k < leafs[j].size(); k++) {
-                local_data[j] = leafs[j][k].image_data;
+                local_data[k] = leafs[j][k].image_data;
             }
-            cout<< " data filling complete for  leaf " <<j<<endl;
+            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
             VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format(local_data);
             cout<< " row major version completed " <<j<<endl;
 

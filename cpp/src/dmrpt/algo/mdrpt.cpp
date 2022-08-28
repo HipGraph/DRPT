@@ -332,7 +332,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
 }
 
-std::map<int, vector<DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
+std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     cout << "gathering started " << endl;
     char results[500];

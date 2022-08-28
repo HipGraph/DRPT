@@ -158,6 +158,7 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
 
     int leaf_size = this->trees_leaf_first_indices[tree].size();
+    cout<<" leaf size for tree "<<leaf_size<<endl;
     vector<vector<int>> nodes(leaf_size);
 #pragma omp parallel for
     for(int i=0;i<leaf_size;i++){

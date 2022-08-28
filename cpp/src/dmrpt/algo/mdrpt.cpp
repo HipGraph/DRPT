@@ -215,28 +215,28 @@ void dmrpt::MDRPT::grow_trees(float density) {
         cout<<" tree "<<i<< " projection matrix completed and leafs size "<<leafs.size()<<endl;
 
         for (int j = 0; j < leafs.size(); j++) {
-            cout<< " creating leaf " <<j<<endl;
+//            cout<< " creating leaf " <<j<<endl;
             vector <vector<VALUE_TYPE>> local_data(leafs[j].size());
             for (int k = 0; k < leafs[j].size(); k++) {
                 local_data[k] = leafs[j][k].image_data;
             }
-            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
+//            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
             VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format(local_data);
-            cout<< " row major version completed " <<j<<endl;
+//            cout<< " row major version completed " <<j<<endl;
 
             VALUE_TYPE *LP = mathOp.multiply_mat(local_data_arr, C, this->data_dimension,
                                                  local_tree_depth,
                                                  leafs[j].size(), 1.0);
-            cout<<" creating drpt "<< j <<leafs.size()<<endl;
+//            cout<<" creating drpt "<< j <<leafs.size()<<endl;
             DRPT drpt1 = dmrpt::DRPT(LP, C, leafs[j].size(),
                                      local_tree_depth, local_data, 1, starting_index,
                                      this->storage_format, this->rank, this->world_size);
 
             drpt1.grow_local_tree();
-            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
+//            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
 
             vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(i);
-            cout<<" final_clustered_data size "<<  final_clustered_data.size()<<endl;
+            cout<<" final_clustered_data size for leaf "<<j<<  final_clustered_data.size()<<endl;
 
             for (int l = 0; l < final_clustered_data.size(); l++) {
                 vector <DataPoint> data_vec(final_clustered_data[l].size());

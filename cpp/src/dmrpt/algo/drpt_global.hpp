@@ -60,10 +60,10 @@ namespace dmrpt {
         grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);
 
         vector <vector<DataPoint>> collect_similar_data_points(int tree);
-
-        vector <vector<DataPoint>> calculate_nns(int tree, int nn);
-
-        vector <vector<DataPoint>> gather_nns(int nn);
+//
+//        vector <vector<DataPoint>> calculate_nns(int tree, int nn);
+//
+//        vector <vector<DataPoint>> gather_nns(int nn);
 
 
     };

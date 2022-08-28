@@ -39,6 +39,9 @@ namespace dmrpt {
         vector<vector<dmrpt::DataPoint>> batch_query(int batch_size, VALUE_TYPE distance_threshold, int nn);
         vector<vector<dmrpt::DataPoint>> get_filtered_results(vector<vector<dmrpt::DataPoint>> results, int nn);
         vector<vector<dmrpt::DataPoint>> get_knn(int nn);
+        vector <vector<dmrpt::DataPoint>> calculate_nns(int tree, int nn);
+
+        vector <vector<dmrpt::DataPoint>> gather_nns(int nn);
 
 
 

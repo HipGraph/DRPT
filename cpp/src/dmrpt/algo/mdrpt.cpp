@@ -312,10 +312,10 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
                 sub_vec = vec;
             }
 
-            int idx = vec[0].src_index;
+            int idx = sub_vec[0].src_index;
             if (local_nns.find(idx) == local_nns.end()) {
 //                cout<<" creating new "<<idx<<endl;
-                local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, vec));
+                local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
             } else {
 //                cout<<" inserting "<<idx<<endl;
                 local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),

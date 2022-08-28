@@ -420,9 +420,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     int *indices_per_process_receive = new int[total_indices_count_receving]();
 
+    MPI_Alltoallv(indices_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT, indices_per_process_receive,
+                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
-    MPI_Alltoallv(indices_per_process, disps_indices_per_process, MPI_INT, indices_per_process_receive, disps_indices_per_process_receiv,
-                 MPI_INT, MPI_COMM_WORLD);
 
     for(int u=0;u<total_indices_count_receving;u++){
         if(rank==0) {

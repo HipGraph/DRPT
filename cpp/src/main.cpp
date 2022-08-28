@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
     auto start_query = high_resolution_clock::now();
     vector <vector<DataPoint>> data_points;
 
-    data_points = mdrpt.gather_nns(nn);
+//    data_points = mdrpt.gather_nns(nn);
 
     auto stop_query = high_resolution_clock::now();
     auto duration_query = duration_cast<microseconds>(stop_query - start_query);

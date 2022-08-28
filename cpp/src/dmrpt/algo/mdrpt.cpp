@@ -238,7 +238,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
     }
 }
 
-void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn) {
+void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > const &local_nns, int tree, int nn) {
 
     dmrpt::MathOp mathOp;
 

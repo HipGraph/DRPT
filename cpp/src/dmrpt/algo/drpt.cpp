@@ -91,30 +91,29 @@ void dmrpt::DRPT::grow_local_tree() {
     if (dmrpt::StorageFormat::RAW == storageFormat) {
 
 
-
 #pragma omp parallel for
 //        {
-            for (int k = 0; k < this->ntrees; k++) {
-                this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
-                                                   this->tree_depth);
-                this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
-                this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
-                this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
-                this->trees_indices[k] = vector<int>(this->no_of_data_points);;
-                for (int i = 0; i < this->tree_depth; i++) {
-                    this->trees_data[k][i] = vector<VALUE_TYPE>(this->no_of_data_points);
-                    for (int j = 0; j < this->no_of_data_points; j++) {
-                        int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
-                        this->trees_data[k][i][j] = this->projected_matrix[index];
-                    }
+        for (int k = 0; k < this->ntrees; k++) {
+            this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
+                                               this->tree_depth);
+            this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
+            this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
+            this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
+            this->trees_indices[k] = vector<int>(this->no_of_data_points);;
+            for (int i = 0; i < this->tree_depth; i++) {
+                this->trees_data[k][i] = vector<VALUE_TYPE>(this->no_of_data_points);
+                for (int j = 0; j < this->no_of_data_points; j++) {
+                    int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
+                    this->trees_data[k][i][j] = this->projected_matrix[index];
                 }
-
-
-                iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
-                grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
-
             }
+
+
+            iota(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0);
+            grow_local_subtree(this->trees_indices[k].begin(), this->trees_indices[k].end(), 0, 0, k);
+
         }
+    }
 //    }
 
 }
@@ -155,6 +154,30 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 
 }
 
+
+vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
+
+    int leaf_size = this->trees_leaf_first_indices[tree].size();
+    vector<vector<int>> nodes(leaf_size);
+#pragma omp parallel for
+    for(int i=0;i<leaf_size;i++){
+        int leaf_begin = this->trees_leaf_first_indices[tree][i];
+        int leaf_end = this->trees_leaf_first_indices[tree][i + 1];
+        for (int k = leaf_begin; k < leaf_end; ++k) {
+            int orginal_data_index = this->trees_indices[m][k];
+            int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
+            if (reconstrcutedIndex < 0) {
+                cout << " error in reconstructing index" << reconstrcutedIndex
+                     << " selected index " << selected_leaf << endl;
+            }
+            nodes[i].push_back(reconstrcutedIndex);
+        }
+    }
+    return nodes;
+}
+
+
+
 vector <vector<int>>
 dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat storageFormat) {
 
@@ -165,42 +188,38 @@ dmrpt::DRPT::query(VALUE_TYPE *queryP, int no_data_points, dmrpt::StorageFormat 
         vec[i] = vector<int>();
     }
 
+    for (int m = 0; m < this->ntrees; m++) {
+        for (int j = 0; j < no_data_points; ++j) {
+            int idx = 0;
+            for (int i = 0; i < this->tree_depth; ++i) {
 
-    if (storageFormat == dmrpt::StorageFormat::RAW) {
-
-        for (int m = 0; m < this->ntrees; m++) {
-            for (int j = 0; j < no_data_points; ++j) {
-                int idx = 0;
-                for (int i = 0; i < this->tree_depth; ++i) {
-
-                    int id_left = 2 * idx + 1;
-                    int id_right = id_left + 1;
-                    VALUE_TYPE split_point = this->trees_splits[m][idx];
-                    int index = this->tree_depth * m + i + j * this->tree_depth * this->ntrees;
-                    if (queryP[index] <= split_point) {
-                        idx = id_left;
-                    } else {
-                        idx = id_right;
-                    }
-
+                int id_left = 2 * idx + 1;
+                int id_right = id_left + 1;
+                VALUE_TYPE split_point = this->trees_splits[m][idx];
+                int index = this->tree_depth * m + i + j * this->tree_depth * this->ntrees;
+                if (queryP[index] <= split_point) {
+                    idx = id_left;
+                } else {
+                    idx = id_right;
                 }
-
-                int selected_leaf = idx - (1 << this->tree_depth) + 1;
-
-                int leaf_begin = this->trees_leaf_first_indices[m][selected_leaf];
-                int leaf_end = this->trees_leaf_first_indices[m][selected_leaf + 1];
-                for (int k = leaf_begin; k < leaf_end; ++k) {
-                    int orginal_data_index = this->trees_indices[m][k];
-                    int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
-                    if (reconstrcutedIndex<0){
-                        cout<<" error in reconstructing index"<<reconstrcutedIndex
-                        <<" selected index "<<selected_leaf<<endl;
-                    }
-                    vec[j].push_back(reconstrcutedIndex);
-                }
-
 
             }
+
+            int selected_leaf = idx - (1 << this->tree_depth) + 1;
+
+            int leaf_begin = this->trees_leaf_first_indices[m][selected_leaf];
+            int leaf_end = this->trees_leaf_first_indices[m][selected_leaf + 1];
+            for (int k = leaf_begin; k < leaf_end; ++k) {
+                int orginal_data_index = this->trees_indices[m][k];
+                int reconstrcutedIndex = orginal_data_index + this->starting_data_index;
+                if (reconstrcutedIndex < 0) {
+                    cout << " error in reconstructing index" << reconstrcutedIndex
+                         << " selected index " << selected_leaf << endl;
+                }
+                vec[j].push_back(reconstrcutedIndex);
+            }
+
+
         }
     }
 
@@ -285,19 +304,19 @@ dmrpt::DRPT::send_query_and_receive_results(vector <vector<VALUE_TYPE>> query_ba
     //calculate distances for each selected node
 #pragma omp parallel for
 //    {
-        for (int m = 0; m < selectedNodes.size(); m++) {
-            int cf = 0;
-            selec[m] = vector<int>(selectedNodes[m].size());
-            selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
-            for (int w = 0; w < selectedNodes[m].size(); w++) {
-                int ind = selectedNodes[m][w];
-                VALUE_TYPE dist = mathOp.calculate_distance(
-                        this->original_data[ind -  this->starting_data_index], query_batch[m]);
-                selec[m][w] = ind;
-                selecDistances[m][w] = dist;
+    for (int m = 0; m < selectedNodes.size(); m++) {
+        int cf = 0;
+        selec[m] = vector<int>(selectedNodes[m].size());
+        selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
+        for (int w = 0; w < selectedNodes[m].size(); w++) {
+            int ind = selectedNodes[m][w];
+            VALUE_TYPE dist = mathOp.calculate_distance(
+                    this->original_data[ind - this->starting_data_index], query_batch[m]);
+            selec[m][w] = ind;
+            selecDistances[m][w] = dist;
 
-            }
-            counts[m] = selectedNodes[m].size();
+        }
+        counts[m] = selectedNodes[m].size();
 //        }
     }
 
@@ -461,12 +480,12 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
         cout << " rank " << this->rank << " broadcating completed " << " count " << count << endl;
 #pragma omp parallel for shared(originalQ, receivedOrgQ)
 //        {
-            for (int h = 0; h < batch_size; h++) {
-                receivedOrgQ[h] = vector<VALUE_TYPE>(query_dimension);
-                for (int e = 0; e < query_dimension; e++) {
-                    receivedOrgQ[h][e] = originalQ[h + e * batch_size];
-                }
+        for (int h = 0; h < batch_size; h++) {
+            receivedOrgQ[h] = vector<VALUE_TYPE>(query_dimension);
+            for (int e = 0; e < query_dimension; e++) {
+                receivedOrgQ[h][e] = originalQ[h + e * batch_size];
             }
+        }
 //        }
 
         vector <vector<int>> selec(selectedNodes.size());
@@ -475,30 +494,30 @@ void dmrpt::DRPT::receive_queries_and_evaluate_results(int sending_rank, int que
         cout << " rank " << this->rank << " reformation completed " << " count " << count << endl;
 #pragma omp parallel for
 //        {
-            for (int m = 0; m < selectedNodes.size(); m++) {
-                selec[m] = vector<int>(selectedNodes[m].size());
-                selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
-                    for (int y = 0; y < selectedNodes[m].size(); y++) {
-                        if (selectedNodes[m][y]<0){
-                            cout<<" empty vec return "<< this->rank<<" index "<<selectedNodes[m][y]  <<endl;
-                        }
+        for (int m = 0; m < selectedNodes.size(); m++) {
+            selec[m] = vector<int>(selectedNodes[m].size());
+            selecDistances[m] = vector<VALUE_TYPE>(selectedNodes[m].size());
+            for (int y = 0; y < selectedNodes[m].size(); y++) {
+                if (selectedNodes[m][y] < 0) {
+                    cout << " empty vec return " << this->rank << " index " << selectedNodes[m][y] << endl;
                 }
-                for (int w = 0; w < selectedNodes[m].size(); w++) {
-                    int ind = selectedNodes[m][w];
-                    if (this->original_data[ind - this->starting_data_index].size() == 0) {
-                        cout << " rank" << this->rank << " error prone " << " index " <<
+            }
+            for (int w = 0; w < selectedNodes[m].size(); w++) {
+                int ind = selectedNodes[m][w];
+                if (this->original_data[ind - this->starting_data_index].size() == 0) {
+                    cout << " rank" << this->rank << " error prone " << " index " <<
 
-                        (ind - this->starting_data_index) << "original index"<<ind << endl;
-                    }
-                    VALUE_TYPE dist = mathOp.calculate_distance(
-                            this->original_data[ind - this->starting_data_index], receivedOrgQ[m]);
-                    selec[m][w] = ind;
-                    selecDistances[m][w] = dist;
-
+                         (ind - this->starting_data_index) << "original index" << ind << endl;
                 }
-                counts[m] = selectedNodes[m].size();
+                VALUE_TYPE dist = mathOp.calculate_distance(
+                        this->original_data[ind - this->starting_data_index], receivedOrgQ[m]);
+                selec[m][w] = ind;
+                selecDistances[m][w] = dist;
 
             }
+            counts[m] = selectedNodes[m].size();
+
+        }
 //        }
 
         cout << " rank " << this->rank << " distance calculation completed " << " count " << count << endl;

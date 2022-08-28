@@ -19,13 +19,8 @@ namespace dmrpt {
         vector<VALUE_TYPE> image_data;
     };
 
-    struct ImageDataPoint {
-        int index;
-        vector<VALUE_TYPE> value;
-    };
 
     class DRPT {
-
 
     private:
         int tree_depth;
@@ -64,6 +59,9 @@ namespace dmrpt {
 
         void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
                                 int depth, int i, int tree);
+
+        vector<vector<int>> get_all_leaf_node_indices(int tree);
+
 
         vector<vector<int>> query(VALUE_TYPE *queryP, int no_datapoints, dmrpt::StorageFormat storageFormat);
 

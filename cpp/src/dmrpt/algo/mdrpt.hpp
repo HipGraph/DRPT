@@ -29,6 +29,7 @@ namespace dmrpt {
         int algo;
         string input_path;
         string output_path;
+        vector <vector<vector < DataPoint>>> trees_leaf_all;
 
 
     public:

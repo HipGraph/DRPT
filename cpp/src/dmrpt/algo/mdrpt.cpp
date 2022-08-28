@@ -309,8 +309,9 @@ vector <vector<dmrpt::DataPoint>> dmrpt::MDRPT::calculate_nns(int tree, int nn) 
     auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {
+        cout << " obtaining " << tree << " id " << i  <<" rank "<<rank<< endl;
         vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
-        cout << " obtaining " << tree << " id " << i << " datavec " << data_points.size() << endl;
+        cout << " obtaining completed " << tree << " id " << i << " datavec " << data_points.size() << endl;
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());

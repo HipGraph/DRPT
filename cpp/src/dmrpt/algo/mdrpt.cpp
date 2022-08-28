@@ -234,7 +234,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
             drpt1.grow_local_tree();
 //            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
 
-            vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(i);
+            vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(0);
             cout<<" final_clustered_data size for leaf "<<j<<  final_clustered_data.size()<<endl;
 
             for (int l = 0; l < final_clustered_data.size(); l++) {

@@ -474,12 +474,17 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     }
 
+    for (int i = 0; i < world_size; i++) {
+        cout << " rank " << rank <<" process"<<i  << " send count" << nn_indices_send_count[i] << " recevice count "
+             << nn_indices_recieve_count[i] << endl;
+    }
+
 
     MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
                   nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
 
-    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
-                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+//    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
+//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
     std::map<int, vector<DataPoint>> final_nn_map;

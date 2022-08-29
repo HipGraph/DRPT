@@ -215,13 +215,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
                     data_vec.push_back(leafs[j][index]);
                 }
 
-//                for(int k=0;k<data_vec.size();k++){
-//                    cout << " before src index " << data_vec[k].index << endl;
-//                }
                 int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
                 this->trees_leaf_all[i][id] = data_vec;
-//                cout << " setting " << id << " i " << i << " id " << id << " datavec "
-//                     << this->trees_leaf_all[i][id].size() << endl;
+
                 data_nodes_count_per_process++;
 
 
@@ -326,9 +322,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
     auto end_distance = high_resolution_clock::now();
     auto distance_time = duration_cast<microseconds>(end_distance - start_distance);
 
-    cout << rank << " distance calc returinng " << endl;
     fout << rank << " distance calc " << distance_time.count() << endl;
-    cout << rank << " distance priting  done " << endl;
 
 }
 
@@ -409,7 +403,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
     MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
                  MPI_INT, MPI_COMM_WORLD);
 
-    cout << " rank " << rank << " count gathering completed " << endl;
 
     int total_indices_count_receving = 0;
     int count = 0;
@@ -434,18 +427,13 @@ dmrpt::MDRPT::gather_nns(int nn) {
                   indices_per_process_receive,
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
-    cout << " rank " << rank << " indices gathering completed " << endl;
+
 
     int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
 
     MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
                   nn_indices_count_per_process_recev,
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
-
-
-
-
-    cout << " rank " << rank << " nn count gathering completed " << endl;
 
 
     int final_receiving_nns_count = 0;
@@ -486,12 +474,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
 
 
-//        cout << " rank " << rank << " process " << i << " send count " << nn_indices_send_count[i]
-//             << " disps_nn_indices_send "
-//             << disps_nn_indices_send[i]
-//             << " recevice count  " << nn_indices_recieve_count[i] << " disps count " << disps_nn_indices_recieve[i]
-//             << endl;
-
     }
 
 
@@ -500,8 +482,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
                   nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-
-    cout << " total nn receive completed" << endl;
 
 
     std::map<int, vector<DataPoint>> final_nn_map;
@@ -517,7 +497,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
             dataPoint.src_index = src_index;
             dataPoint.index = nn_indi;
             dataPoint.distance = distance;
-//            cout<<" src  index"<<src_index <<" index "<<nn_indi << " distance "<<distance<<endl;
             if (final_nn_map.find(src_index) == final_nn_map.end()) {
                 vector <DataPoint> vec;
                 vec.push_back(dataPoint);
@@ -530,18 +509,18 @@ dmrpt::MDRPT::gather_nns(int nn) {
     }
 
 
-//    free(indices_count_per_process);
-//    free(indices_count_per_process_recev);
-//    free(indices_per_process);
-//    free(disps_indices_per_process);
-//    free(disps_indices_per_process_receiv);
-//    free(indices_per_process_receive);
-//    free(nn_indices_send);
-//    free(nn_indices_receive);
-//    free(nn_indices_recieve_count);
-//    free(disps_nn_indices_recieve);
-//    free(nn_distance_send);
-//    free(nn_distance_receive);
+    free(indices_count_per_process);
+    free(indices_count_per_process_recev);
+    free(indices_per_process);
+    free(disps_indices_per_process);
+    free(disps_indices_per_process_receiv);
+    free(indices_per_process_receive);
+    free(nn_indices_send);
+    free(nn_indices_receive);
+    free(nn_indices_recieve_count);
+    free(disps_nn_indices_recieve);
+    free(nn_distance_send);
+    free(nn_distance_receive);
     return final_nn_map;
 }
 

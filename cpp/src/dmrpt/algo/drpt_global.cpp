@@ -160,14 +160,10 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
 
-        cout << " calculating mean" << " row size " << data_vec_size << " bins " << no_of_bins
-             << " per column elements " <<
-             total_size_vector[split_starting_index + i] << endl;
-
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
                                                        28, dmrpt::StorageFormat::RAW, this->rank);
-        cout << " completed mean " << result[0] << endl;
+
 
         VALUE_TYPE median = result[0];
 
@@ -206,8 +202,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int left_index = (next_split + 2 * i);
         int right_index = left_index + 1;
 
-        cout << " left index " << left_index << " left index global " << left_childs_global.size() << endl;
-        cout << " right index " << right_index << " right index global " << right_childs_global.size() << endl;
 
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
@@ -284,7 +278,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int *send_counts = new int[total_leaf_size];
     int *recv_counts = new int[total_leaf_size];
 
-    cout << "total leaf size" << total_leaf_size << endl;
 
     int sum_per_node = 0;
     int process = 0;
@@ -353,9 +346,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     }
 
 
-    cout << " total sum" << total_sum << endl;
-
-
     int *receive_indices = new int[total_sum];
 
     VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * this->data_dimension];
@@ -415,13 +405,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             }
 
             int value_read_count = read_offset_data;
-//            cout<< " rank " <<this->rank<< " readoffset  "<< read_offset << " process_read_offset  "<<process_read_offsets[j]<<endl;
+
             for (int k = read_offset; k < process_read_offsets[j]; k++) {
                 DataPoint dataPoint;
                 dataPoint.index = receive_indices[k];
-                if (dataPoint.index <= 0 || dataPoint.index >= 60000) {
-                    cout << " index zero for k " << read_offset << endl;
-                }
+
                 dataPoint.image_data = vector<VALUE_TYPE>(this->data_dimension);
 
                 for (int m = value_read_count; m < (value_read_count + this->data_dimension); m++) {
@@ -429,9 +417,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
                     dataPoint.image_data[r] = receive_values[m];
                 }
 
-                if (dataPoint.index == 0 || dataPoint.image_data.size() != 784) {
-                    cout << " may be wrong index " << dataPoint.index << " " << dataPoint.image_data.size() << endl;
-                }
                 datavec[testcr] = dataPoint;
                 value_read_count += this->data_dimension;
                 testcr++;

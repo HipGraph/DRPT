@@ -87,20 +87,16 @@ void dmrpt::DRPT::grow_local_tree() {
 
     int total_split_size = 1 << (this->tree_depth + 1);
 
-
-#pragma omp parallel for
-//        {
     for (int k = 0; k < this->ntrees; k++) {
         this->count_first_leaf_indices_all(this->trees_leaf_first_indices_all[k], this->no_of_data_points,
                                            this->tree_depth);
         this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
-        cout << "  calcualted leaf size " << this->trees_leaf_first_indices[k].size() << " depth "
-             << this->tree_depth << endl;
         this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
         this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
         this->trees_indices[k] = vector<int>(this->no_of_data_points);;
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<VALUE_TYPE>(this->no_of_data_points);
+#pragma omp parallel for
             for (int j = 0; j < this->no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 this->trees_data[k][i][j] = this->projected_matrix[index];
@@ -156,7 +152,6 @@ void dmrpt::DRPT::grow_local_subtree(std::vector<int>::iterator begin, std::vect
 vector <vector<int>> dmrpt::DRPT::get_all_leaf_node_indices(int tree) {
 
     int leaf_size = this->trees_leaf_first_indices[tree].size();
-    cout << " leaf size for tree " << leaf_size << endl;
     vector <vector<int>> nodes(leaf_size - 1);
 #pragma omp parallel for
     for (int i = 0; i < leaf_size - 1; i++) {

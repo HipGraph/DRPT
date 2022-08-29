@@ -527,18 +527,18 @@ dmrpt::MDRPT::gather_nns(int nn) {
 //    }
 
 
-    free(indices_count_per_process);
-    free(indices_count_per_process_recev);
-    free(indices_per_process);
-    free(disps_indices_per_process);
-    free(disps_indices_per_process_receiv);
-    free(indices_per_process_receive);
-    free(nn_indices_send);
-    free(nn_indices_receive);
-    free(nn_indices_recieve_count);
-    free(disps_nn_indices_recieve);
-    free(nn_distance_send);
-    free(nn_distance_receive);
+//    free(indices_count_per_process);
+//    free(indices_count_per_process_recev);
+//    free(indices_per_process);
+//    free(disps_indices_per_process);
+//    free(disps_indices_per_process_receiv);
+//    free(indices_per_process_receive);
+//    free(nn_indices_send);
+//    free(nn_indices_receive);
+//    free(nn_indices_recieve_count);
+//    free(disps_nn_indices_recieve);
+//    free(nn_distance_send);
+//    free(nn_distance_receive);
     return final_nn_map;
 }
 

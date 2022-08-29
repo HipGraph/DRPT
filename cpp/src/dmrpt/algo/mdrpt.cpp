@@ -501,7 +501,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
     cout << " total nn receive completed" << endl;
 
 
-//    std::map<int, vector<DataPoint>> final_nn_map;
+    std::map<int, vector<DataPoint>> final_nn_map;
 //
 //    int nn_index = 0;
 //    for (int i = 0; i < total_indices_count_receving; i++) {

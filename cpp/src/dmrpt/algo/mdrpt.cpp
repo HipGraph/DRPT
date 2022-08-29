@@ -492,8 +492,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
     }
 
 
-//    MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
-//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
+                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
 //
 //    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
 //                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);

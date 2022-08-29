@@ -295,7 +295,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
             }
 
-
             sort(vec.begin(), vec.end(),
                  [](const DataPoint &lhs, const DataPoint &rhs) {
                      return lhs.distance < rhs.distance;
@@ -390,6 +389,10 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     vector <vector<int>> indices_for_processes(this->world_size);
 
+    for(int i=0;i<this->world_size;i++){
+        indices_for_processes[i]= vector<int>();
+    }
+
 
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
@@ -429,7 +432,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
 
-
     int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
 
     MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
@@ -437,27 +439,24 @@ dmrpt::MDRPT::gather_nns(int nn) {
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
 
-
-
-
-
     int final_receiving_nns_count = 0;
 
     for (int m = 0; m < total_indices_count_receving; m++) {
 
-        if (rank==0){
+        if (rank == 0) {
 
-            cout<<" rank "<<rank<<indices_per_process_receive[m]<<" "<<nn_indices_count_per_process_recev[m]<<" "<<endl;
+            cout << " rank " << rank << indices_per_process_receive[m] << " " << nn_indices_count_per_process_recev[m]
+                 << " " << endl;
         }
-        if(rank == 1){
-
+        if (rank == 1) {
+            cout << " rank " << rank << indices_per_process_receive[m] << " " << nn_indices_count_per_process_recev[m]
+                 << " " << endl;
         }
-
 
         final_receiving_nns_count += nn_indices_count_per_process_recev[m];
     }
 
-    cout<<" rank <<rank "<<rank<<" final receiving count"<<  final_receiving_nns_count<<endl;
+    cout << " rank <<rank " << rank << " final receiving count" << final_receiving_nns_count << endl;
 
     int *nn_indices_send = new int[total_nns_send]();
     int *nn_indices_receive = new int[final_receiving_nns_count]();
@@ -473,32 +472,30 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     int nn_indices_send_index = 0;
     for (int i = 0; i < this->world_size; i++) {
-        for (int j = 0; j < indices_for_processes[i].size(); j++) {
-            vector <DataPoint> nn_indices = local_nn_map[indices_for_processes[i][j]];
-            nn_indices_send_count[i] += nn_indices.size();
-            for (int k = 0; k < nn_indices.size(); k++) {
-                nn_indices_send[nn_indices_send_index] = nn_indices[k].index;
-                nn_distance_send[nn_indices_send_index] = nn_indices[k].distance;
-                nn_indices_send_index++;
-            }
+        vector <DataPoint> nn_indices = indices_for_processes[i];
+        nn_indices_send_count[i] = nn_indices.size();
+        for (int k = 0; k < nn_indices.size(); k++) {
+            nn_indices_send[nn_indices_send_index] = nn_indices[k].index;
+            nn_distance_send[nn_indices_send_index] = nn_indices[k].distance;
+            nn_indices_send_index++;
         }
         disps_nn_indices_send[i] = (i > 0) ? (disps_nn_indices_send[i - 1] + nn_indices_send_count[i - 1]) : 0;
 
 
-
-
         for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
-            nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[l];
+            int offset = disps_indices_per_process_receiv[i];
+            int id = l+ offset;
+            nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[id];
         }
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
 
 
     }
 
-//    for (int i = 0; i < world_size; i++) {
-//        cout << " rank " << rank <<" process"<<i  << " send count" << nn_indices_send_count[i] << " recevice count "
-//             << nn_indices_recieve_count[i] << endl;
-//    }
+    for (int i = 0; i < world_size; i++) {
+        cout << " rank " << rank <<" process"<<i  << " send count" << nn_indices_send_count[i] << " recevice count "
+             << nn_indices_recieve_count[i] << endl;
+    }
 
 
     MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,

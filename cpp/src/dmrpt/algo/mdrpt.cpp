@@ -502,15 +502,16 @@ dmrpt::MDRPT::gather_nns(int nn) {
                 final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
             } else {
                 final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
+                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+                     [](const DataPoint &lhs, const DataPoint &rhs) {
+                         return lhs.distance < rhs.distance;
+                     });
             }
             nn_index++;
         }
     }
 
-    map<int, vector<dmrpt::DataPoint> >::iterator it;
-    for (it = final_nn_map.begin(); it != final_nn_map.end(); it++) {
-        sort(it->second.begin(), it->second.end());
-    }
+
 //
 //
 //    free(indices_count_per_process);

@@ -492,59 +492,59 @@ dmrpt::MDRPT::gather_nns(int nn) {
     MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
                   nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
 
-//    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
-//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
+                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
 
     std::map<int, vector<DataPoint>> final_nn_map;
 
 
-//    int nn_index = 0;
-//    for (int i = 0; i < total_indices_count_receving; i++) {
-//        int src_index = indices_per_process_receive[i];
-//        int nn_count = nn_indices_count_per_process_recev[i];
-//        for (int j = 0; j < nn_count; j++) {
-//            int nn_indi = nn_indices_receive[nn_index];
-//            VALUE_TYPE distance = nn_distance_receive[nn_index];
-//            DataPoint dataPoint;
-//            dataPoint.src_index = src_index;
-//            dataPoint.index = nn_indi;
-//            dataPoint.distance = distance;
-//            vector <DataPoint> vec;
-//            vec.push_back(dataPoint);
-//            if (final_nn_map.find(src_index) == final_nn_map.end()) {
-//                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
-//            } else {
-//                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
-//                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-//                     [](const DataPoint &lhs, const DataPoint &rhs) {
-//                         return lhs.distance < rhs.distance;
-//                     });
-//                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-//                                                   [](const DataPoint &lhs,
-//                                                      const DataPoint &rhs) {
-//                                                       return lhs.index == rhs.index;
-//                                                   }), final_nn_map[src_index].end());
-//            }
-//            nn_index++;
-//        }
-//    }
+    int nn_index = 0;
+    for (int i = 0; i < total_indices_count_receving; i++) {
+        int src_index = indices_per_process_receive[i];
+        int nn_count = nn_indices_count_per_process_recev[i];
+        for (int j = 0; j < nn_count; j++) {
+            int nn_indi = nn_indices_receive[nn_index];
+            VALUE_TYPE distance = nn_distance_receive[nn_index];
+            DataPoint dataPoint;
+            dataPoint.src_index = src_index;
+            dataPoint.index = nn_indi;
+            dataPoint.distance = distance;
+            vector <DataPoint> vec;
+            vec.push_back(dataPoint);
+            if (final_nn_map.find(src_index) == final_nn_map.end()) {
+                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
+            } else {
+                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
+                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+                     [](const DataPoint &lhs, const DataPoint &rhs) {
+                         return lhs.distance < rhs.distance;
+                     });
+                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+                                                   [](const DataPoint &lhs,
+                                                      const DataPoint &rhs) {
+                                                       return lhs.index == rhs.index;
+                                                   }), final_nn_map[src_index].end());
+            }
+            nn_index++;
+        }
+    }
 
 
-//
-//
-//    free(indices_count_per_process);
-//    free(indices_count_per_process_recev);
-//    free(indices_per_process);
-//    free(disps_indices_per_process);
-//    free(disps_indices_per_process_receiv);
-//    free(indices_per_process_receive);
-//    free(nn_indices_send);
-//    free(nn_indices_receive);
-//    free(nn_indices_recieve_count);
-//    free(disps_nn_indices_recieve);
-//    free(nn_distance_send);
-//    free(nn_distance_receive);
+
+
+    free(indices_count_per_process);
+    free(indices_count_per_process_recev);
+    free(indices_per_process);
+    free(disps_indices_per_process);
+    free(disps_indices_per_process_receiv);
+    free(indices_per_process_receive);
+    free(nn_indices_send);
+    free(nn_indices_receive);
+    free(nn_indices_recieve_count);
+    free(disps_nn_indices_recieve);
+    free(nn_distance_send);
+    free(nn_distance_receive);
     return final_nn_map;
 }
 

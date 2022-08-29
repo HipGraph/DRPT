@@ -414,6 +414,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int total_indices_count_receving = 0;
     int count = 0;
     for (int i = 0; i < this->world_size; i++) {
+        cout<<" rank "<<i << " sending indices "<<indices_count_per_process[i]<<endl;
+        cout<<" rank "<<i << " receving indices "<<indices_count_per_process_recev[i]<<endl;
         total_indices_count_receving += indices_count_per_process_recev[i];
         for (int j = 0; j < indices_for_processes[i].size(); j++) {
             indices_per_process[count] = indices_for_processes[i][j];

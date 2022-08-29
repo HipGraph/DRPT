@@ -332,7 +332,9 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
 }
 
-std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
+std::map<int, vector < dmrpt::DataPoint>>
+
+dmrpt::MDRPT::gather_nns(int nn) {
 
     cout << "gathering started " << endl;
     char results[500];
@@ -480,8 +482,13 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
         }
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
 
-        cout<<" process "<<i<<" send count "<<nn_indices_send_count[i]<< " disps_nn_indices_send "<<disps_nn_indices_send[i]
-        <<" recevice count  "<<nn_indices_recieve_count[i] <<" disps count "<<disps_nn_indices_recieve[i]<<endl;
+        if (rank == 0) {
+
+            cout << " process " << i << " send count " << nn_indices_send_count[i] << " disps_nn_indices_send "
+                 << disps_nn_indices_send[i]
+                 << " recevice count  " << nn_indices_recieve_count[i] << " disps count " << disps_nn_indices_recieve[i]
+                 << endl;
+        }
     }
 
 

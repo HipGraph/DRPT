@@ -390,7 +390,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     vector <vector<int>> indices_for_processes(this->world_size);
 
-    int total_nns_send = 0;
+
     for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
         int key = it->first;
         int process = key / chunk_size;
@@ -405,6 +405,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     int total_indices_count_receving = 0;
     int count = 0;
+    int total_nns_send = 0;
     for (int i = 0; i < this->world_size; i++) {
         total_indices_count_receving += indices_count_per_process_recev[i];
         for (int j = 0; j < indices_for_processes[i].size(); j++) {
@@ -420,11 +421,13 @@ dmrpt::MDRPT::gather_nns(int nn) {
                                                          indices_count_per_process_recev[i - 1]) : 0;
     }
 
+
     int *indices_per_process_receive = new int[total_indices_count_receving]();
 
     MPI_Alltoallv(indices_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
                   indices_per_process_receive,
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
+
 
 
     int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
@@ -435,15 +438,23 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
 
 
+
+
+
     int final_receiving_nns_count = 0;
 
     for (int m = 0; m < total_indices_count_receving; m++) {
-        if(rank==0){
-            cout<<" ###"<<nn_indices_count_per_process_recev[m]<<endl;
+
+        if (rank==0){
+
+            cout<<" rank "<<rank<<indices_per_process_receive[m]<<" "<<nn_indices_count_per_process_recev[m]<<" "<<endl;
+        }
+        if(rank == 1){
+
         }
 
-        final_receiving_nns_count += nn_indices_count_per_process_recev[m];
 
+        final_receiving_nns_count += nn_indices_count_per_process_recev[m];
     }
 
     cout<<" rank <<rank "<<rank<<" final receiving count"<<  final_receiving_nns_count<<endl;
@@ -458,8 +469,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int *disps_nn_indices_send = new int[this->world_size]();
     int *nn_indices_recieve_count = new int[this->world_size]();
     int *disps_nn_indices_recieve = new int[this->world_size]();
-
-
 
 
     int nn_indices_send_index = 0;

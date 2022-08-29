@@ -452,6 +452,11 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int *nn_indices_recieve_count = new int[this->world_size]();
     int *disps_nn_indices_recieve = new int[this->world_size]();
 
+    for (int i = 0; i < world_size; i++) {
+        cout << " rank " << rank <<" process"<<i   << " before receive count "
+             << nn_indices_recieve_count[i] << endl;
+    }
+
 
     int nn_indices_send_index = 0;
     for (int i = 0; i < this->world_size; i++) {
@@ -465,6 +470,9 @@ dmrpt::MDRPT::gather_nns(int nn) {
             }
         }
         disps_nn_indices_send[i] = (i > 0) ? (disps_nn_indices_send[i - 1] + nn_indices_send_count[i - 1]) : 0;
+
+
+
 
         for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
             nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[l];

@@ -442,21 +442,10 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int final_receiving_nns_count = 0;
 
     for (int m = 0; m < total_indices_count_receving; m++) {
-
-        if (rank == 0) {
-
-            cout << " rank " << rank << indices_per_process_receive[m] << " " << nn_indices_count_per_process_recev[m]
-                 << " " << endl;
-        }
-        if (rank == 1) {
-            cout << " rank " << rank << indices_per_process_receive[m] << " " << nn_indices_count_per_process_recev[m]
-                 << " " << endl;
-        }
-
         final_receiving_nns_count += nn_indices_count_per_process_recev[m];
     }
 
-    cout << " rank <<rank " << rank << " final receiving count" << final_receiving_nns_count << endl;
+    cout << " rank " <<rank " << rank << " final receiving count" << final_receiving_nns_count << endl;
 
     int *nn_indices_send = new int[total_nns_send]();
     int *nn_indices_receive = new int[final_receiving_nns_count]();

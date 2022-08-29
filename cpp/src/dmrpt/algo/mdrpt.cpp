@@ -414,8 +414,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int total_indices_count_receving = 0;
     int count = 0;
     for (int i = 0; i < this->world_size; i++) {
-        cout<<" rank "<<i << " sending indices "<<indices_count_per_process[i]<<endl;
-        cout<<" rank "<<i << " receving indices "<<indices_count_per_process_recev[i]<<endl;
         total_indices_count_receving += indices_count_per_process_recev[i];
         for (int j = 0; j < indices_for_processes[i].size(); j++) {
             indices_per_process[count] = indices_for_processes[i][j];
@@ -443,6 +441,9 @@ dmrpt::MDRPT::gather_nns(int nn) {
     MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
                   nn_indices_count_per_process_recev,
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
+
+
+
 
     cout << " rank " << rank << " nn count gathering completed " << endl;
 
@@ -485,48 +486,48 @@ dmrpt::MDRPT::gather_nns(int nn) {
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
 
 
-        cout << " rank " << rank << " process " << i << " send count " << nn_indices_send_count[i]
-             << " disps_nn_indices_send "
-             << disps_nn_indices_send[i]
-             << " recevice count  " << nn_indices_recieve_count[i] << " disps count " << disps_nn_indices_recieve[i]
-             << endl;
+//        cout << " rank " << rank << " process " << i << " send count " << nn_indices_send_count[i]
+//             << " disps_nn_indices_send "
+//             << disps_nn_indices_send[i]
+//             << " recevice count  " << nn_indices_recieve_count[i] << " disps count " << disps_nn_indices_recieve[i]
+//             << endl;
 
     }
 
 
     MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
                   nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
-//
-//    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
-//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+
+    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
+                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
     cout << " total nn receive completed" << endl;
 
 
     std::map<int, vector<DataPoint>> final_nn_map;
-//
-//    int nn_index = 0;
-//    for (int i = 0; i < total_indices_count_receving; i++) {
-//        int src_index = indices_per_process_receive[i];
-//        int nn_count = nn_indices_count_per_process_recev[i];
-//        for (int j = 0; j < nn_count; j++) {
-//            int nn_indi = nn_indices_receive[nn_index];
-//            VALUE_TYPE distance = nn_distance_receive[nn_index];
-//            DataPoint dataPoint;
-//            dataPoint.src_index = src_index;
-//            dataPoint.index = nn_indi;
-//            dataPoint.distance = distance;
-////            cout<<" src  index"<<src_index <<" index "<<nn_indi << " distance "<<distance<<endl;
-//            if (final_nn_map.find(src_index) == final_nn_map.end()) {
-//                vector <DataPoint> vec;
-//                vec.push_back(dataPoint);
-//                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
-//            } else {
-//                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
-//            }
-//            nn_index++;
-//        }
-//    }
+
+    int nn_index = 0;
+    for (int i = 0; i < total_indices_count_receving; i++) {
+        int src_index = indices_per_process_receive[i];
+        int nn_count = nn_indices_count_per_process_recev[i];
+        for (int j = 0; j < nn_count; j++) {
+            int nn_indi = nn_indices_receive[nn_index];
+            VALUE_TYPE distance = nn_distance_receive[nn_index];
+            DataPoint dataPoint;
+            dataPoint.src_index = src_index;
+            dataPoint.index = nn_indi;
+            dataPoint.distance = distance;
+//            cout<<" src  index"<<src_index <<" index "<<nn_indi << " distance "<<distance<<endl;
+            if (final_nn_map.find(src_index) == final_nn_map.end()) {
+                vector <DataPoint> vec;
+                vec.push_back(dataPoint);
+                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
+            } else {
+                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
+            }
+            nn_index++;
+        }
+    }
 
 
 //    free(indices_count_per_process);

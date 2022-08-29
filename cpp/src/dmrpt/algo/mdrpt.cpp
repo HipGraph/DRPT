@@ -310,10 +310,9 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
 
             int idx = sub_vec[0].src_index;
             if (local_nns.find(idx) == local_nns.end()) {
-//                cout<<" creating new "<<idx<<endl;
+
                 local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
             } else {
-//                cout<<" inserting "<<idx<<endl;
                 local_nns[idx].insert(local_nns[idx].end(), sub_vec.begin(),
                                       sub_vec.end());
             }
@@ -428,7 +427,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
                   indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
 
 
-
     int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
 
     MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
@@ -486,6 +484,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     std::map<int, vector<DataPoint>> final_nn_map;
 
+
     int nn_index = 0;
     for (int i = 0; i < total_indices_count_receving; i++) {
         int src_index = indices_per_process_receive[i];
@@ -508,19 +507,24 @@ dmrpt::MDRPT::gather_nns(int nn) {
         }
     }
 
-
-    free(indices_count_per_process);
-    free(indices_count_per_process_recev);
-    free(indices_per_process);
-    free(disps_indices_per_process);
-    free(disps_indices_per_process_receiv);
-    free(indices_per_process_receive);
-    free(nn_indices_send);
-    free(nn_indices_receive);
-    free(nn_indices_recieve_count);
-    free(disps_nn_indices_recieve);
-    free(nn_distance_send);
-    free(nn_distance_receive);
+    map<int, vector<dmrpt::DataPoint> >::iterator it;
+    for (it = final_nn_map.begin(); it != final_nn_map.end(); it++) {
+        sort(it->second.begin(), it->second.end());
+    }
+//
+//
+//    free(indices_count_per_process);
+//    free(indices_count_per_process_recev);
+//    free(indices_per_process);
+//    free(disps_indices_per_process);
+//    free(disps_indices_per_process_receiv);
+//    free(indices_per_process_receive);
+//    free(nn_indices_send);
+//    free(nn_indices_receive);
+//    free(nn_indices_recieve_count);
+//    free(disps_nn_indices_recieve);
+//    free(nn_distance_send);
+//    free(nn_distance_receive);
     return final_nn_map;
 }
 

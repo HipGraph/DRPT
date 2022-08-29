@@ -205,7 +205,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 //            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
 
             vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(0);
-            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
+//            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
 
             for (int l = 0; l < final_clustered_data.size(); l++) {
                 vector <DataPoint> data_vec;
@@ -254,7 +254,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
         }
     }
 
-    cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
+//    cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
 
 
     char results[500];

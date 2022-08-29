@@ -388,8 +388,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
     int *indices_count_per_process_recev = new int[this->world_size]();
 
     int *indices_per_process = new int[local_nn_map.size()]();
-    int *disps_indices_per_process = new int[this->world_size];
-    int *disps_indices_per_process_receiv = new int[this->world_size];
+    int *disps_indices_per_process = new int[this->world_size]();
+    int *disps_indices_per_process_receiv = new int[this->world_size]();
 
 
     int *nn_indices_count_per_process = new int[local_nn_map.size()]();

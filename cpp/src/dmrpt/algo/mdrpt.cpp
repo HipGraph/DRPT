@@ -496,9 +496,9 @@ dmrpt::MDRPT::gather_nns(int nn) {
             dataPoint.src_index = src_index;
             dataPoint.index = nn_indi;
             dataPoint.distance = distance;
+            vector <DataPoint> vec;
+            vec.push_back(dataPoint);
             if (final_nn_map.find(src_index) == final_nn_map.end()) {
-                vector <DataPoint> vec;
-                vec.push_back(dataPoint);
                 final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
             } else {
                 final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
@@ -506,6 +506,11 @@ dmrpt::MDRPT::gather_nns(int nn) {
                      [](const DataPoint &lhs, const DataPoint &rhs) {
                          return lhs.distance < rhs.distance;
                      });
+                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+                                                   [](const DataPoint &lhs,
+                                                      const DataPoint &rhs) {
+                                                       return lhs.index == rhs.index;
+                                                   }), final_nn_map[src_index].end());
             }
             nn_index++;
         }

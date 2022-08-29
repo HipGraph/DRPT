@@ -485,36 +485,36 @@ dmrpt::MDRPT::gather_nns(int nn) {
     std::map<int, vector<DataPoint>> final_nn_map;
 
 
-    int nn_index = 0;
-    for (int i = 0; i < total_indices_count_receving; i++) {
-        int src_index = indices_per_process_receive[i];
-        int nn_count = nn_indices_count_per_process_recev[i];
-        for (int j = 0; j < nn_count; j++) {
-            int nn_indi = nn_indices_receive[nn_index];
-            VALUE_TYPE distance = nn_distance_receive[nn_index];
-            DataPoint dataPoint;
-            dataPoint.src_index = src_index;
-            dataPoint.index = nn_indi;
-            dataPoint.distance = distance;
-            vector <DataPoint> vec;
-            vec.push_back(dataPoint);
-            if (final_nn_map.find(src_index) == final_nn_map.end()) {
-                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
-            } else {
-                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
-                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-                     [](const DataPoint &lhs, const DataPoint &rhs) {
-                         return lhs.distance < rhs.distance;
-                     });
-                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-                                                   [](const DataPoint &lhs,
-                                                      const DataPoint &rhs) {
-                                                       return lhs.index == rhs.index;
-                                                   }), final_nn_map[src_index].end());
-            }
-            nn_index++;
-        }
-    }
+//    int nn_index = 0;
+//    for (int i = 0; i < total_indices_count_receving; i++) {
+//        int src_index = indices_per_process_receive[i];
+//        int nn_count = nn_indices_count_per_process_recev[i];
+//        for (int j = 0; j < nn_count; j++) {
+//            int nn_indi = nn_indices_receive[nn_index];
+//            VALUE_TYPE distance = nn_distance_receive[nn_index];
+//            DataPoint dataPoint;
+//            dataPoint.src_index = src_index;
+//            dataPoint.index = nn_indi;
+//            dataPoint.distance = distance;
+//            vector <DataPoint> vec;
+//            vec.push_back(dataPoint);
+//            if (final_nn_map.find(src_index) == final_nn_map.end()) {
+//                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
+//            } else {
+//                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
+//                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+//                     [](const DataPoint &lhs, const DataPoint &rhs) {
+//                         return lhs.distance < rhs.distance;
+//                     });
+//                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+//                                                   [](const DataPoint &lhs,
+//                                                      const DataPoint &rhs) {
+//                                                       return lhs.index == rhs.index;
+//                                                   }), final_nn_map[src_index].end());
+//            }
+//            nn_index++;
+//        }
+//    }
 
 
 //

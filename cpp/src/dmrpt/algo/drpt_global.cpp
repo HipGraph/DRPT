@@ -278,6 +278,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int *send_counts = new int[total_leaf_size];
     int *recv_counts = new int[total_leaf_size];
 
+    cout<<" rank "<< rank<< " leafs per node "<< leafs_per_node<<" tree "<<tree<<endl;
 
     int sum_per_node = 0;
     int process = 0;

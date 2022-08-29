@@ -463,7 +463,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
     for (int i = 0; i < this->world_size; i++) {
         for (int j = 0; j < indices_for_processes[i].size(); j++) {
             vector <DataPoint> nn_indices = local_nn_map[indices_for_processes[i][j]];
-            nn_indices_send_count[i] = nn_indices.size();
+            nn_indices_send_count[i] += nn_indices.size();
             for (int k = 0; k < nn_indices.size(); k++) {
                 nn_indices_send[nn_indices_send_index] = nn_indices[k].index;
                 nn_distance_send[nn_indices_send_index] = nn_indices[k].distance;

@@ -75,19 +75,6 @@ end();
 
 void dmrpt::MDRPT::grow_trees(float density) {
 
-    dmrpt::MathOp mathOp;
-    VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
-
-    int rows = this->original_data[0].size();
-    int cols = this->original_data.size();
-
-    int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
-    int local_tree_depth = this->tree_depth - global_tree_depth;
-
-
-    VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
-                                                          global_tree_depth * this->ntrees, density);
-
     char results[500];
     char hostname[HOST_NAME_MAX];
     int host = gethostname(hostname, HOST_NAME_MAX);
@@ -97,15 +84,21 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     ofstream fout(results, std::ios_base::app);
 
-    char data[500];
-    string file_path_data = output_path + "data.txt.";
-    std::strcpy(data, file_path_data.c_str());
-    std::strcpy(data + strlen(file_path_data.c_str()), hostname);
 
-    ofstream fout1(data, std::ios_base::app);
+    dmrpt::MathOp mathOp;
+    VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
+    int rows = this->original_data[0].size();
+    int cols = this->original_data.size();
+
+    int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
+    int local_tree_depth = this->tree_depth - global_tree_depth;
 
     auto start_matrix_index = high_resolution_clock::now();
+
+    VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
+                                                          global_tree_depth * this->ntrees, density);
+
     // P= X.R
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
                                         1.0);
@@ -113,6 +106,9 @@ void dmrpt::MDRPT::grow_trees(float density) {
     auto stop_matrix_index = high_resolution_clock::now();
 
     auto matrix_time = duration_cast<microseconds>(stop_matrix_index - start_matrix_index);
+
+
+    auto start_grow_index = high_resolution_clock::now();
 
     int starting_index = (this->total_data_set_size / world_size) * this->rank;
 
@@ -123,7 +119,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
                                           output_path);
 
 
-    auto start_grow_index = high_resolution_clock::now();
+
     cout << " rank " << rank << " starting growing trees" << endl;
     this->drpt_global.grow_global_tree();
     auto stop_grow_index = high_resolution_clock::now();
@@ -147,9 +143,6 @@ void dmrpt::MDRPT::grow_trees(float density) {
     auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
 
 
-    fout << rank << " matrix  " << matrix_time.count() << " tree " << index_time.count() << " collecting "
-         << collect_time.count()
-         << endl;
     cout << " rank " << rank << " similar datapoint collection completed" << endl;
 
 
@@ -174,6 +167,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     cout << " start count " << my_start_count << " end count " << my_end_count << endl;
 
+    auto start_collect_local = high_resolution_clock::now();
 
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
@@ -231,6 +225,13 @@ void dmrpt::MDRPT::grow_trees(float density) {
         free(C);
 
     }
+
+    auto end_collect_local = high_resolution_clock::now();
+    auto collect_time_local = duration_cast<microseconds>(start_collect_local - end_collect_local);
+
+    fout << rank << " matrix  " << matrix_time.count() << " global tree " << index_time.count() << " communication "
+         << collect_time.count() <<" local index growing  "<<collect_time_local.count()
+         << endl;
 }
 
 void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn) {
@@ -254,30 +255,10 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
         }
     }
 
-//    cout << " my start " << my_start_count << " my end " << end_count << "  rank " << rank << endl;
-
-
-    char results[500];
-
-    char hostname[HOST_NAME_MAX];
-
-    gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "stats_divided.txt.";
-    std::strcpy(results, file_path_stat.c_str());
-    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-
-    ofstream fout(results, std::ios_base::app);
-
-    auto start_distance = high_resolution_clock::now();
 
     for (int i = my_start_count; i < end_count; i++) {
-//        cout << " obtaining " << tree << " id " << i << " rank " << rank << endl;
-        vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
-//        cout << " obtaining completed " << tree << " id " << i << " datavec " << data_points.size() << endl;
 
-//        for (int k = 0; k < data_points.size(); k++) {
-//            cout << " src index " << data_points[k].index << endl;
-//        }
+        vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
 
         for (int k = 0; k < data_points.size(); k++) {
             vector <DataPoint> vec(data_points.size());
@@ -317,10 +298,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint> > &local_nns,
             }
         }
     }
-    auto end_distance = high_resolution_clock::now();
-    auto distance_time = duration_cast<microseconds>(end_distance - start_distance);
 
-    fout << rank << " distance calc " << distance_time.count() << endl;
 
 }
 
@@ -339,6 +317,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
     std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
 
     ofstream fout(results, std::ios_base::app);
+
+    auto start_distance = high_resolution_clock::now();
 
     int chunk_size = this->total_data_set_size / this->world_size;
 
@@ -359,7 +339,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     std::map<int, vector<DataPoint>> local_nn_map;
 
-    auto start_distance = high_resolution_clock::now();
 
     for (int i = 0; i < ntrees; i++) {
         this->calculate_nns(local_nn_map, i, 2 * nn);
@@ -483,11 +462,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     }
 
-    for (int i = 0; i < world_size; i++) {
-        cout << " rank " << rank <<" process"<<i  << " send count" << nn_indices_send_count[i] << " recevice count "
-             << nn_indices_recieve_count[i] << endl;
-    }
-
 
     MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
                   nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
@@ -531,6 +505,10 @@ dmrpt::MDRPT::gather_nns(int nn) {
     }
 
 
+    auto stop_query = high_resolution_clock::now();
+    auto query_time = duration_cast<microseconds>(stop_query - start_query);
+
+    fout<<" distance calculation "<<distance_time.count() <<" communication time "<<query_time.count()<<endl;
 
 
     free(indices_count_per_process);

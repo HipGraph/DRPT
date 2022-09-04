@@ -142,6 +142,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     int split_starting_index = (1 << (depth)) - 1;
     int next_split = (1 << (depth + 1)) - 1;
 
+
     if (depth == 0) {
         split_starting_index = 0;
     }
@@ -151,6 +152,13 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         int data_vec_size = data_vector.size();
         VALUE_TYPE *data = new VALUE_TYPE[data_vec_size];
+
+        int left_index = (next_split + 2 * i);
+        int right_index = left_index + 1;
+
+        int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
+        int selected_leaf_right = selected_leaf_left + 1;
+
 
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
@@ -184,10 +192,18 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                                    [index](DataPoint const &n) {
                                                                        return n.index == index;
                                                                    });
+                DataPoint selected_data = (*it);
                 if (data_vector[k].value <= median) {
-                    left_childs.push_back(*it);
+                    left_childs.push_back(selected_data);
+                    if (depth == this->tree_depth - 2) {
+                        this->create_index_to_tree_leaf_mapping(selected_data, tree, selected_leaf_left)
+                    }
+
                 } else {
-                    right_childs.push_back(*it);
+                    right_childs.push_back(selected_data);
+                    if (depth == this->tree_depth - 2) {
+                        this->create_index_to_tree_leaf_mapping(selected_data, tree, selected_leaf_right)
+                    }
                 }
             }
 #pragma omp critical
@@ -198,17 +214,12 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             }
         }
 
-
-        int left_index = (next_split + 2 * i);
-        int right_index = left_index + 1;
-
-
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
         if (depth == this->tree_depth - 2) {
-            int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
             this->trees_leaf_first_indices[tree][selected_leaf_left] = left_childs_global;
-            this->trees_leaf_first_indices[tree][selected_leaf_left + 1] = right_childs_global;
+            this->trees_leaf_first_indices[tree][selected_leaf_right] = right_childs_global;
+
         }
         free(data);
         free(result);
@@ -279,7 +290,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     int *send_counts = new int[total_leaf_size];
     int *recv_counts = new int[total_leaf_size];
 
-    cout<<" rank "<< rank<< " leafs per node "<< leafs_per_node<<"total leaf size"<< total_leaf_size<<" tree "<<tree<<endl;
+    cout << " rank " << rank << " leafs per node " << leafs_per_node << "total leaf size" << total_leaf_size << " tree "
+         << tree << endl;
 
     int sum_per_node = 0;
     int process = 0;
@@ -444,3 +456,70 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
     return all_leaf_nodes;
 
 }
+
+
+void dmrpt::DRPTGlobal::create_index_to_tree_leaf_mapping(DataPoint datapoint, int tree, int leaf) {
+
+    if (this->index_to_tree_leaf_mapper.find(datapoint.index) == this->index_to_tree_leaf_mapper.end()) {
+        vector<int> vec(this->ntrees);
+        vec[tree] = leaf;
+        this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (datapoint.index, vec));
+    } else {
+        this->index_to_tree_leaf_mapper[datapoint.index][tree] = leaf;
+    }
+}
+
+
+vector <vector<vector < int>>>
+
+dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
+
+//    map < string, vector < int > final_mapping;
+    vector < vector < vector < int>>> final_mapping = vector < vector < vector < int>>>(ntrees);
+
+
+    int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+
+    vector < vector < vector < vector < int >> >> correlation_matrix =
+            vector < vector < vector < vector < int >> >> (ntrees);
+
+    for (int tree = 0; tree < this->ntrees; tree++) {
+        correlation_matrix[tree] = vector < vector < vector < int>>>(total_leaf_size);
+        final_mapping[tree] = vector < vector < int >> (total_leaf_size)
+        for (int leaf = 0; leaf < total_leaf_size; leaf++) {
+            correlation_matrix[tree][leaf] = vector < vector < int >> (this->ntrees);
+            final_mapping[tree][leaf] = vector<int>(ntrees)
+
+            vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
+
+            for (int c = 0; c < data_points.size(); c++) {
+
+                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
+                for (int j = 0; j < vec.size(); vec++) {
+                    if (correlation_matrix[tree][leaf][j].size() == 0) {
+                        correlation_matrix[tree][leaf][j] = vector<int>(total_leaf_size, 0);
+                    }
+                    correlation_matrix[tree][leaf][j][vec[j]] += 1;
+                }
+            }
+        }
+    }
+
+    for (int tree = 0; tree < this->ntrees; tree++) {
+        for (int leaf = 0; leaf < total_leaf_size; leaf++) {
+            for (int c = 0; c < this->ntrees; c++) {
+                int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
+                                                     correlation_matrix[tree][leaf][c].end())
+                                    - correlation_matrix[tree][leaf][c].begin();
+                final_mapping[tree][leaf][c] = selected_leaf
+                cout << " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
+            }
+        }
+    }
+
+    return final_mapping;
+}
+
+
+
+

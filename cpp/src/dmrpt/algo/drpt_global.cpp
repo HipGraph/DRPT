@@ -476,6 +476,16 @@ vector <vector<vector < int>>>
 
 dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
+    char results[500];
+    char hostname[HOST_NAME_MAX];
+    int host = gethostname(hostname, HOST_NAME_MAX);
+    string file_path_stat = output_path + "child_tracker.txt.";
+    std::strcpy(results, file_path_stat.c_str());
+    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
+
+    ofstream fout(results, std::ios_base::app);
+
+
 //    map < string, vector < int > final_mapping;
     vector < vector < vector < int>>> final_mapping = vector < vector < vector < int>>>(ntrees);
 
@@ -514,7 +524,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                      correlation_matrix[tree][leaf][c].end())
                                     - correlation_matrix[tree][leaf][c].begin();
                 final_mapping[tree][leaf][c] = selected_leaf;
-                cout<<"rank "<<rank << " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
+                fout<< " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
             }
         }
     }

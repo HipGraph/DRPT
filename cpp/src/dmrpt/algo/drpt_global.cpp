@@ -109,7 +109,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
-#pragma  omp parallel for
+//#pragma  omp parallel for
             for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 DataPoint dataPoint;
@@ -117,6 +117,8 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 dataPoint.index = j + this->starting_data_index;
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
+                vector<int> vec(this->ntrees);
+                this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (dataPoint.index, vec));
             }
         }
 
@@ -196,13 +198,13 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->create_index_to_tree_leaf_mapping(selected_data, tree, selected_leaf_left);
+                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
                     }
 
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->create_index_to_tree_leaf_mapping(selected_data, tree, selected_leaf_right);
+                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
                     }
                 }
             }
@@ -458,20 +460,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-void dmrpt::DRPTGlobal::create_index_to_tree_leaf_mapping(DataPoint datapoint, int tree, int leaf) {
-
-//    cout << "rank " << this->rank << "creating index to tree leaf mapping" << tree << " " << leaf << endl;
-
-    if (this->index_to_tree_leaf_mapper.find(datapoint.index) == this->index_to_tree_leaf_mapper.end()) {
-        vector<int> vec(this->ntrees);
-        vec[tree] = leaf;
-        this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (datapoint.index, vec));
-    } else {
-        this->index_to_tree_leaf_mapper[datapoint.index][tree] = leaf;
-    }
-}
-
-
 vector <vector<vector < int>>>
 
 dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
@@ -524,7 +512,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                      correlation_matrix[tree][leaf][c].end())
                                     - correlation_matrix[tree][leaf][c].begin();
                 final_mapping[tree][leaf][c] = selected_leaf;
-                fout<< " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
+                fout << " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
             }
         }
     }

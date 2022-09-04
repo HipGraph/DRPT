@@ -47,7 +47,7 @@ namespace dmrpt {
         string input_path;
         string output_path;
 
-        void create_index_to_tree_leaf_mapping(DataPoint datapoint, int tree, int leaf);
+
 
 
     public:

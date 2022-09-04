@@ -460,7 +460,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
 void dmrpt::DRPTGlobal::create_index_to_tree_leaf_mapping(DataPoint datapoint, int tree, int leaf) {
 
-    cout << "rank " << this->rank << "creating index to tree leaf mapping" << tree << " " << leaf << endl;
+//    cout << "rank " << this->rank << "creating index to tree leaf mapping" << tree << " " << leaf << endl;
 
     if (this->index_to_tree_leaf_mapper.find(datapoint.index) == this->index_to_tree_leaf_mapper.end()) {
         vector<int> vec(this->ntrees);

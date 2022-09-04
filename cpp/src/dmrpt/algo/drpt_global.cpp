@@ -511,7 +511,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
                                                      correlation_matrix[tree][leaf][c].end())
                                     - correlation_matrix[tree][leaf][c].begin();
-                final_mapping[tree][leaf][c] = selected_leaf
+                final_mapping[tree][leaf][c] = selected_leaf;
                 cout << " tree" << tree << " leaf" << leaf << " can tree" << c << " leaf " << selected_leaf << endl;
             }
         }

@@ -467,7 +467,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     char results[500];
     char hostname[HOST_NAME_MAX];
     int host = gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "child_tracker.txt.";
+    string file_path_stat = output_path + "child_tracker.txt."+ to_string(rank)+".";
     std::strcpy(results, file_path_stat.c_str());
     std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
 

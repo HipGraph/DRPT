@@ -612,8 +612,11 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     if (final_tree_leaf_mapping[j][m] == can_leaf) {
                         already_taken = true;
                         cout << "already taken  tree " << m << " " << can_leaf << endl;
-                        continue;
                     }
+                }
+
+                if (already_taken) {
+                    continue;
                 }
 
                 if (it != verification_mapping.end()) {
@@ -621,8 +624,8 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
 
-                }else {
-                    cout<<" not mapping to any tree " << m << " " << can_leaf << endl;
+                } else {
+                    cout << " not mapping to any tree " << m << " " << can_leaf << endl;
                 }
             }
         }

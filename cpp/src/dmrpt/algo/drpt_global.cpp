@@ -612,7 +612,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     if (final_tree_leaf_mapping[j][m] == can_leaf) {
                         already_taken = true;
                         cout << "already taken  tree " << m << " " << can_leaf << endl;
-                        break;
+                        continue;
                     }
                 }
 

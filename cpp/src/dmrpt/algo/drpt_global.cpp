@@ -130,11 +130,6 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     }
 }
 
-template<class T>
-void finalize_leaf_correlation(std::vector<T> &v) {
-
-}
-
 
 void dmrpt::DRPTGlobal::grow_global_tree() {
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->intial_no_of_data_points)) {
@@ -613,7 +608,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 for (int p = 0; p < this->world_size; p++) {
                     int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
                     int value = total_receiving_leafs[id];
-                    vec.push_back(value)
+                    vec.push_back(value);
                 }
                 sortByFreq(vec, candidate_mapping[j][k][m], this->world_size);
             }
@@ -650,7 +645,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             for (int i = 0; i < vec.size(); i++) {
                 PriorityMap can_leaf = vec[i];
                 int id = can_leaf.leaf_index;
-                vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf][0];
+                vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf.leaf_index][0];
                 std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(verification_mapping.begin(),
                                                                             verification_mapping.end(),
                                                                             [id](dmrpt::PriorityMap const &n) {
@@ -660,7 +655,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 for (int j = k - 1; j >= 0; j--) {
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
-                        cout << "already taken  tree " << m << " " << can_leaf << endl;
+                        cout << "already taken  tree " << m << " " << can_leaf.leaf_index << endl;
                     }
                 }
 

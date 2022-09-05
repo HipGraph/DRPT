@@ -602,8 +602,9 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         for (int m = 0; m < this->ntrees; m++) {
             //TODO: randomly select tree
             vector<int> vec = candidate_mapping[0][k][m];
+            fout << " tree "<<m<<" leaf "<<k << ' ';
             for (int i = 0; i < vec.size(); i++) {
-
+                fout << vec[i] << ' ';
                 int can_leaf = vec[i];
                 vector<int> verification_mapping = candidate_mapping[0][can_leaf][m];
                 std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
@@ -619,7 +620,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 if (it != verification_mapping.end() && (!already_taken)) {
                     final_tree_leaf_mapping[k][m] = (*it);
                     fout << final_tree_leaf_mapping[k][m] << ' ';
-                    break;
+//                    break;
 
                 }
             }

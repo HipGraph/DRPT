@@ -584,15 +584,12 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
-            fout<<" tree "<<j<<" leaf "<<k<<" "<<endl;
             for (int m = 0; m < this->ntrees; m++) {
                 for (int p = 0; p < this->world_size; p++) {
                     int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
                     int value = total_receiving_leafs[id];
                     candidate_mapping[j][k][m].push_back(value);
-                    fout<<value<<" ";
                 }
-                fout<<endl;
                 sortByFreq(candidate_mapping[j][k][m]);
             }
         }
@@ -604,31 +601,28 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         for (int m = 0; m < this->ntrees; m++) {
             //TODO: randomly select tree
             vector<int> vec = candidate_mapping[0][k][m];
-//            fout << " tree "<<m<<" leaf "<<k << ' '<<endl;
             for (int i = 0; i < vec.size(); i++) {
-//                fout << vec[i] << ' ';
                 int can_leaf = vec[i];
-                vector<int> verification_mapping = candidate_mapping[0][can_leaf][m];
+                vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
                 std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
                                                           k);
 
                 bool already_taken = false;
                 for (int j = k - 1; j >= 0; j--) {
-                    if (final_tree_leaf_mapping[j][m] == (*it)) {
+                    if (final_tree_leaf_mapping[j][m] == can_leaf) {
                         already_taken = true;
                     }
                 }
 
                 if (it != verification_mapping.end() && (!already_taken)) {
-                    final_tree_leaf_mapping[k][m] = (*it);
-//                    fout << final_tree_leaf_mapping[k][m] << ' ';
-//                    break;
+                    final_tree_leaf_mapping[k][m] = can_leaf;
+                    fout << final_tree_leaf_mapping[k][m] << ' ';
+                    break;
 
                 }
             }
-//            fout << endl;
         }
-//        fout << endl;
+        fout << endl;
 
     }
 

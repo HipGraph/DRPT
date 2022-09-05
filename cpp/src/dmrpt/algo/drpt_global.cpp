@@ -475,7 +475,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
 //    map < string, vector < int > final_mapping;
-    vector < vector < vector < int>>> final_mapping = vector < vector < vector < int>>>(ntrees);
+    vector < vector < vector < float>>> final_mapping = vector < vector < vector < float>>>(ntrees);
 
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
@@ -508,11 +508,16 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     for (int tree = 0; tree < this->ntrees; tree++) {
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
             for (int c = 0; c < this->ntrees; c++) {
-                int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
-                                                     correlation_matrix[tree][leaf][c].end())
-                                    - correlation_matrix[tree][leaf][c].begin();
+                vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
+                int size = data_points.size();
+                std::transform(correlation_matrix[tree][leaf][c].begin(), correlation_matrix[tree][leaf][c].end(),
+                               correlation_matrix[tree][leaf][c].begin(), [&](float x){(x/size)*100;});
+                int* max_element = std::max_element(correlation_matrix[tree][leaf][c].begin(),
+                                                     correlation_matrix[tree][leaf][c].end(),[&](float a, float b)->{return (a<b);});
+                int selected_leaf = max_element - correlation_matrix[tree][leaf][c].begin();
+
                 final_mapping[tree][leaf][c] = selected_leaf;
-                    fout << selected_leaf << ' ';
+                    fout << selected_leaf << ' - '<<(*max_element)<<' ';
 
             }
             fout <<endl;

@@ -460,7 +460,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector<vector <vector<vector < int>>>
+vector<vector <vector<vector < int>>>>
 
 dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 

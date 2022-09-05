@@ -475,35 +475,12 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
 //    map < string, vector < int > final_mapping;
-    vector < vector < vector < int>>> final_mapping = vector < vector < vector < int>>>(ntrees);
+    vector < vector < vector < vector < int >> >> process_candidate_mapping =
+            vector < vector < vector < vector < int >> >> (this->ntrees);
 
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    vector < vector < vector < vector < float >> >> correlation_matrix =
-            vector < vector < vector < vector < float >> >> (ntrees);
-
-    for (int tree = 0; tree < this->ntrees; tree++) {
-        correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
-        final_mapping[tree] = vector < vector < int >> (total_leaf_size);
-        for (int leaf = 0; leaf < total_leaf_size; leaf++) {
-            correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
-            final_mapping[tree][leaf] = vector<int>(ntrees);
-
-            vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
-
-            for (int c = 0; c < data_points.size(); c++) {
-
-                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
-                for (int j = 0; j < vec.size(); j++) {
-                    if (correlation_matrix[tree][leaf][j].size() == 0) {
-                        correlation_matrix[tree][leaf][j] = vector<float>(total_leaf_size, 0);
-                    }
-                    correlation_matrix[tree][leaf][j][vec[j]] += 1;
-                }
-            }
-        }
-    }
 
     int total_sending = this->ntrees * total_leaf_size * this->ntrees;
     int *my_sending_leafs = new int[total_sending]();
@@ -522,6 +499,31 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         disps_send[i] = 0;
         recieve_count[i] = total_sending;
         disps_recieve[i] = (i > 0) ? (disps_recieve[i - 1] + recieve_count[i - 1]) : 0;
+
+    }
+
+    vector < vector < vector < vector < float >> >> correlation_matrix =
+            vector < vector < vector < vector < float >> >> (ntrees);
+
+    for (int tree = 0; tree < this->ntrees; tree++) {
+        correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
+        process_candidate_mapping[tree] = vector < vector < vector < int>>>(total_leaf_size);
+        for (int leaf = 0; leaf < total_leaf_size; leaf++) {
+            correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
+            process_candidate_mapping[tree][leaf] = vector < vector < int >> (this->ntrees);
+            vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
+
+            for (int c = 0; c < data_points.size(); c++) {
+
+                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
+                for (int j = 0; j < vec.size(); j++) {
+                    if (correlation_matrix[tree][leaf][j].size() == 0) {
+                        correlation_matrix[tree][leaf][j] = vector<float>(total_leaf_size, 0);
+                    }
+                    correlation_matrix[tree][leaf][j][vec[j]] += 1;
+                }
+            }
+        }
     }
 
 
@@ -549,8 +551,21 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     MPI_Alltoallv(my_sending_leafs, send_count, disps_send, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
 
-    cout<<"Broadcating completed"<<rank<<endl;
 
+    for (int j = 0; j < this->ntrees; j++) {
+        for (int k = 0; k < total_leaf_size; k++) {
+            for (int m = 0; m < this->ntrees; m++) {
+                fout<<" tree "<<j<< " leaf "<<k<<" tree " <<m<< " values "<<
+                for (int p = 0; p < this->world_size; p++) {
+                    int id = p*total_sending + j*total_leaf_size*this->ntrees +k*this->ntrees +m;
+                    int value = total_receiving_leafs[id];
+                    process_candidate_mapping[j][k][m].push_back(value);
+                    fout<<value<<' '
+                }
+            }
+            fout<<endl;
+        }
+    }
 
     return final_mapping;
 }

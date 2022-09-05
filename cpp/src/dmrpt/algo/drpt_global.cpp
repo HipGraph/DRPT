@@ -512,12 +512,13 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 int size = data_points.size();
                 std::transform(correlation_matrix[tree][leaf][c].begin(), correlation_matrix[tree][leaf][c].end(),
                                correlation_matrix[tree][leaf][c].begin(), [&](float x){(x/size)*100;});
-                float* max_element = std::max_element(correlation_matrix[tree][leaf][c].begin(),
-                                                     correlation_matrix[tree][leaf][c].end());
-                int selected_leaf = max_element - correlation_matrix[tree][leaf][c].begin();
+                int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
+                                                     correlation_matrix[tree][leaf][c].end()) - correlation_matrix[tree][leaf][c].begin()
+                float max_element = *std::max_element(correlation_matrix[tree][leaf][c].begin(),
+                                                     correlation_matrix[tree][leaf][c].end())
 
                 final_mapping[tree][leaf][c] = selected_leaf;
-                    fout << selected_leaf << ' - '<<(*max_element)<<' ';
+                    fout << selected_leaf << ' - '<<(max_element)<<' ';
 
             }
             fout <<endl;

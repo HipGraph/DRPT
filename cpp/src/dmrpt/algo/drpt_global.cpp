@@ -603,33 +603,28 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             //TODO: randomly select tree
             vector<int> vec = candidate_mapping[0][k][m];
             for (int i = 0; i < vec.size(); i++) {
-                if (m == 0) {
-                    final_tree_leaf_mapping[k][m] = vec[i];
-                    fout<< final_tree_leaf_mapping[k][m]<< ' ';
+
+                int can_leaf = vec[i];
+                vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
+                std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
+                                                          k);
+
+                bool already_taken = false;
+                for (int j = k - 1; j >= 0; j--) {
+                    if (final_tree_leaf_mapping[j][m] == (*it)) {
+                        already_taken = true;
+                    }
+                }
+
+                if (it != verification_mapping.end() && (!already_taken)) {
+                    final_tree_leaf_mapping[k][m] = (*it);
+                    fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
-                } else {
-                    int can_leaf = vec[i];
-                    vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
-                    std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
-                                                              k);
 
-                    bool already_taken= false;
-                    for(int j=k-1;j>=0;j--) {
-                        if (final_tree_leaf_mapping[j][m] == (*it)) {
-                            already_taken = true;
-                        }
-                    }
-
-                    if (it != verification_mapping.end() && (!already_taken)){
-                        final_tree_leaf_mapping[k][m]=(*it);
-                        fout<< final_tree_leaf_mapping[k][m]<< ' ';
-                        break;
-
-                    }
                 }
             }
         }
-        fout<<endl;
+        fout << endl;
 
     }
 

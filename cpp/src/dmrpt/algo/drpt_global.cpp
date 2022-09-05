@@ -518,7 +518,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                      correlation_matrix[tree][leaf][c].end());
 
                 final_mapping[tree][leaf][c] = selected_leaf;
-                    fout << selected_leaf <<' '<<(max_element)<<' ';
+                    fout << selected_leaf <<' '
 
             }
             fout <<endl;

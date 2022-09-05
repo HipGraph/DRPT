@@ -523,7 +523,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 //    map < string, vector < int > final_mapping;
     vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
-            vector < vector < vector < vector < int >> >> (this->ntrees);
+            vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
@@ -555,10 +555,10 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int tree = 0; tree < this->ntrees; tree++) {
         correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
-        candidate_mapping[tree] = vector < vector < vector < int>>>(total_leaf_size);
+        candidate_mapping[tree] = vector < vector < vector < dmrpt::PriorityMap>>>(total_leaf_size);
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
             correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
-            candidate_mapping[tree][leaf] = vector < vector < int >> (this->ntrees);
+            candidate_mapping[tree][leaf] = vector < vector < dmrpt::PriorityMap >> (this->ntrees);
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
 
             for (int c = 0; c < data_points.size(); c++) {

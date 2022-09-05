@@ -622,7 +622,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             for (int m = 0; m < this->ntrees; m++) {
                 vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][m];
                 for (int l = 0; l < vec.size(); l++) {
-                      fout<<vec[l]<<" ";
+                      fout<<vec[l]<<' ';
                 }
                 fout<<endl;
             }

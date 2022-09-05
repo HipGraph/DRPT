@@ -552,7 +552,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
-            fout << "tree" << j << " leaf " << k << endl;
+            fout << " tree " << j << " leaf " << k << endl;
 
             for (int m = 0; m < this->ntrees; m++) {
                 for (int p = 0; p < this->world_size; p++) {

@@ -615,25 +615,20 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
     }
 
-//
-//    for (int i = 0; i < this->ntrees; i++) {
-//
-//        for (int j = 0; j < this->ntrees; j++) {
-//            for (int k = 0; k < total_leaf_size; k++) {
-//                vector <dmrpt::PriorityMap> primap = candidate_mapping[i][k][j];
-//                for (int l = 0; l < total_leaf_size; l++) {
-//                    if (l == k) {
-//                        continue;
-//                    }
-//                    vector <dmrpt::PriorityMap> neighmap = candidate_mapping[i][l][j];
-//                    for(int h=0;h<primap.)
-//
-//                }
-//
-//            }
-//        }
-//
-//    }
+
+    for (int j = 0; j < this->ntrees; j++) {
+        for (int k = 0; k < total_leaf_size; k++) {
+            fout<<" tree "<<j<<" leaf "<<k<<endl;
+            for (int m = 0; m < this->ntrees; m++) {
+                vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][m];
+                for (int l = 0; l < vec.size(); l++) {
+                      fout<<vec[l]<<" ";
+                }
+                fout<<endl;
+            }
+        }
+    }
+
 
     for (int k = 0; k < total_leaf_size; k++) {
         final_tree_leaf_mapping[k] = vector<int>(this->ntrees);
@@ -680,7 +675,6 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
                 if (!candidate) {
-                    cout << " not a candidate";
                     continue;
                 }
 
@@ -688,12 +682,10 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
                     fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
-
                 }
             }
         }
         fout << endl;
-
     }
 
     return candidate_mapping;

@@ -460,7 +460,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector<vector <vector<vector < int>>>>
+vector <vector<vector < vector < int>>>>
 
 dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
@@ -552,16 +552,19 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
+            fout << "tree" << j << " leaf " << k << endl;
+
             for (int m = 0; m < this->ntrees; m++) {
-                fout<<" tree "<<j<< " leaf "<<k<<" tree " <<m<< " values "<<' ';
                 for (int p = 0; p < this->world_size; p++) {
-                    int id = p*total_sending + j*total_leaf_size*this->ntrees +k*this->ntrees +m;
+                    int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
                     int value = total_receiving_leafs[id];
                     process_candidate_mapping[j][k][m].push_back(value);
-                    fout<<value<<' ';
+                    fout << value << ' ';
                 }
+                fout << endl;
             }
-            fout<<endl;
+
+
         }
     }
 

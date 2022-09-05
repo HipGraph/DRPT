@@ -606,6 +606,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 if (m == 0) {
                     final_tree_leaf_mapping[k][m] = vec[i];
                     fout<< final_tree_leaf_mapping[k][m]<< ' ';
+                    break;
                 } else {
                     int can_leaf = vec[i];
                     vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
@@ -622,6 +623,8 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     if (it != verification_mapping.end() && (!already_taken)){
                         final_tree_leaf_mapping[k][m]=(*it);
                         fout<< final_tree_leaf_mapping[k][m]<< ' ';
+                        break;
+
                     }
                 }
             }

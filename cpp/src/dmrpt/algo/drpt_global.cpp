@@ -605,7 +605,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             for (int i = 0; i < vec.size(); i++) {
 
                 int can_leaf = vec[i];
-                vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
+                vector<int> verification_mapping = candidate_mapping[0][can_leaf][m];
                 std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
                                                           k);
 

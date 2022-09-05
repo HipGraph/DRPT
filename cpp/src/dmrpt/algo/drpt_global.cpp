@@ -523,7 +523,9 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             }
             fout <<endl;
         }
-        break;
+        fout <<endl;
+        fout <<endl;
+        fout <<endl;
     }
 
     return final_mapping;

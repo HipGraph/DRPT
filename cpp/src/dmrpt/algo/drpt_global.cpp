@@ -88,6 +88,32 @@ end();
 
 }
 
+template<class T>
+void sortByFreq(std::vector<T> &v) {
+    std::unordered_map <T, size_t> count;
+
+    for (T i: v) {
+        count[i]++;
+    }
+
+    std::sort(
+            v.begin(),
+            v.end(),
+            [&count](T const &a, T const &b) {
+                if (a == b) {
+                    return false;
+                }
+                if (count[a] > count[b]) {
+                    return true;
+                } else if (count[a] < count[b]) {
+                    return false;
+                }
+                return a < b;
+            });
+    auto last = std::unique(v.begin(), v.end());
+    v.erase(last, v.end());
+}
+
 
 void dmrpt::DRPTGlobal::grow_global_tree() {
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->intial_no_of_data_points)) {
@@ -561,10 +587,25 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     process_candidate_mapping[j][k][m].push_back(value);
                     fout << value << ' ';
                 }
+
+                fout << endl;
+                sortByFreq(process_candidate_mapping[j][k][m]);
+            }
+        }
+    }
+
+    fout << " Verification phase running " << endl;
+
+    for (int j = 0; j < this->ntrees; j++) {
+        for (int k = 0; k < total_leaf_size; k++) {
+            fout << " tree " << j << " leaf " << k << endl;
+            for (int m = 0; m < this->ntrees; m++) {
+                vector<int> vec = process_candidate_mapping[j][k][m];
+                for (int n = 0; n < vec.size(); n++) {
+                    fout << vec[n] << ' ';
+                }
                 fout << endl;
             }
-
-
         }
     }
 

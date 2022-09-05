@@ -616,11 +616,13 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     }
                 }
 
-                if (it != verification_mapping.end() && not already_taken) {
+                if (it != verification_mapping.end()) {
                     final_tree_leaf_mapping[k][m] = can_leaf;
                     fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
 
+                }else {
+                    cout<<" not mapping to any tree " << m << " " << can_leaf << endl;
                 }
             }
         }

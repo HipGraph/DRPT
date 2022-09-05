@@ -114,6 +114,11 @@ void sortByFreq(std::vector<T> &v) {
     v.erase(last, v.end());
 }
 
+template<class T>
+void finalize_leaf_correlation(std::vector<T> &v) {
+
+}
+
 
 void dmrpt::DRPTGlobal::grow_global_tree() {
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->intial_no_of_data_points)) {
@@ -501,11 +506,12 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
 //    map < string, vector < int > final_mapping;
-    vector < vector < vector < vector < int >> >> process_candidate_mapping =
+    vector < vector < vector < vector < int >> >> candidate_mapping =
             vector < vector < vector < vector < int >> >> (this->ntrees);
 
-
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+
+    vector <vector<int>> final_tree_leaf_mapping(total_leaf_size);
 
 
     int total_sending = this->ntrees * total_leaf_size * this->ntrees;
@@ -533,10 +539,10 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int tree = 0; tree < this->ntrees; tree++) {
         correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
-        process_candidate_mapping[tree] = vector < vector < vector < int>>>(total_leaf_size);
+        candidate_mapping[tree] = vector < vector < vector < int>>>(total_leaf_size);
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
             correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
-            process_candidate_mapping[tree][leaf] = vector < vector < int >> (this->ntrees);
+            candidate_mapping[tree][leaf] = vector < vector < int >> (this->ntrees);
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
 
             for (int c = 0; c < data_points.size(); c++) {
@@ -578,38 +584,54 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
-            fout << " tree " << j << " leaf " << k << endl;
-
             for (int m = 0; m < this->ntrees; m++) {
                 for (int p = 0; p < this->world_size; p++) {
                     int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
                     int value = total_receiving_leafs[id];
-                    process_candidate_mapping[j][k][m].push_back(value);
-                    fout << value << ' ';
-                }
+                    candidate_mapping[j][k][m].push_back(value);
 
-                fout << endl;
-                sortByFreq(process_candidate_mapping[j][k][m]);
+                }
+                sortByFreq(candidate_mapping[j][k][m]);
             }
         }
     }
 
-    fout << " Verification phase running " << endl;
 
-    for (int j = 0; j < this->ntrees; j++) {
-        for (int k = 0; k < total_leaf_size; k++) {
-            fout << " tree " << j << " leaf " << k << endl;
-            for (int m = 0; m < this->ntrees; m++) {
-                vector<int> vec = process_candidate_mapping[j][k][m];
-                for (int n = 0; n < vec.size(); n++) {
-                    fout << vec[n] << ' ';
+    for (int k = 0; k < total_leaf_size; k++) {
+        final_tree_leaf_mapping[k] = vector<int>(this->ntrees);
+        for (int m = 0; m < this->ntrees; m++) {
+            //TODO: randomly select tree
+            vector<int> vec = candidate_mapping[0][k][m];
+            for (int i = 0; i < vec.size(); i++) {
+                if (m == 0) {
+                    final_tree_leaf_mapping[k][m] = vec[i];
+                    fout<< final_tree_leaf_mapping[k][m]<< ' ';
+                } else {
+                    int can_leaf = vec[i];
+                    vector<int> verification_mapping = candidate_mapping[m][can_leaf][0];
+                    std::vector<int>::iterator it = std::find(verification_mapping.begin(), verification_mapping.end(),
+                                                              k);
+
+                    bool already_taken= false;
+                    for(int j=k-1;j>=0;j--) {
+                        if (final_tree_leaf_mapping[j][m] == (*it)) {
+                            already_taken = true;
+                        }
+                    }
+
+                    if (it != verification_mapping.end() && (!already_taken)){
+                        final_tree_leaf_mapping[k][m]=(*it);
+                        fout<< final_tree_leaf_mapping[k][m]<< ' ';
+                    }
                 }
-                fout << endl;
             }
         }
+        fout<<endl;
+
     }
 
-    return process_candidate_mapping;
+
+    return candidate_mapping;
 }
 
 

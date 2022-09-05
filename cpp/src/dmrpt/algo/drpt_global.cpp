@@ -616,7 +616,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     }
                 }
 
-                if (it != verification_mapping.end() && not already_taken)) {
+                if (it != verification_mapping.end() && not already_taken) {
                     final_tree_leaf_mapping[k][m] = can_leaf;
                     fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;

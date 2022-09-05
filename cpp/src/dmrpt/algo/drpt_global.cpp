@@ -460,7 +460,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector <vector<vector < int>>>
+vector <vector<vector < float>>>
 
 dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
@@ -475,20 +475,20 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
 //    map < string, vector < int > final_mapping;
-    vector < vector < vector < float>>> final_mapping = vector < vector < vector < float>>>(ntrees);
+    vector < vector < vector < int>>> final_mapping = vector < vector < vector < int>>>(ntrees);
 
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
     vector < vector < vector < vector < int >> >> correlation_matrix =
-            vector < vector < vector < vector < int >> >> (ntrees);
+            vector < vector < vector < vector < float >> >> (ntrees);
 
     for (int tree = 0; tree < this->ntrees; tree++) {
-        correlation_matrix[tree] = vector < vector < vector < int>>>(total_leaf_size);
-        final_mapping[tree] = vector < vector < float >> (total_leaf_size);
+        correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
+        final_mapping[tree] = vector < vector < int >> (total_leaf_size);
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
-            correlation_matrix[tree][leaf] = vector < vector < int >> (this->ntrees);
-            final_mapping[tree][leaf] = vector<float>(ntrees);
+            correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
+            final_mapping[tree][leaf] = vector<int>(ntrees);
 
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
 
@@ -497,7 +497,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
                 for (int j = 0; j < vec.size(); j++) {
                     if (correlation_matrix[tree][leaf][j].size() == 0) {
-                        correlation_matrix[tree][leaf][j] = vector<int>(total_leaf_size, 0);
+                        correlation_matrix[tree][leaf][j] = vector<float>(total_leaf_size, 0);
                     }
                     correlation_matrix[tree][leaf][j][vec[j]] += 1;
                 }

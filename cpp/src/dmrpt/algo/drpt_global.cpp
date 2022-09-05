@@ -467,7 +467,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     char results[500];
     char hostname[HOST_NAME_MAX];
     int host = gethostname(hostname, HOST_NAME_MAX);
-    string file_path_stat = output_path + "child_tracker.txt."+ to_string(rank)+".";
+    string file_path_stat = output_path + "child_tracker.txt." + to_string(rank) + ".";
     std::strcpy(results, file_path_stat.c_str());
     std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
 
@@ -505,28 +505,52 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
     }
 
+    int total_sending = this->ntrees * total_leaf_size * this->ntrees;
+    int *my_sending_leafs = new int[total_sending]();
+
+    int total_receiving = this->ntrees * total_leaf_size * this->ntrees * this->world_size;
+
+    int *total_receiving_leafs = new int[total_receiving]();
+
+    int *send_count = new int[this->world_size]();
+    int *disps_send = new int[this->world_size]();
+    int *recieve_count = new int[this->world_size]();
+    int *disps_recieve = new int[this->world_size]();
+
+    for (int i = 0; i < this->world_size; i++) {
+        send_count[i] = total_sending;
+        disps_send[i] = 0;
+        recieve_count[i] = total_sending;
+        disps_recieve[i] = (i > 0) ? (disps_recieve[i - 1] + recieve_count[i - 1]) : 0;
+    }
+
+
+    int count = 0;
     for (int tree = 0; tree < this->ntrees; tree++) {
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
             for (int c = 0; c < this->ntrees; c++) {
                 vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
                 int size = data_points.size();
                 std::transform(correlation_matrix[tree][leaf][c].begin(), correlation_matrix[tree][leaf][c].end(),
-                               correlation_matrix[tree][leaf][c].begin(), [&](float x){return (x/size)*100;});
+                               correlation_matrix[tree][leaf][c].begin(), [&](float x) { return (x / size) * 100; });
                 int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
-                                                     correlation_matrix[tree][leaf][c].end()) - correlation_matrix[tree][leaf][c].begin();
+                                                     correlation_matrix[tree][leaf][c].end()) -
+                                    correlation_matrix[tree][leaf][c].begin();
                 float max_element = *std::max_element(correlation_matrix[tree][leaf][c].begin(),
-                                                     correlation_matrix[tree][leaf][c].end());
-
+                                                      correlation_matrix[tree][leaf][c].end());
                 final_mapping[tree][leaf][c] = selected_leaf;
-                    fout << (selected_leaf +1)<<' ';
+                my_sending_leafs[count] = selected_leaf;
+                count++;
 
             }
-            fout <<endl;
         }
-        fout <<endl;
-        fout <<endl;
-        fout <<endl;
     }
+
+    MPI_Alltoallv(my_sending_leafs, send_count, disps_send, MPI_INT, total_receiving_leafs,
+                  recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
+
+    cout<<"Broadcating completed"<<rank<<endl;
+
 
     return final_mapping;
 }

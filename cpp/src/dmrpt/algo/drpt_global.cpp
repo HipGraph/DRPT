@@ -480,7 +480,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    vector < vector < vector < vector < int >> >> correlation_matrix =
+    vector < vector < vector < vector < float >> >> correlation_matrix =
             vector < vector < vector < vector < float >> >> (ntrees);
 
     for (int tree = 0; tree < this->ntrees; tree++) {

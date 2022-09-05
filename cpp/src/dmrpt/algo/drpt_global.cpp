@@ -540,10 +540,8 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                     correlation_matrix[tree][leaf][c].begin();
                 float max_element = *std::max_element(correlation_matrix[tree][leaf][c].begin(),
                                                       correlation_matrix[tree][leaf][c].end());
-                final_mapping[tree][leaf][c] = selected_leaf;
                 my_sending_leafs[count] = selected_leaf;
                 count++;
-
             }
         }
     }
@@ -555,19 +553,19 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
             for (int m = 0; m < this->ntrees; m++) {
-                fout<<" tree "<<j<< " leaf "<<k<<" tree " <<m<< " values "<<
+                fout<<" tree "<<j<< " leaf "<<k<<" tree " <<m<< " values "<<;
                 for (int p = 0; p < this->world_size; p++) {
                     int id = p*total_sending + j*total_leaf_size*this->ntrees +k*this->ntrees +m;
                     int value = total_receiving_leafs[id];
                     process_candidate_mapping[j][k][m].push_back(value);
-                    fout<<value<<' '
+                    fout<<value<<' ';
                 }
             }
             fout<<endl;
         }
     }
 
-    return final_mapping;
+    return process_candidate_mapping;
 }
 
 

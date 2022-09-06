@@ -115,7 +115,6 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 
     for (T i: v) {
         float priority = (float)count[i] / world_size;
-        cout<<"count "<<count[i]<<" prio "<< priority<<endl;
         std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
                                                                     vec.end(),
                                                                     [i](dmrpt::PriorityMap const &n) {
@@ -127,6 +126,10 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
             it->priority = priority;
             vec[index] = (*it);
         }
+        sort(vec.begin(), vec.end(),
+             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+                 return lhs.priority > rhs.priority;
+             });
 
     }
 }
@@ -644,8 +647,15 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf.leaf_index][0];
                 std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(verification_mapping.begin(),
                                                                             verification_mapping.end(),
-                                                                            [id](dmrpt::PriorityMap const &n) {
-                                                                                return n.leaf_index == id;
+                                                                            [can_leaf](dmrpt::PriorityMap const &n) {
+                                                                                 if(can_leaf.priority>0 and n.leaf_index == can_leaf.leaf_index
+                                                                                 and n.priority>0) {
+                                                                                     return true;
+                                                                                 }else if(can_leaf.priority==0 and n.leaf_index == can_leaf.leaf_index){
+                                                                                     return  true;
+                                                                                 }else{
+                                                                                     return false;
+                                                                                 }
                                                                             });
                 bool candidate = true;
                 for (int j = k - 1; j >= 0; j--) {

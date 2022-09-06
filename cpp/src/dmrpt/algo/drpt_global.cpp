@@ -635,7 +635,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
     for (int k = 0; k < total_leaf_size; k++) {
-        final_tree_leaf_mapping[k] = vector<int>(this->ntrees);
+        final_tree_leaf_mapping[k] = vector<int>(this->ntrees,-1);
         for (int m = 0; m < this->ntrees; m++) {
             //TODO: randomly select tree
             vector <dmrpt::PriorityMap> vec = candidate_mapping[0][k][m];

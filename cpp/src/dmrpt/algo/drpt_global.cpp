@@ -710,7 +710,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     for (int i = 0; i < total_leaf_size < i++) {
         vector<int> vec = final_tree_leaf_mapping[j];
         for (int j = 0; j < vec.size(); j++) {
-            fout << vec[j] << ' '
+            fout << vec[j] << ' ';
         }
         fout << endl;
     }

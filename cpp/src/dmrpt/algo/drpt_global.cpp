@@ -640,7 +640,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             //TODO: randomly select tree
             vector <dmrpt::PriorityMap> vec = candidate_mapping[0][k][m];
 
-
+            cout << "vec size for leaf " << k << " tree " << m << " vec size " << vec.size() << endl;
             for (int i = 0; i < vec.size(); i++) {
                 PriorityMap can_leaf = vec[i];
                 int id = can_leaf.leaf_index;
@@ -659,10 +659,10 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 //                                                                            });
                 bool candidate = true;
                 for (int j = k - 1; j >= 0; j--) {
-                    cout << " evaluating for k" << k << " checking " << j << endl;
+//                    cout << " evaluating for k" << k << " checking " << j << endl;
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
-                        cout << "already taken  tree " << m << " " << can_leaf.leaf_index << endl;
+//                        cout << "already taken  tree " << m << " " << can_leaf.leaf_index << endl;
                     }
                 }
 
@@ -687,7 +687,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
                 if (!candidate) {
-                    cout << " candidate false ant continue " << endl;
+//                    cout << " candidate false ant continue " << endl;
                     continue;
                 }
 
@@ -705,6 +705,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                                                     return (n.leaf_index ==
                                                                                             can_leaf.leaf_index);
                                                                                 });
+                    cout << " erasing leaf  " << j << " m " << m << endl;
                     candidate_mapping[0][j][m].erase(it);
 
 

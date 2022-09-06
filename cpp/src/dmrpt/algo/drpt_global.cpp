@@ -644,19 +644,19 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             for (int i = 0; i < vec.size(); i++) {
                 PriorityMap can_leaf = vec[i];
                 int id = can_leaf.leaf_index;
-                vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf.leaf_index][0];
-                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(verification_mapping.begin(),
-                                                                            verification_mapping.end(),
-                                                                            [can_leaf](dmrpt::PriorityMap const &n) {
-                                                                                 if(can_leaf.priority>0 and n.leaf_index == can_leaf.leaf_index
-                                                                                 and n.priority>0) {
-                                                                                     return true;
-                                                                                 }else if(can_leaf.priority==0 and n.leaf_index == can_leaf.leaf_index){
-                                                                                     return  true;
-                                                                                 }else{
-                                                                                     return false;
-                                                                                 }
-                                                                            });
+//                vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf.leaf_index][0];
+//                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(verification_mapping.begin(),
+//                                                                            verification_mapping.end(),
+//                                                                            [can_leaf](dmrpt::PriorityMap const &n) {
+//                                                                                 if(can_leaf.priority>0 and n.leaf_index == can_leaf.leaf_index
+//                                                                                 and n.priority>0) {
+//                                                                                     return true;
+//                                                                                 }else if(can_leaf.priority==0 and n.leaf_index == can_leaf.leaf_index){
+//                                                                                     return  true;
+//                                                                                 }else{
+//                                                                                     return false;
+//                                                                                 }
+//                                                                            });
                 bool candidate = true;
                 for (int j = k - 1; j >= 0; j--) {
                     if (final_tree_leaf_mapping[j][m] == id) {
@@ -689,11 +689,11 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     continue;
                 }
 
-                if (it != verification_mapping.end()) {
+//                if (it != verification_mapping.end()) {
                     final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
                     fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
-                }
+//                }
             }
         }
         fout << endl;

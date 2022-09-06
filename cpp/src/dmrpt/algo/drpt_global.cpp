@@ -707,7 +707,9 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                                                                 can_leaf.leaf_index);
                                                                                     });
                         cout << " erasing leaf  " << j << " m " << m << endl;
-                        candidate_mapping[0][j][m].erase(it);
+                        if (it != neighbour_vec.end()) {
+                            candidate_mapping[0][j][m].erase(it);
+                        }
                     }
 
 

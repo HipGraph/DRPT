@@ -698,9 +698,8 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
                 for (int j = 0; j < total_leaf_size; j++) {
                     if (j != k) {
-                        vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[0][j][m];
-                        std::vector<dmrpt::PriorityMap>::iterator it = std::remove_if(neighbour_vec.begin(),
-                                                                                      neighbour_vec.end(),
+                        std::vector<dmrpt::PriorityMap>::iterator it = std::remove_if(candidate_mapping[0][j][m].begin(),
+                                                                                      candidate_mapping[0][j][m].end(),
                                                                                       [can_leaf](
                                                                                               dmrpt::PriorityMap const &n) {
                                                                                           return (n.leaf_index ==

@@ -686,6 +686,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
                 if (!candidate) {
+                    cout<<" candidate false ant continue "<<endl;
                     continue;
                 }
 

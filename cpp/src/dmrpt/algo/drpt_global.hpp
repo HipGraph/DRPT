@@ -16,7 +16,7 @@ namespace dmrpt {
 
     struct PriorityMap {
         int leaf_index;
-        int priority;
+        float priority;
     };
 
 

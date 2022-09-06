@@ -663,7 +663,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
                         cout << "already taken  tree " << m << " " << can_leaf.leaf_index
-                                                     << endl;
+                             << endl;
                     }
                 }
 
@@ -697,11 +697,20 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                 if (candidate) {
                     cout << " assigning leaf" << k << " tree " << m << " candidate" << can_leaf.leaf_index << endl;
                     final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
-                    fout << final_tree_leaf_mapping[k][m] << ' ';
+//                    fout << final_tree_leaf_mapping[k][m] << ' ';
                     break;
                 }
 //                }
             }
+        }
+//        fout << endl;
+    }
+
+
+    for (int i = 0; i < total_leaf_size < i++) {
+        vector<int> vec = final_tree_leaf_mapping[j];
+        for (int j = 0; j < vec.size(); j++) {
+            fout << vec[j] << ' '
         }
         fout << endl;
     }

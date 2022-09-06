@@ -640,7 +640,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             //TODO: randomly select tree
             vector <dmrpt::PriorityMap> vec = candidate_mapping[0][k][m];
 
-            cout << "vec size for leaf " << k << " tree " << m << " vec size " << vec.size() << endl;
+//            cout << "vec size for leaf " << k << " tree " << m << " vec size " << vec.size() << endl;
             for (int i = 0; i < vec.size(); i++) {
                 PriorityMap can_leaf = vec[i];
                 int id = can_leaf.leaf_index;
@@ -662,7 +662,8 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 //                    cout << " evaluating for k" << k << " checking " << j << endl;
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
-//                        cout << "already taken  tree " << m << " " << can_leaf.leaf_index << endl;
+                        /                       cout << "already taken  tree " << m << " " << can_leaf.leaf_index
+                                                     << endl;
                     }
                 }
 
@@ -687,32 +688,18 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
                 if (!candidate) {
-//                    cout << " candidate false ant continue " << endl;
+                    cout << " candidate false ant continue for leaf" << k << " tree " << m << " candidate"
+                         << can_leaf.leaf_index << endl;
                     continue;
                 }
 
 //                if (it != verification_mapping.end()) {
-                final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
-                fout << final_tree_leaf_mapping[k][m] << ' ';
-
-
-                for (int j = 0; j < total_leaf_size; j++) {
-                    if (j != k) {
-                        std::vector<dmrpt::PriorityMap>::iterator it = std::remove_if(candidate_mapping[0][j][m].begin(),
-                                                                                      candidate_mapping[0][j][m].end(),
-                                                                                      [can_leaf](
-                                                                                              dmrpt::PriorityMap const &n) {
-                                                                                          return (n.leaf_index ==
-                                                                                                  can_leaf.leaf_index);
-                                                                                      });
-                        cout << " erasing leaf  " << j << " m " << m << endl;
-                    }
-
-
+                if (candidate) {
+                    cout << " assigning leaf" << k << " tree " << m << " candidate" << can_leaf.leaf_index << endl;
+                    final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
+                    fout << final_tree_leaf_mapping[k][m] << ' ';
+                    break;
                 }
-
-
-                break;
 //                }
             }
         }

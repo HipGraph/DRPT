@@ -659,6 +659,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 //                                                                            });
                 bool candidate = true;
                 for (int j = k - 1; j >= 0; j--) {
+                    cout<<" evaluating for k"<<k<< " checking "<<j<<endl;
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
                         cout << "already taken  tree " << m << " " << can_leaf.leaf_index << endl;

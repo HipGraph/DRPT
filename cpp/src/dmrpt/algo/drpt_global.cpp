@@ -114,7 +114,7 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     v.erase(last, v.end());
 
     for (T i: v) {
-        float priority = count[i] / world_size;
+        float priority = (float)count[i] / world_size;
         cout<<"count "<<count[i]<<" prio "<< priority<<endl;
         std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
                                                                     vec.end(),

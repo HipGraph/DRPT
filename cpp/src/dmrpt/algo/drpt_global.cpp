@@ -688,7 +688,9 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
                 if (candidate) {
-                    cout << " assigning leaf" << k << " tree " << m << " candidate" << can_leaf.leaf_index << endl;
+                    if(rank==0) {
+                        cout << " assigning leaf" << k << " tree " << m << " candidate" << can_leaf.leaf_index << endl;
+                    }
                     final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
                     break;
                 }

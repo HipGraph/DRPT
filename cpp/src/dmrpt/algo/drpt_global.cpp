@@ -149,7 +149,7 @@ endl;
 
 if (rank==0){
 cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<< " completed with size "<<vec.size()<<endl;
-endl;
+
 }
 
 

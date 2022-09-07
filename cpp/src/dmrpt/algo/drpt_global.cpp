@@ -659,7 +659,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                                                                 n.leaf_index ==
                                                                                                 can_leaf.leaf_index);
                                                                                     });
-                        if (it != neighbour_vec.end()) {
+                        if (it != neighbour_vec.begin() + 1) {
                             candidate = false;
                         }
                     }

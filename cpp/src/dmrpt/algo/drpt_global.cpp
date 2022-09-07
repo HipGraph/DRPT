@@ -506,9 +506,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector <vector<vector < vector < dmrpt::PriorityMap>>>>
-
-dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
+vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     char results[500];
     char hostname[HOST_NAME_MAX];
@@ -519,8 +517,6 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     ofstream fout(results, std::ios_base::app);
 
-
-//    map < string, vector < int > final_mapping;
     vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
             vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
 
@@ -635,35 +631,17 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
 
     for (int k = 0; k < total_leaf_size; k++) {
-        final_tree_leaf_mapping[k] = vector<int>(this->ntrees,-1);
+        final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
         for (int m = 0; m < this->ntrees; m++) {
             //TODO: randomly select tree
             vector <dmrpt::PriorityMap> vec = candidate_mapping[0][k][m];
-
-//            cout << "vec size for leaf " << k << " tree " << m << " vec size " << vec.size() << endl;
             for (int i = 0; i < vec.size(); i++) {
                 PriorityMap can_leaf = vec[i];
                 int id = can_leaf.leaf_index;
-//                vector <dmrpt::PriorityMap> verification_mapping = candidate_mapping[m][can_leaf.leaf_index][0];
-//                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(verification_mapping.begin(),
-//                                                                            verification_mapping.end(),
-//                                                                            [can_leaf](dmrpt::PriorityMap const &n) {
-//                                                                                 if(can_leaf.priority>0 and n.leaf_index == can_leaf.leaf_index
-//                                                                                 and n.priority>0) {
-//                                                                                     return true;
-//                                                                                 }else if(can_leaf.priority==0 and n.leaf_index == can_leaf.leaf_index){
-//                                                                                     return  true;
-//                                                                                 }else{
-//                                                                                     return false;
-//                                                                                 }
-//                                                                            });
                 bool candidate = true;
                 for (int j = k - 1; j >= 0; j--) {
-//                    cout << " evaluating for k" << k << " checking " << j << endl;
                     if (final_tree_leaf_mapping[j][m] == id) {
                         candidate = false;
-//                        cout << "already taken  tree " << m << " " << can_leaf.leaf_index
-//                             << endl;
                     }
                 }
 
@@ -671,7 +649,7 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                     vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[0][j][m];
                     if (j != k) {
                         std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
-                                                                                    neighbour_vec.end(),
+                                                                                    neighbour_vec.begin()+1,
                                                                                     [can_leaf](
                                                                                             dmrpt::PriorityMap const &n) {
                                                                                         return (n.priority >
@@ -679,34 +657,18 @@ dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
                                                                                                 n.leaf_index ==
                                                                                                 can_leaf.leaf_index);
                                                                                     });
-
                         if (it != neighbour_vec.end()) {
                             candidate = false;
                         }
                     }
                 }
 
-
                 if (candidate) {
-                    if(rank==0) {
-                        cout << " assigning leaf" << k << " tree " << m << " candidate" << can_leaf.leaf_index << endl;
-                    }
                     final_tree_leaf_mapping[k][m] = can_leaf.leaf_index;
                     break;
                 }
-
             }
         }
-
-    }
-
-
-    for (int i = 0; i < total_leaf_size; i++) {
-        vector<int> vec = final_tree_leaf_mapping[i];
-        for (int j = 0; j < vec.size(); j++) {
-            fout << vec[j] << ' ';
-        }
-        fout << endl;
     }
 
     return candidate_mapping;

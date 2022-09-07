@@ -705,7 +705,7 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
             int current_tree = m == 0 ? 0 : m - 1;
             prev_leaf = select_next_candidate(candidate_mapping, final_tree_leaf_mapping, current_tree, m,k,prev_leaf,total_leaf_size, this->rank);
             if(this->rank==0) {
-                cout << " selected leaf" << selecting_leaf << endl;
+                cout << " selected leaf" << prev_leaf << endl;
             }
         }
     }

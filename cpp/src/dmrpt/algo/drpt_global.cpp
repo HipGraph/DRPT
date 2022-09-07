@@ -141,17 +141,8 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
                           int selecting_tree,
                           int selecting_leaf,
                           int previouse_leaf,
-                          int total_leaf_size, int rank) {
-    if (rank==0){
-cout<<" recevied tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<
-endl;
-}
+                          int total_leaf_size) {
     vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
-
-if (rank==0){
-cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<< " completed with size "<<vec.size()<<endl;
-
-}
 
 
     for (int i = 0;i < vec.size();i++) {
@@ -187,18 +178,12 @@ cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selec
 
         if (candidate) {
             final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-            if(rank==0){
-cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<can_leaf.leaf_index<<
-endl;
-}
+
             return can_leaf.leaf_index;
 
         }
     }
-    if(rank==0){
-cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<-1<<
-endl;
-}
+
     return -1;
 }
 
@@ -574,7 +559,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
+vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     char results[500];
     char hostname[HOST_NAME_MAX];
@@ -685,17 +670,13 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
     }
 
 
-    for (int j = 0; j < this->ntrees; j++) {
+    for (int j = 0; j < this->ntrees-1; j++) {
+        fout << " tree " << j << " and  " << " tree" << j+1<< endl;
         for (int k = 0; k < total_leaf_size; k++) {
-            fout << " tree " << j << " leaf " << k << endl;
-            for (int m = 0; m < this->ntrees; m++) {
-                vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][m];
-                for (int l = 0; l < vec.size(); l++) {
-                    fout << vec[l].leaf_index << ' ' << vec[l].priority << ' ';
-                }
-                fout << endl;
-            }
+                vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][j+1];
+                fout << vec[0].priority <<' '
         }
+        fout <<endl;
     }
 
 
@@ -703,10 +684,7 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
         int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
             int current_tree = m == 0 ? 0 : m - 1;
-            prev_leaf = select_next_candidate(candidate_mapping, final_tree_leaf_mapping, current_tree, m,k,prev_leaf,total_leaf_size, this->rank);
-            if(this->rank==0) {
-                cout << " selected leaf" << prev_leaf << endl;
-            }
+            prev_leaf = select_next_candidate(candidate_mapping, final_tree_leaf_mapping, current_tree, m,k,prev_leaf,total_leaf_size);
         }
     }
 

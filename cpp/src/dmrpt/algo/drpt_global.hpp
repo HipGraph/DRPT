@@ -69,7 +69,7 @@ namespace dmrpt {
         void
         grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);
 
-        vector<vector<vector<vector<dmrpt::PriorityMap>>>> calculate_tree_leaf_correlation();
+        vector<vector<int>> calculate_tree_leaf_correlation();
 
         vector <vector<DataPoint>> collect_similar_data_points(int tree);
 

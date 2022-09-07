@@ -674,7 +674,7 @@ vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         fout << " tree " << j << " and  " << " tree" << j+1<< endl;
         for (int k = 0; k < total_leaf_size; k++) {
                 vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][j+1];
-                fout << vec[0].priority <<' '
+                fout << vec[0].priority <<' ';
         }
         fout <<endl;
     }
@@ -698,7 +698,7 @@ vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     }
 
 
-    return candidate_mapping;
+    return final_tree_leaf_mapping;
 }
 
 

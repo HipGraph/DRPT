@@ -506,7 +506,9 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 }
 
 
-vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
+vector <vector<vector < vector < dmrpt::PriorityMap>>>>
+
+dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     char results[500];
     char hostname[HOST_NAME_MAX];
@@ -649,7 +651,7 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
                     vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[0][j][m];
                     if (j != k) {
                         std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
-                                                                                    neighbour_vec.begin()+1,
+                                                                                    neighbour_vec.begin() + 1,
                                                                                     [can_leaf](
                                                                                             dmrpt::PriorityMap const &n) {
                                                                                         return (n.priority >
@@ -670,6 +672,16 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
             }
         }
     }
+
+
+    for (int i = 0; i < total_leaf_size; i++) {
+        vector<int> vec = final_tree_leaf_mapping[i];
+        for (int k = 0; k < vec.size(); k++) {
+            fout << vec[k] << ' '
+        }
+        fout << endl;
+    }
+
 
     return candidate_mapping;
 }

@@ -176,9 +176,12 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
 
         if (candidate) {
             final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
+            cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<can_leaf.leaf_index;
             return can_leaf.leaf_index;
+
         }
     }
+    cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<-1;
     return -1;
 }
 

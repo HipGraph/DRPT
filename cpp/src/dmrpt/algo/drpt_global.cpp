@@ -661,6 +661,7 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
 
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
+            final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
             for (int m = 0; m < this->ntrees; m++) {
 
                 for (int n = 0; n < total_leaf_size; n++) {
@@ -697,7 +698,6 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
 
 
     for (int k = 0; k < total_leaf_size; k++) {
-        final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
         int selecting_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
             int current_tree = m == 0 ? 0 : m - 1;

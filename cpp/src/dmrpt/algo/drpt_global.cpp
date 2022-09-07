@@ -140,12 +140,13 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
                           current_tree,
                           int selecting_tree,
                           int selecting_leaf,
+                          int previouse_leaf,
                           int total_leaf_size, int rank) {
     if (rank==0){
 cout<<" recevied tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<
 endl;
 }
-    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][selecting_leaf][selecting_tree];
+    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 if (rank==0){
 cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<< " completed with size "<<vec.size()<<endl;
@@ -159,15 +160,16 @@ cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selec
         bool candidate = true;
 
 // checking already taken
-        for (int j = selecting_leaf - 1;j >= 0; j--) {
-            if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+        for (int j = selecting_leaf -1;j >= 0; j--) {
+                if (final_tree_leaf_mapping[j][selecting_tree] == id) {
                 candidate = false;
+
             }
         }
 
         for (int j = 0;j < total_leaf_size;j++) {
             vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-            if (j != selecting_leaf) {
+            if (j != previouse_leaf) {
                 std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
                                                                             neighbour_vec.begin() + 1,
                                                                             [can_leaf](
@@ -698,10 +700,10 @@ vector <vector<vector < vector < dmrpt::PriorityMap>>>> dmrpt::DRPTGlobal::calcu
 
 
     for (int k = 0; k < total_leaf_size; k++) {
-        int selecting_leaf = k;
+        int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
             int current_tree = m == 0 ? 0 : m - 1;
-            selecting_leaf = select_next_candidate(candidate_mapping, final_tree_leaf_mapping, current_tree, m,selecting_leaf,total_leaf_size, this->rank);
+            prev_leaf = select_next_candidate(candidate_mapping, final_tree_leaf_mapping, current_tree, m,k,prev_leaf,total_leaf_size, this->rank);
             if(this->rank==0) {
                 cout << " selected leaf" << selecting_leaf << endl;
             }

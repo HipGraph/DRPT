@@ -141,7 +141,10 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
                           int selecting_tree,
                           int selecting_leaf,
                           int total_leaf_size) {
-cout<<" recevied tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<endl;
+    if (rank==0){
+cout<<" recevied tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<
+endl;
+}
     vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][selecting_leaf][selecting_tree];
 
     for (int i = 0;i < vec.size();i++) {
@@ -176,12 +179,18 @@ cout<<" recevied tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree
 
         if (candidate) {
             final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-            cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<can_leaf.leaf_index<<endl;
+            if(rank==0){
+cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<can_leaf.leaf_index<<
+endl;
+}
             return can_leaf.leaf_index;
 
         }
     }
-    cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<-1<<endl;
+    if(rank==0){
+cout<<" tree "<<current_tree<<"leaf "<<selecting_leaf<<" selecting tree "<<selecting_tree<<" index  "<<-1<<
+endl;
+}
     return -1;
 }
 

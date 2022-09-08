@@ -320,6 +320,13 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     ofstream fout(results, std::ios_base::app);
 
+
+    string file_path_distance = output_path + "distance_distribution."+this->rank+".txt";
+    std::strcpy(results, file_path_distance.c_str());
+    std::strcpy(results + strlen(file_path_distance.c_str()), hostname);
+
+    ofstream fout1(results, std::ios_base::app);
+
     auto start_distance = high_resolution_clock::now();
 
     int chunk_size = this->total_data_set_size / this->world_size;
@@ -344,6 +351,24 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     for (int i = 0; i < ntrees; i++) {
         this->calculate_nns(local_nn_map, i, 2 * nn);
+    }
+
+    for (auto const& x : local_nn_map)
+    {
+        vector<DataPoint> datapoints = x.second;
+
+        sort(datapoints.begin(), datapoints.end(),
+             [](const DataPoint &lhs, const DataPoint &rhs) {
+                 return lhs.distance < rhs.distance;
+             });
+
+        datapoints.erase(unique(datapoints.begin(), datapoints.end(),
+                     [](const DataPoint &lhs,
+                        const DataPoint &rhs) {
+                         return lhs.index == rhs.index;
+                     }), datapoints.end());
+
+        fout1<<x.first<<' '<<datapoints[nn-1].distance<<endl;
     }
 
     cout << " rank " << rank << " distance calculation completed " << endl;

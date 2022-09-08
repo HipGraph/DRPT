@@ -321,7 +321,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
     ofstream fout(results, std::ios_base::app);
 
 
-    string file_path_distance = output_path + "distance_distribution."+this->rank+".txt";
+    string file_path_distance = output_path + "distance_distribution" + to_string(rank)+ ".txt";
     std::strcpy(results, file_path_distance.c_str());
     std::strcpy(results + strlen(file_path_distance.c_str()), hostname);
 

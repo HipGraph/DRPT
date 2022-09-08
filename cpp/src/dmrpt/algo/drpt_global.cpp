@@ -378,7 +378,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
 
 vector <vector<dmrpt::DataPoint>>
-dmrpt::DRPTGlobal::collect_similar_data_points(int tree,bool use_data_locality_optimization) {
+dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_optimization) {
 
     dmrpt::MathOp mathOp;
 
@@ -561,7 +561,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree,bool use_data_locality_o
 }
 
 
-vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
+void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     char results[500];
     char hostname[HOST_NAME_MAX];

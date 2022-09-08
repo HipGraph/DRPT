@@ -45,6 +45,7 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->trees_data = vector < vector < vector < DataPoint>>>(ntrees);
     this->trees_splits = vector < vector < VALUE_TYPE >> (ntrees);
     this->trees_leaf_first_indices = vector < vector < vector < DataPoint > >>(ntrees);
+    this->trees_leaf_first_indices_rearrange = vector < vector < vector < DataPoint > >>(ntrees);
     this->trees_leaf_first_indices_all = vector < vector < vector < DataPoint > >>(ntrees);
 
     this->starting_data_index = starting_index;
@@ -205,6 +206,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
         this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+        this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
@@ -376,7 +378,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
 
 vector <vector<dmrpt::DataPoint>>
-dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
+dmrpt::DRPTGlobal::collect_similar_data_points(int tree,bool use_data_locality_optimization) {
 
     dmrpt::MathOp mathOp;
 
@@ -411,7 +413,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
             sum_per_node = 0;
             process++;
         }
-        vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
+        vector <DataPoint> all_points = (use_data_locality_optimization)?this->trees_leaf_first_indices_rearrange[tree][i]:this->trees_leaf_first_indices[tree][i];
         send_counts[i] = all_points.size();
         sum_per_node += send_counts[i];
         my_total += send_counts[i];
@@ -471,7 +473,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree) {
 
     int co = 0;
     for (int i = 0; i < total_leaf_size; i++) {
-        vector <DataPoint> all_points = this->trees_leaf_first_indices[tree][i];
+        vector <DataPoint> all_points = (use_data_locality_optimization)?this->trees_leaf_first_indices_rearrange[tree][i]:this->trees_leaf_first_indices[tree][i];
         for (int j = 0; j < all_points.size(); j++) {
             send_indices[co] = all_points[j].index;
 #pragma omp parallel for
@@ -689,6 +691,13 @@ vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     }
 
 
+    for (int i = 0; i < this->ntrees; i++) {
+        for (int k = 0; k < total_leaf_size; k++) {
+            int leaf_index =  final_tree_leaf_mapping[k][i];
+           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
+        }
+    }
+
     for (int i = 0; i < total_leaf_size; i++) {
         vector<int> vec = final_tree_leaf_mapping[i];
         for (int k = 0; k < vec.size(); k++) {
@@ -696,7 +705,6 @@ vector <vector<int>> dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
         fout << endl;
     }
-
 
     return final_tree_leaf_mapping;
 }

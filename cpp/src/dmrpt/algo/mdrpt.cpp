@@ -119,7 +119,6 @@ void dmrpt::MDRPT::grow_trees(float density) {
                                           output_path);
 
 
-
     cout << " rank " << rank << " starting growing trees" << endl;
     this->drpt_global.grow_global_tree();
     auto stop_grow_index = high_resolution_clock::now();
@@ -131,108 +130,108 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     this->drpt_global.calculate_tree_leaf_correlation();
 
-//    auto start_collect = high_resolution_clock::now();
-//
-//    vector < vector < vector < DataPoint>>> leaf_nodes_of_trees(ntrees);
-//    int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
-//
-//    for (int i = 0; i < ntrees; i++) {
-//        this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-//        leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points(i);
-//    }
-//    auto stop_collect = high_resolution_clock::now();
-//    auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
-//
-//
-//    cout << " rank " << rank << " similar datapoint collection completed" << endl;
-//
-//
-//    int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
-//
-//    int leafs_per_node = total_leaf_size / this->world_size;
-//
-//    cout << " leafs per node " << leafs_per_node << endl;
-//
-//    int my_start_count = 0;
-//    int my_end_count = 0;
-//
-//    //large trees
-//    if (total_leaf_size >= this->world_size) {
-//        my_start_count = leafs_per_node * this->rank;
-//        if (this->rank < this->world_size - 1) {
-//            my_end_count = leafs_per_node * (this->rank + 1);
-//        } else {
-//            my_end_count = total_leaf_size;
-//        }
-//    }
-//
-//    cout << " start count " << my_start_count << " end count " << my_end_count << endl;
-//
-//    auto start_collect_local = high_resolution_clock::now();
-//
-//    for (int i = 0; i < ntrees; i++) {
-//        vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
-//        VALUE_TYPE *C = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
-//                                                              local_tree_depth, density);
-//
-//        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
-//
-//        int data_nodes_count_per_process = 0;
-//
-//        for (int j = 0; j < leafs.size(); j++) {
-////            cout<< " creating leaf " <<j<<endl;
-//            vector <vector<VALUE_TYPE>> local_data(leafs[j].size());
-//            for (int k = 0; k < leafs[j].size(); k++) {
-//                local_data[k] = leafs[j][k].image_data;
-//            }
-////            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
-//            VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format(local_data);
-////            cout<< " row major version completed " <<j<<endl;
-//
-//            VALUE_TYPE *LP = mathOp.multiply_mat(local_data_arr, C, this->data_dimension,
-//                                                 local_tree_depth,
-//                                                 leafs[j].size(), 1.0);
-////            cout<<" creating drpt "<< j <<leafs.size()<<endl;
-//            DRPT drpt1 = dmrpt::DRPT(LP, C, leafs[j].size(),
-//                                     local_tree_depth, local_data, 1, starting_index, this->rank, this->world_size);
-//
-//            drpt1.grow_local_tree();
-////            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
-//
-//            vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(0);
-////            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
-//
-//            for (int l = 0; l < final_clustered_data.size(); l++) {
-//                vector <DataPoint> data_vec;
-//                for (int m = 0; m < final_clustered_data[l].size(); m++) {
-//                    int index = final_clustered_data[l][m];
-//                    int real_index = leafs[j][index].index;
-//                    data_vec.push_back(leafs[j][index]);
-//                }
-//
-//                int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
-//                this->trees_leaf_all[i][id] = data_vec;
-//
-//                data_nodes_count_per_process++;
-//
-//
-//            }
-//
-//            free(local_data_arr);
-//            free(LP);
-//
-//
-//        }
-//        free(C);
-//
-//    }
-//
-//    auto end_collect_local = high_resolution_clock::now();
-//    auto collect_time_local = duration_cast<microseconds>(start_collect_local - end_collect_local);
-//
-//    fout << rank << " matrix  " << matrix_time.count() << " global tree " << index_time.count() << " communication "
-//         << collect_time.count() <<" local index growing  "<<collect_time_local.count()
-//         << endl;
+    auto start_collect = high_resolution_clock::now();
+
+    vector < vector < vector < DataPoint>>> leaf_nodes_of_trees(ntrees);
+    int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+
+    for (int i = 0; i < ntrees; i++) {
+        this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+        leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points(i, true);
+    }
+    auto stop_collect = high_resolution_clock::now();
+    auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);
+
+
+    cout << " rank " << rank << " similar datapoint collection completed" << endl;
+
+
+    int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+
+    int leafs_per_node = total_leaf_size / this->world_size;
+
+    cout << " leafs per node " << leafs_per_node << endl;
+
+    int my_start_count = 0;
+    int my_end_count = 0;
+
+    //large trees
+    if (total_leaf_size >= this->world_size) {
+        my_start_count = leafs_per_node * this->rank;
+        if (this->rank < this->world_size - 1) {
+            my_end_count = leafs_per_node * (this->rank + 1);
+        } else {
+            my_end_count = total_leaf_size;
+        }
+    }
+
+    cout << " start count " << my_start_count << " end count " << my_end_count << endl;
+
+    auto start_collect_local = high_resolution_clock::now();
+
+    for (int i = 0; i < ntrees; i++) {
+        vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
+        VALUE_TYPE *C = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
+                                                              local_tree_depth, density);
+
+        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
+
+        int data_nodes_count_per_process = 0;
+
+        for (int j = 0; j < leafs.size(); j++) {
+//            cout<< " creating leaf " <<j<<endl;
+            vector <vector<VALUE_TYPE>> local_data(leafs[j].size());
+            for (int k = 0; k < leafs[j].size(); k++) {
+                local_data[k] = leafs[j][k].image_data;
+            }
+//            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
+            VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format(local_data);
+//            cout<< " row major version completed " <<j<<endl;
+
+            VALUE_TYPE *LP = mathOp.multiply_mat(local_data_arr, C, this->data_dimension,
+                                                 local_tree_depth,
+                                                 leafs[j].size(), 1.0);
+//            cout<<" creating drpt "<< j <<leafs.size()<<endl;
+            DRPT drpt1 = dmrpt::DRPT(LP, C, leafs[j].size(),
+                                     local_tree_depth, local_data, 1, starting_index, this->rank, this->world_size);
+
+            drpt1.grow_local_tree();
+//            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
+
+            vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices(0);
+//            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;
+
+            for (int l = 0; l < final_clustered_data.size(); l++) {
+                vector <DataPoint> data_vec;
+                for (int m = 0; m < final_clustered_data[l].size(); m++) {
+                    int index = final_clustered_data[l][m];
+                    int real_index = leafs[j][index].index;
+                    data_vec.push_back(leafs[j][index]);
+                }
+
+                int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
+                this->trees_leaf_all[i][id] = data_vec;
+
+                data_nodes_count_per_process++;
+
+
+            }
+
+            free(local_data_arr);
+            free(LP);
+
+
+        }
+        free(C);
+
+    }
+
+    auto end_collect_local = high_resolution_clock::now();
+    auto collect_time_local = duration_cast<microseconds>(start_collect_local - end_collect_local);
+
+    fout << rank << " matrix  " << matrix_time.count() << " global tree " << index_time.count() << " communication "
+         << collect_time.count() << " local index growing  " << collect_time_local.count()
+         << endl;
 
 
 }
@@ -371,8 +370,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     vector <vector<int>> indices_for_processes(this->world_size);
 
-    for(int i=0;i<this->world_size;i++){
-        indices_for_processes[i]= vector<int>();
+    for (int i = 0; i < this->world_size; i++) {
+        indices_for_processes[i] = vector<int>();
     }
 
 
@@ -427,7 +426,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
         final_receiving_nns_count += nn_indices_count_per_process_recev[m];
     }
 
-    cout << " rank " <<rank  << final_receiving_nns_count << endl;
+    cout << " rank " << rank << final_receiving_nns_count << endl;
 
     int *nn_indices_send = new int[total_nns_send]();
     int *nn_indices_receive = new int[final_receiving_nns_count]();
@@ -457,7 +456,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
         for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
             int offset = disps_indices_per_process_receiv[i];
-            int id = l+ offset;
+            int id = l + offset;
             nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[id];
         }
         disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
@@ -498,10 +497,10 @@ dmrpt::MDRPT::gather_nns(int nn) {
                          return lhs.distance < rhs.distance;
                      });
                 final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-                                                   [](const DataPoint &lhs,
-                                                      const DataPoint &rhs) {
-                                                       return lhs.index == rhs.index;
-                                                   }), final_nn_map[src_index].end());
+                                                     [](const DataPoint &lhs,
+                                                        const DataPoint &rhs) {
+                                                         return lhs.index == rhs.index;
+                                                     }), final_nn_map[src_index].end());
             }
             nn_index++;
         }
@@ -511,7 +510,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
     auto stop_query = high_resolution_clock::now();
     auto query_time = duration_cast<microseconds>(stop_query - start_query);
 
-    fout<<" distance calculation "<<distance_time.count() <<" communication time "<<query_time.count()<<endl;
+    fout << " distance calculation " << distance_time.count() << " communication time " << query_time.count() << endl;
 
 
     free(indices_count_per_process);

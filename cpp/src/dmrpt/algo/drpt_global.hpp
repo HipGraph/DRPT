@@ -49,6 +49,8 @@ namespace dmrpt {
 
         std::map<int,vector<int>>  index_to_tree_leaf_mapper;
 
+        vector < vector < vector < DataPoint > >> trees_leaf_first_indices_rearrange;
+
         string input_path;
         string output_path;
 
@@ -71,7 +73,7 @@ namespace dmrpt {
 
         vector<vector<int>> calculate_tree_leaf_correlation();
 
-        vector <vector<DataPoint>> collect_similar_data_points(int tree);
+        vector <vector<DataPoint>> collect_similar_data_points(int tree, bool  use_data_locality_optimization);
 
 
 

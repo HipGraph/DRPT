@@ -547,79 +547,79 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
 void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &local_nns,  int nn) {
 
-
-    int *sending_indices_count = new int[this->world_size]();
-    int *receiving_indices_count = new int[this->world_size]();
-
-    int send_count = local_nns.size();
-
-    for (int i = 0; i < this->world_size; i++) {
-        sending_indices_count[i] = send_count;
-    }
-
-    MPI_Alltoall(sending_indices_count, 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
-
-    int total_receving = 0;
-
-    int *disps_receiving_indices = new int[this->world_size]();
-    int *disps_sending_indices = new int[this->world_size]();
-
-    for (int i = 0; i < this->world_size; i++) {
-        total_receving += receiving_indices_count[i];
-        disps_sending_indices[i] = 0;
-        disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
-    }
-
-    int *sending_indices = new int[send_count]();
-    VALUE_TYPE *sending_max_dist_thresholds = new VALUE_TYPE[send_count]();
-
-
-    int count = 0;
-    for (auto const &x: local_nns) {
-        sending_indices[count] = x.first;
-        sending_max_dist_thresholds[count] = x.second[nn - 1].distance;
-        count++;
-    }
-
-    int *receiving_indices = new int[total_receving]();
-    VALUE_TYPE *receiving_max_dist_thresholds = new VALUE_TYPE[total_receving]();
-
-    MPI_Alltoallv(sending_indices, sending_indices_count, disps_sending_indices, MPI_INT, receiving_indices,
-                  receiving_indices_count, disps_receiving_indices, MPI_INT, MPI_COMM_WORLD);
-
-    MPI_Alltoallv(sending_max_dist_thresholds, sending_indices_count, disps_sending_indices, MPI_VALUE_TYPE,
-                  receiving_max_dist_thresholds,
-                  receiving_indices_count, disps_receiving_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-
-    //we already gathered all the indices from all nodes and their respective max distance thresholds
-
-
-
-    std::map<int, vector<VALUE_TYPE >> collected_dist_th_map; // key->indices value->ranks and threshold
-
-    for (int i = 0; i < this->world_size; i++) {
-        int amount = receiving_indices_count[i];
-        int offset = disps_receiving_indices[i];
-        for (int j = offset; j < (offset + amount); j++) {
-            int index = receiving_indices[j];
-            VALUE_TYPE dist_th = receiving_max_dist_thresholds[j];
-            if (collected_dist_th_map.find(index) == collected_dist_th_map.end()) {
-                vector<VALUE_TYPE> distanceThresholdVec(this->world_size, std::numeric_limits<VALUE_TYPE>::max());
-                distanceThresholdVec[i] = dist_th;
-                collected_dist_th_map.insert(pair < int, vector < VALUE_TYPE >> (index, distanceThresholdVec));
-            } else {
-                auto it = collected_dist_th_map.find(index);
-                (it->second)[i] = dist_th;
-            }
-        }
-    }
-
-    vector <vector<int>> final_indices_allocation(this->world_size);
-
-    for (auto const &it: collected_dist_th_map) {
-        int min_rank = std::min_element((it.second).begin(), (it.second).end()) - (it.second).begin();
-        final_indices_allocation[min_rank].push_back(it.first);
-    }
+//
+//    int *sending_indices_count = new int[this->world_size]();
+//    int *receiving_indices_count = new int[this->world_size]();
+//
+//    int send_count = local_nns.size();
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        sending_indices_count[i] = send_count;
+//    }
+//
+//    MPI_Alltoall(sending_indices_count, 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+//
+//    int total_receving = 0;
+//
+//    int *disps_receiving_indices = new int[this->world_size]();
+//    int *disps_sending_indices = new int[this->world_size]();
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        total_receving += receiving_indices_count[i];
+//        disps_sending_indices[i] = 0;
+//        disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
+//    }
+//
+//    int *sending_indices = new int[send_count]();
+//    VALUE_TYPE *sending_max_dist_thresholds = new VALUE_TYPE[send_count]();
+//
+//
+//    int count = 0;
+//    for (auto const &x: local_nns) {
+//        sending_indices[count] = x.first;
+//        sending_max_dist_thresholds[count] = x.second[nn - 1].distance;
+//        count++;
+//    }
+//
+//    int *receiving_indices = new int[total_receving]();
+//    VALUE_TYPE *receiving_max_dist_thresholds = new VALUE_TYPE[total_receving]();
+//
+//    MPI_Alltoallv(sending_indices, sending_indices_count, disps_sending_indices, MPI_INT, receiving_indices,
+//                  receiving_indices_count, disps_receiving_indices, MPI_INT, MPI_COMM_WORLD);
+//
+//    MPI_Alltoallv(sending_max_dist_thresholds, sending_indices_count, disps_sending_indices, MPI_VALUE_TYPE,
+//                  receiving_max_dist_thresholds,
+//                  receiving_indices_count, disps_receiving_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+//
+//    //we already gathered all the indices from all nodes and their respective max distance thresholds
+//
+//
+//
+//    std::map<int, vector<VALUE_TYPE >> collected_dist_th_map; // key->indices value->ranks and threshold
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        int amount = receiving_indices_count[i];
+//        int offset = disps_receiving_indices[i];
+//        for (int j = offset; j < (offset + amount); j++) {
+//            int index = receiving_indices[j];
+//            VALUE_TYPE dist_th = receiving_max_dist_thresholds[j];
+//            if (collected_dist_th_map.find(index) == collected_dist_th_map.end()) {
+//                vector<VALUE_TYPE> distanceThresholdVec(this->world_size, std::numeric_limits<VALUE_TYPE>::max());
+//                distanceThresholdVec[i] = dist_th;
+//                collected_dist_th_map.insert(pair < int, vector < VALUE_TYPE >> (index, distanceThresholdVec));
+//            } else {
+//                auto it = collected_dist_th_map.find(index);
+//                (it->second)[i] = dist_th;
+//            }
+//        }
+//    }
+//
+//    vector <vector<int>> final_indices_allocation(this->world_size);
+//
+//    for (auto const &it: collected_dist_th_map) {
+//        int min_rank = std::min_element((it.second).begin(), (it.second).end()) - (it.second).begin();
+//        final_indices_allocation[min_rank].push_back(it.first);
+//    }
 
 //    std::map<int, vector<DataPoint >> final_nn_sending_map;
 //

@@ -673,13 +673,13 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
     int *sending_selected_nn_indices = new int[total_selected_indices_nn_count];
 
     int total_receiving_count = 0;
-    int total_receiving_nn_count = 0;
+
 
 
     int *disps_receiving_selected_indices = new int[this->world_size]();
     int *disps_sending_selected_indices = new int[this->world_size]();
     int *disps_sending_selected_nn_indices = new int[this->world_size]();
-     int *disps_receiving_selected_nn_indices = new int[this->world_size]();
+    int *disps_receiving_selected_nn_indices = new int[this->world_size]();
 
     for (int i = 0; i < this->world_size; i++) {
         disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
@@ -730,7 +730,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
 
 
 
-
+    int total_receiving_nn_count = 0;
     for (int i = 0; i < this->world_size; i++) {
         int co = receiving_selected_indices_count[i];
         int offset = disps_receiving_selected_indices[i];
@@ -749,6 +749,10 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
 
     cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
 
+    for (int i = 0; i < this->world_size; i++) {
+       cout<<" my rank "<<rank <<" sending to rank "<<i<<sending_selected_indices_nn_count[i]<<" disps "<< disps_sending_selected_nn_indices[i]<<endl
+        cout<<" my rank "<<rank <<" receiving from rank "<<i<<receiving_selected_nn_indices_count[i]<<" disps "<< disps_receiving_selected_nn_indices[i]<<endl
+    }
 
 
    MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices, MPI_INT,

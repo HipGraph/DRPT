@@ -606,7 +606,7 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
             if (collected_dist_th_map.find(index) == collected_dist_th_map.end()) {
                 vector<VALUE_TYPE> distanceThresholdVec(this->world_size, std::numeric_limits<VALUE_TYPE>::max());
                 distanceThresholdVec[i] = dist_th;
-                collected_dist_th_map.insert(pair < int, vector < int >> (index, distanceThresholdVec));
+                collected_dist_th_map.insert(pair < int, vector < VALUE_TYPE >> (index, distanceThresholdVec));
             } else {
                 auto it = collected_dist_th_map.find(index);
                 (it->second)[i] = dist_th;

@@ -157,34 +157,34 @@ int main(int argc, char *argv[]) {
 
     map<int, vector<DataPoint>> data_points = mdrpt.gather_nns(nn);
 
-//    auto stop_query = high_resolution_clock::now();
-//    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
-//
-//    cout << "Time taken for total query "
-//         << duration_query.count() << " microseconds" << endl;
-//
-//    if (fout.is_open()) {
-//        if (data_points.size() > 0) {
-//            for (int k = 0; k < data_points.size(); k++) {
-//                if (data_points[k].size() > 0) {
-//                    vector <DataPoint> vec = data_points[k];
-//                    if (vec.size() > 0) {
-//                        for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
-//                            if (vec[l].src_index != vec[l].index) {
-//                                if (algo == 0) {
-//                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
-//                                } else {
-//                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
-//         << endl;
+    auto stop_query = high_resolution_clock::now();
+    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
+
+    cout << "Time taken for total query "
+         << duration_query.count() << " microseconds" << endl;
+
+    if (fout.is_open()) {
+        if (data_points.size() > 0) {
+            for (int k = 0; k < data_points.size(); k++) {
+                if (data_points[k].size() > 0) {
+                    vector <DataPoint> vec = data_points[k];
+                    if (vec.size() > 0) {
+                        for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
+                            if (vec[l].src_index != vec[l].index) {
+                                if (algo == 0) {
+                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
+                                } else {
+                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
+         << endl;
     MPI_Finalize();
 }

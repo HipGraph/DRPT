@@ -367,6 +367,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     communicate_nns(local_nn_map,nn);
 
+    return local_nn_map;
+
 //    auto stop_distance = high_resolution_clock::now();
 //    auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
 //
@@ -544,7 +546,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 //    free(disps_nn_indices_recieve);
 //    free(nn_distance_send);
 //    free(nn_distance_receive);
-    return local_nn_map;
+//    return local_nn_map;
 }
 
 
@@ -651,6 +653,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                         nn_count += target.size();
                         count++;
                     }
+                    local_nns.erase(local_nns.find(index));
                 }
             }
         }
@@ -671,6 +674,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
 
     int *sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
     int *sending_selected_nn_indices = new int[total_selected_indices_nn_count]();
+    VALUE_TYPE *sending_selected_nn_dst = new VALUE_TYPE[total_selected_indices_nn_count]();
 
     int total_receiving_count = 0;
 
@@ -703,6 +707,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                         sending_selected_indices[inc] = final_indices[j];
                         for (int k = 0; k < nn_sending.size(); k++) {
                             sending_selected_nn_indices[selected_nn] = nn_sending[k].index;
+                            sending_selected_nn_dst[selected_nn] = nn_sending[k].distance;
                             selected_nn++;
                         }
                         sending_selected_nn_count_for_each_index[inc] = nn_sending.size();
@@ -749,6 +754,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
 
 
    int *receiving_selected_nn_indices = new int[total_receiving_nn_count];
+    VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count];
 
     cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
 
@@ -762,7 +768,61 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
            receiving_selected_nn_indices,
                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_INT, MPI_COMM_WORLD);
 
-    cout<<"MPI all completed"<<endl;
+    MPI_Alltoallv(sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices, MPI_VALUE_TYPE,
+                  receiving_selected_nn_dst,
+                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+
+
+    int nn_index = 0;
+    for (int i = 0; i < total_receiving_count; i++) {
+        int src_index = receiving_selected_indices[i];
+        int nn_count = receiving_selected_indices_count[i];
+        vector <DataPoint> vec;
+        for (int j = 0; j < nn_count; j++) {
+            int nn_indi = receiving_selected_nn_indices[nn_index];
+            VALUE_TYPE distance = receiving_selected_nn_dst[nn_index];
+            DataPoint dataPoint;
+            dataPoint.src_index = src_index;
+            dataPoint.index = nn_indi;
+            dataPoint.distance = distance;
+            vec.push_back(dataPoint);
+            nn_index++;
+        }
+
+        auto its = local_nns.find(src_index);
+        if (its == local_nns.end()) {
+            local_nns.insert(pair < int, vector < DataPoint >> (src_index, vec));
+        } else {
+            vector<DataPoint> dst;
+            vector<DataPoint> ex_vec = its->second;
+            sort(vec.begin(), vec.end(),
+                 [](const DataPoint &lhs, const DataPoint &rhs) {
+                     return lhs.distance < rhs.distance;
+                 });
+            std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
+                       vec.end(), std::back_inserter(dst),[](const DataPoint &lhs, const DataPoint &rhs) {
+                        return lhs.distance < rhs.distance;
+                    });
+            dst.erase(unique(dst.begin(), dst.end(),
+                             [](const DataPoint &lhs,
+                                const DataPoint &rhs) {
+                                 return lhs.index == rhs.index;
+                             }), dst.end());
+            (its->second) = dst;
+        }
+
+    }
+
+
+//    free(sending_indices_count);
+//    free(receiving_indices_count);
+//    free(disps_receiving_indices);
+//    free(disps_sending_indices);
+//    free(sending_indices);
+//    free(sending_max_dist_thresholds);
+//    free(receiving_indices);
+//    free(sending_indices_count);
+//    free(sending_indices_count);
 
 
 }

@@ -621,67 +621,67 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
         final_indices_allocation[min_rank].push_back(it.first);
     }
 
-    std::map<int, vector<DataPoint >> final_nn_sending_map;
-
-    int *sending_selected_indices_count = new int[this->world_size]();
-    int *sending_selected_indices_nn_count = new int[this->world_size]();
-
-    int *receiving_selected_indices_count = new int[this->world_size]();
-    int *receiving_selected_indices_nn_count = new int[this->world_size]();
-
-
-    int total_selected_indices_count = 0;
-    int total_selected_indices_nn_count = 0;
-    for (int i = 0; i < this->world_size; i++) {
-        int count = 0;
-        int nn_count = 0;
-        if (i != this->rank) {
-            for (int j = 0; j < final_indices_allocation[i].size(); j++) {
-                int index = final_indices_allocation[i][j];
-                VALUE_TYPE dst_th = collected_dist_th_map[index][i];
-                if (local_nns.find(index) != local_nns.end()) {
-                    vector <dmrpt::DataPoint> target;
-                    std::copy_if(local_nns[index].begin(), local_nns[index].end(), std::back_inserter(target),
-                                 [dst_th](dmrpt::DataPoint dataPoint) { return dataPoint.distance < dst_th; });
-                    final_nn_sending_map.insert(pair < int, vector < DataPoint >> (index, target));
-                    nn_count += target.size();
-                    count++;
-                }
-            }
-        }
-        sending_selected_indices_count[i] = count;
-        sending_selected_indices_nn_count[i] = nn_count;
-        total_selected_indices_count += count;
-        total_selected_indices_nn_count += nn_count;
-    }
-
-
-    MPI_Alltoall(sending_selected_indices_count, 1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT,
-                 MPI_COMM_WORLD);
-
-
-    int *sending_selected_indices = new int[total_selected_indices_count];
-
-    int *sending_selected_nn_count_for_each_index = new int[total_selected_indices_count];
-    int *sending_selected_nn_indices = new int[total_selected_indices_nn_count];
-
-    int total_receiving_count = 0;
-    int total_receiving_nn_count = 0;
-
-
-    int *disps_receiving_selected_indices = new int[this->world_size]();
-    int *disps_sending_selected_indices = new int[this->world_size]();
-    int *disps_sending_selected_nn_indices = new int[this->world_size]();
-     int *disps_receiving_selected_nn_indices = new int[this->world_size]();
-
-    for (int i = 0; i < this->world_size; i++) {
-        disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
-                                                      receiving_selected_indices_count[i - 1]) : 0;
-        disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
-                                                       sending_selected_indices_count[i - 1]) : 0;
-        disps_sending_selected_nn_indices[i] = (i > 0) ? (disps_sending_selected_nn_indices[i - 1] +
-                                                          sending_selected_indices_nn_count[i - 1]) : 0;
-    }
+//    std::map<int, vector<DataPoint >> final_nn_sending_map;
+//
+//    int *sending_selected_indices_count = new int[this->world_size]();
+//    int *sending_selected_indices_nn_count = new int[this->world_size]();
+//
+//    int *receiving_selected_indices_count = new int[this->world_size]();
+//    int *receiving_selected_indices_nn_count = new int[this->world_size]();
+//
+//
+//    int total_selected_indices_count = 0;
+//    int total_selected_indices_nn_count = 0;
+//    for (int i = 0; i < this->world_size; i++) {
+//        int count = 0;
+//        int nn_count = 0;
+//        if (i != this->rank) {
+//            for (int j = 0; j < final_indices_allocation[i].size(); j++) {
+//                int index = final_indices_allocation[i][j];
+//                VALUE_TYPE dst_th = collected_dist_th_map[index][i];
+//                if (local_nns.find(index) != local_nns.end()) {
+//                    vector <dmrpt::DataPoint> target;
+//                    std::copy_if(local_nns[index].begin(), local_nns[index].end(), std::back_inserter(target),
+//                                 [dst_th](dmrpt::DataPoint dataPoint) { return dataPoint.distance < dst_th; });
+//                    final_nn_sending_map.insert(pair < int, vector < DataPoint >> (index, target));
+//                    nn_count += target.size();
+//                    count++;
+//                }
+//            }
+//        }
+//        sending_selected_indices_count[i] = count;
+//        sending_selected_indices_nn_count[i] = nn_count;
+//        total_selected_indices_count += count;
+//        total_selected_indices_nn_count += nn_count;
+//    }
+//
+//
+//    MPI_Alltoall(sending_selected_indices_count, 1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT,
+//                 MPI_COMM_WORLD);
+//
+//
+//    int *sending_selected_indices = new int[total_selected_indices_count];
+//
+//    int *sending_selected_nn_count_for_each_index = new int[total_selected_indices_count];
+//    int *sending_selected_nn_indices = new int[total_selected_indices_nn_count];
+//
+//    int total_receiving_count = 0;
+//    int total_receiving_nn_count = 0;
+//
+//
+//    int *disps_receiving_selected_indices = new int[this->world_size]();
+//    int *disps_sending_selected_indices = new int[this->world_size]();
+//    int *disps_sending_selected_nn_indices = new int[this->world_size]();
+//     int *disps_receiving_selected_nn_indices = new int[this->world_size]();
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
+//                                                      receiving_selected_indices_count[i - 1]) : 0;
+//        disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
+//                                                       sending_selected_indices_count[i - 1]) : 0;
+//        disps_sending_selected_nn_indices[i] = (i > 0) ? (disps_sending_selected_nn_indices[i - 1] +
+//                                                          sending_selected_indices_nn_count[i - 1]) : 0;
+//    }
 
 //    int inc = 0;
 //    int selected_nn = 0;

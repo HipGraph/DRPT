@@ -654,6 +654,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                 }
             }
         }
+        cout<< " my rank "<<rank<<" sending rank "<<i<<" my count "<<count<<endl;
         sending_selected_indices_count[i] = count;
         sending_selected_indices_nn_count[i] = nn_count;
         total_selected_indices_count += count;

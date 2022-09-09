@@ -299,7 +299,9 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
                 auto it = local_nns.find(idx);
                 vector<DataPoint> ex_vec = it->second;
                 std::merge(ex_vec.begin(), ex_vec.end(), sub_vec.begin(),
-                           sub_vec.end(), std::back_inserter(dst));
+                           sub_vec.end(), std::back_inserter(dst),[](const DataPoint &lhs, const DataPoint &rhs) {
+                            return lhs.distance < rhs.distance;
+                        });
 //                dst.erase(unique(dst.begin(), dst.end(),
 //                                 [](const DataPoint &lhs,
 //                                    const DataPoint &rhs) {

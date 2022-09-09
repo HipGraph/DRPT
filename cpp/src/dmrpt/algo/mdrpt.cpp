@@ -683,27 +683,27 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
                                                           sending_selected_indices_nn_count[i - 1]) : 0;
     }
 
-    int inc = 0;
-    int selected_nn = 0;
-    for (int i = 0; i < this->world_size; i++) {
-        total_receiving_count += receiving_selected_indices_count[i];
-        if (i != this->rank) {
-            vector<int> final_indices = final_indices_allocation[i];
-            for (int j = 0; j < final_indices.size(); j++) {
-                if (final_nn_sending_map.find(final_indices[j]) != final_nn_sending_map.end()) {
-                    vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j]];
-                    sending_selected_indices[inc] = final_indices[j];
-                    for (int k = 0; k < nn_sending.size(); k++) {
-                        sending_selected_nn_indices[selected_nn] = nn_sending[k].index;
-                        selected_nn++;
-                    }
-                    sending_selected_nn_count_for_each_index[inc] = nn_sending.size();
-                    inc++;
-                }
-            }
-        }
-
-    }
+//    int inc = 0;
+//    int selected_nn = 0;
+//    for (int i = 0; i < this->world_size; i++) {
+//        total_receiving_count += receiving_selected_indices_count[i];
+//        if (i != this->rank) {
+//            vector<int> final_indices = final_indices_allocation[i];
+//            for (int j = 0; j < final_indices.size(); j++) {
+//                if (final_nn_sending_map.find(final_indices[j]) != final_nn_sending_map.end()) {
+//                    vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j]];
+//                    sending_selected_indices[inc] = final_indices[j];
+//                    for (int k = 0; k < nn_sending.size(); k++) {
+//                        sending_selected_nn_indices[selected_nn] = nn_sending[k].index;
+//                        selected_nn++;
+//                    }
+//                    sending_selected_nn_count_for_each_index[inc] = nn_sending.size();
+//                    inc++;
+//                }
+//            }
+//        }
+//
+//    }
 
 //    int *receiving_selected_nn_indices_count = new int[total_receiving_count];
 //

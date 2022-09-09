@@ -36,7 +36,7 @@ namespace dmrpt {
         trees_leaf_all;
 
     private:
-       void communicate_nns (std::map<int, vector<dmrpt::DataPoint> >  &local_nns,int tree, int nn)
+       void communicate_nns (std::map<int, vector<dmrpt::DataPoint> >  &local_nns,int tree, int nn);
 
 
     public:

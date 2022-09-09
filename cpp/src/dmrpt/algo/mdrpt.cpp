@@ -302,12 +302,12 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
                            sub_vec.end(), std::back_inserter(dst),[](const DataPoint &lhs, const DataPoint &rhs) {
                             return lhs.distance < rhs.distance;
                         });
-//                dst.erase(unique(dst.begin(), dst.end(),
-//                                 [](const DataPoint &lhs,
-//                                    const DataPoint &rhs) {
-//                                     return lhs.index == rhs.index;
-//                                 }), dst.end());
-//                (it->second) = dst;
+                dst.erase(unique(dst.begin(), dst.end(),
+                                 [](const DataPoint &lhs,
+                                    const DataPoint &rhs) {
+                                     return lhs.index == rhs.index;
+                                 }), dst.end());
+                (it->second) = dst;
             }
         }
     }

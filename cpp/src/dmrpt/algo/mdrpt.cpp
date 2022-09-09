@@ -545,7 +545,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 }
 
 
-void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns,,  int nn) {
+void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns,  int nn) {
 
 
     int *sending_indices_count = new int[this->world_size]();

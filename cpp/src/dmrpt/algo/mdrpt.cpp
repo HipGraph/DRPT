@@ -362,188 +362,190 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     cout << " rank " << rank << " distance calculation completed " << endl;
 
-    auto stop_distance = high_resolution_clock::now();
-    auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
+    communicate_nns(local_nn_map,nn);
 
-
-    auto start_query = high_resolution_clock::now();
-
-    cout << " rank " << rank << " map size" << local_nn_map.size() << endl;
-
-
-    int *indices_count_per_process = new int[this->world_size]();
-    int *indices_count_per_process_recev = new int[this->world_size]();
-
-    int *indices_per_process = new int[local_nn_map.size()]();
-    int *disps_indices_per_process = new int[this->world_size]();
-    int *disps_indices_per_process_receiv = new int[this->world_size]();
-
-
-    int *nn_indices_count_per_process = new int[local_nn_map.size()]();
-
-
-    vector <vector<int>> indices_for_processes(this->world_size);
-
-    for (int i = 0; i < this->world_size; i++) {
-        indices_for_processes[i] = vector<int>();
-    }
-
-
-    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
-        int key = it->first;
-        int process = key / chunk_size;
-        vector <dmrpt::DataPoint> nn_data = it->second;
-        indices_for_processes[process].push_back(key);
-        indices_count_per_process[process] = indices_count_per_process[process] + 1;
-    }
-
-    MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
-                 MPI_INT, MPI_COMM_WORLD);
-
-
-    int total_indices_count_receving = 0;
-    int count = 0;
-    int total_nns_send = 0;
-    for (int i = 0; i < this->world_size; i++) {
-        total_indices_count_receving += indices_count_per_process_recev[i];
-        for (int j = 0; j < indices_for_processes[i].size(); j++) {
-            indices_per_process[count] = indices_for_processes[i][j];
-            nn_indices_count_per_process[count] = local_nn_map[indices_for_processes[i][j]].size();
-            total_nns_send += local_nn_map[indices_for_processes[i][j]].size();
-            count++;
-        }
-
-        disps_indices_per_process[i] = (i > 0) ? (disps_indices_per_process[i - 1] + indices_count_per_process[i - 1])
-                                               : 0;
-        disps_indices_per_process_receiv[i] = (i > 0) ? (disps_indices_per_process_receiv[i - 1] +
-                                                         indices_count_per_process_recev[i - 1]) : 0;
-    }
-
-
-    int *indices_per_process_receive = new int[total_indices_count_receving]();
-
-    MPI_Alltoallv(indices_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
-                  indices_per_process_receive,
-                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
-
-
-    int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
-
-    MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
-                  nn_indices_count_per_process_recev,
-                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
-
-
-    int final_receiving_nns_count = 0;
-
-    for (int m = 0; m < total_indices_count_receving; m++) {
-        final_receiving_nns_count += nn_indices_count_per_process_recev[m];
-    }
-
-    cout << " rank " << rank << final_receiving_nns_count << endl;
-
-    int *nn_indices_send = new int[total_nns_send]();
-    int *nn_indices_receive = new int[final_receiving_nns_count]();
-
-    VALUE_TYPE *nn_distance_send = new VALUE_TYPE[total_nns_send]();
-    VALUE_TYPE *nn_distance_receive = new VALUE_TYPE[final_receiving_nns_count]();
-
-    int *nn_indices_send_count = new int[this->world_size]();
-    int *disps_nn_indices_send = new int[this->world_size]();
-    int *nn_indices_recieve_count = new int[this->world_size]();
-    int *disps_nn_indices_recieve = new int[this->world_size]();
-
-
-    int nn_indices_send_index = 0;
-    for (int i = 0; i < this->world_size; i++) {
-        for (int j = 0; j < indices_for_processes[i].size(); j++) {
-            vector <DataPoint> nn_indices = local_nn_map[indices_for_processes[i][j]];
-            nn_indices_send_count[i] += nn_indices.size();
-            for (int k = 0; k < nn_indices.size(); k++) {
-                nn_indices_send[nn_indices_send_index] = nn_indices[k].index;
-                nn_distance_send[nn_indices_send_index] = nn_indices[k].distance;
-                nn_indices_send_index++;
-            }
-        }
-        disps_nn_indices_send[i] = (i > 0) ? (disps_nn_indices_send[i - 1] + nn_indices_send_count[i - 1]) : 0;
-
-
-        for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
-            int offset = disps_indices_per_process_receiv[i];
-            int id = l + offset;
-            nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[id];
-        }
-        disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
-
-
-    }
-
-
-    MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
-                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
-
-    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
-                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-
-
-    std::map<int, vector<DataPoint>> final_nn_map;
-
-
-    int nn_index = 0;
-    for (int i = 0; i < total_indices_count_receving; i++) {
-        int src_index = indices_per_process_receive[i];
-        int nn_count = nn_indices_count_per_process_recev[i];
-        for (int j = 0; j < nn_count; j++) {
-            int nn_indi = nn_indices_receive[nn_index];
-            VALUE_TYPE distance = nn_distance_receive[nn_index];
-            DataPoint dataPoint;
-            dataPoint.src_index = src_index;
-            dataPoint.index = nn_indi;
-            dataPoint.distance = distance;
-            vector <DataPoint> vec;
-            vec.push_back(dataPoint);
-            if (final_nn_map.find(src_index) == final_nn_map.end()) {
-                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
-            } else {
-                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
-                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-                     [](const DataPoint &lhs, const DataPoint &rhs) {
-                         return lhs.distance < rhs.distance;
-                     });
-                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
-                                                     [](const DataPoint &lhs,
-                                                        const DataPoint &rhs) {
-                                                         return lhs.index == rhs.index;
-                                                     }), final_nn_map[src_index].end());
-            }
-            nn_index++;
-        }
-    }
-
-
-    auto stop_query = high_resolution_clock::now();
-    auto query_time = duration_cast<microseconds>(stop_query - start_query);
-
-    fout << " distance calculation " << distance_time.count() << " communication time " << query_time.count() << endl;
-
-
-    free(indices_count_per_process);
-    free(indices_count_per_process_recev);
-    free(indices_per_process);
-    free(disps_indices_per_process);
-    free(disps_indices_per_process_receiv);
-    free(indices_per_process_receive);
-    free(nn_indices_send);
-    free(nn_indices_receive);
-    free(nn_indices_recieve_count);
-    free(disps_nn_indices_recieve);
-    free(nn_distance_send);
-    free(nn_distance_receive);
-    return final_nn_map;
+//    auto stop_distance = high_resolution_clock::now();
+//    auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
+//
+//
+//    auto start_query = high_resolution_clock::now();
+//
+//    cout << " rank " << rank << " map size" << local_nn_map.size() << endl;
+//
+//
+//    int *indices_count_per_process = new int[this->world_size]();
+//    int *indices_count_per_process_recev = new int[this->world_size]();
+//
+//    int *indices_per_process = new int[local_nn_map.size()]();
+//    int *disps_indices_per_process = new int[this->world_size]();
+//    int *disps_indices_per_process_receiv = new int[this->world_size]();
+//
+//
+//    int *nn_indices_count_per_process = new int[local_nn_map.size()]();
+//
+//
+//    vector <vector<int>> indices_for_processes(this->world_size);
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        indices_for_processes[i] = vector<int>();
+//    }
+//
+//
+//    for (auto it = local_nn_map.begin(); it != local_nn_map.end(); ++it) {
+//        int key = it->first;
+//        int process = key / chunk_size;
+//        vector <dmrpt::DataPoint> nn_data = it->second;
+//        indices_for_processes[process].push_back(key);
+//        indices_count_per_process[process] = indices_count_per_process[process] + 1;
+//    }
+//
+//    MPI_Alltoall(indices_count_per_process, 1, MPI_INT, indices_count_per_process_recev, 1,
+//                 MPI_INT, MPI_COMM_WORLD);
+//
+//
+//    int total_indices_count_receving = 0;
+//    int count = 0;
+//    int total_nns_send = 0;
+//    for (int i = 0; i < this->world_size; i++) {
+//        total_indices_count_receving += indices_count_per_process_recev[i];
+//        for (int j = 0; j < indices_for_processes[i].size(); j++) {
+//            indices_per_process[count] = indices_for_processes[i][j];
+//            nn_indices_count_per_process[count] = local_nn_map[indices_for_processes[i][j]].size();
+//            total_nns_send += local_nn_map[indices_for_processes[i][j]].size();
+//            count++;
+//        }
+//
+//        disps_indices_per_process[i] = (i > 0) ? (disps_indices_per_process[i - 1] + indices_count_per_process[i - 1])
+//                                               : 0;
+//        disps_indices_per_process_receiv[i] = (i > 0) ? (disps_indices_per_process_receiv[i - 1] +
+//                                                         indices_count_per_process_recev[i - 1]) : 0;
+//    }
+//
+//
+//    int *indices_per_process_receive = new int[total_indices_count_receving]();
+//
+//    MPI_Alltoallv(indices_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
+//                  indices_per_process_receive,
+//                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
+//
+//
+//    int *nn_indices_count_per_process_recev = new int[total_indices_count_receving]();
+//
+//    MPI_Alltoallv(nn_indices_count_per_process, indices_count_per_process, disps_indices_per_process, MPI_INT,
+//                  nn_indices_count_per_process_recev,
+//                  indices_count_per_process_recev, disps_indices_per_process_receiv, MPI_INT, MPI_COMM_WORLD);
+//
+//
+//    int final_receiving_nns_count = 0;
+//
+//    for (int m = 0; m < total_indices_count_receving; m++) {
+//        final_receiving_nns_count += nn_indices_count_per_process_recev[m];
+//    }
+//
+//    cout << " rank " << rank << final_receiving_nns_count << endl;
+//
+//    int *nn_indices_send = new int[total_nns_send]();
+//    int *nn_indices_receive = new int[final_receiving_nns_count]();
+//
+//    VALUE_TYPE *nn_distance_send = new VALUE_TYPE[total_nns_send]();
+//    VALUE_TYPE *nn_distance_receive = new VALUE_TYPE[final_receiving_nns_count]();
+//
+//    int *nn_indices_send_count = new int[this->world_size]();
+//    int *disps_nn_indices_send = new int[this->world_size]();
+//    int *nn_indices_recieve_count = new int[this->world_size]();
+//    int *disps_nn_indices_recieve = new int[this->world_size]();
+//
+//
+//    int nn_indices_send_index = 0;
+//    for (int i = 0; i < this->world_size; i++) {
+//        for (int j = 0; j < indices_for_processes[i].size(); j++) {
+//            vector <DataPoint> nn_indices = local_nn_map[indices_for_processes[i][j]];
+//            nn_indices_send_count[i] += nn_indices.size();
+//            for (int k = 0; k < nn_indices.size(); k++) {
+//                nn_indices_send[nn_indices_send_index] = nn_indices[k].index;
+//                nn_distance_send[nn_indices_send_index] = nn_indices[k].distance;
+//                nn_indices_send_index++;
+//            }
+//        }
+//        disps_nn_indices_send[i] = (i > 0) ? (disps_nn_indices_send[i - 1] + nn_indices_send_count[i - 1]) : 0;
+//
+//
+//        for (int l = 0; l < indices_count_per_process_recev[i]; l++) {
+//            int offset = disps_indices_per_process_receiv[i];
+//            int id = l + offset;
+//            nn_indices_recieve_count[i] += nn_indices_count_per_process_recev[id];
+//        }
+//        disps_nn_indices_recieve[i] = (i > 0) ? (disps_nn_indices_recieve[i - 1] + nn_indices_recieve_count[i - 1]) : 0;
+//
+//
+//    }
+//
+//
+//    MPI_Alltoallv(nn_indices_send, nn_indices_send_count, disps_nn_indices_send, MPI_INT, nn_indices_receive,
+//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_INT, MPI_COMM_WORLD);
+//
+//    MPI_Alltoallv(nn_distance_send, nn_indices_send_count, disps_nn_indices_send, MPI_VALUE_TYPE, nn_distance_receive,
+//                  nn_indices_recieve_count, disps_nn_indices_recieve, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+//
+//
+//    std::map<int, vector<DataPoint>> final_nn_map;
+//
+//
+//    int nn_index = 0;
+//    for (int i = 0; i < total_indices_count_receving; i++) {
+//        int src_index = indices_per_process_receive[i];
+//        int nn_count = nn_indices_count_per_process_recev[i];
+//        for (int j = 0; j < nn_count; j++) {
+//            int nn_indi = nn_indices_receive[nn_index];
+//            VALUE_TYPE distance = nn_distance_receive[nn_index];
+//            DataPoint dataPoint;
+//            dataPoint.src_index = src_index;
+//            dataPoint.index = nn_indi;
+//            dataPoint.distance = distance;
+//            vector <DataPoint> vec;
+//            vec.push_back(dataPoint);
+//            if (final_nn_map.find(src_index) == final_nn_map.end()) {
+//                final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
+//            } else {
+//                final_nn_map[src_index].insert(final_nn_map[src_index].end(), dataPoint);
+//                sort(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+//                     [](const DataPoint &lhs, const DataPoint &rhs) {
+//                         return lhs.distance < rhs.distance;
+//                     });
+//                final_nn_map[src_index].erase(unique(final_nn_map[src_index].begin(), final_nn_map[src_index].end(),
+//                                                     [](const DataPoint &lhs,
+//                                                        const DataPoint &rhs) {
+//                                                         return lhs.index == rhs.index;
+//                                                     }), final_nn_map[src_index].end());
+//            }
+//            nn_index++;
+//        }
+//    }
+//
+//
+//    auto stop_query = high_resolution_clock::now();
+//    auto query_time = duration_cast<microseconds>(stop_query - start_query);
+//
+//    fout << " distance calculation " << distance_time.count() << " communication time " << query_time.count() << endl;
+//
+//
+//    free(indices_count_per_process);
+//    free(indices_count_per_process_recev);
+//    free(indices_per_process);
+//    free(disps_indices_per_process);
+//    free(disps_indices_per_process_receiv);
+//    free(indices_per_process_receive);
+//    free(nn_indices_send);
+//    free(nn_indices_receive);
+//    free(nn_indices_recieve_count);
+//    free(disps_nn_indices_recieve);
+//    free(nn_distance_send);
+//    free(nn_distance_receive);
+    return local_nn_map;
 }
 
 
-void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &local_nns, int tree, int nn) {
+void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &local_nns,  int nn) {
 
 
     int *sending_indices_count = new int[this->world_size]();

@@ -705,39 +705,39 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
 
     }
 
-    int *receiving_selected_nn_indices_count = new int[total_receiving_count];
-
-    int *receiving_selected_indices = new int[total_receiving_count];
-
-    cout<<" rank "<<rank<<" total receiving  indicies count "<<total_receiving_count<<endl;
-
-    MPI_Alltoallv(sending_selected_nn_count_for_each_index, sending_selected_indices_count,
-                  disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
-                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
-
-    MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
-                  receiving_selected_indices,
-                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
-
-
-
-
-    for (int i = 0; i < this->world_size; i++) {
-        total_receiving_nn_count += receiving_selected_nn_indices_count[i];
-        disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
-                            receiving_selected_nn_indices_count[i - 1]) : 0;
-    }
-
-
-   int *receiving_selected_nn_indices = new int[total_receiving_nn_count];
-
-    cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
-
-
-
-   MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices, MPI_INT,
-           receiving_selected_nn_indices,
-        receiving_selected_indices_count, disps_receiving_selected_nn_indices, MPI_INT, MPI_COMM_WORLD);
+//    int *receiving_selected_nn_indices_count = new int[total_receiving_count];
+//
+//    int *receiving_selected_indices = new int[total_receiving_count];
+//
+//    cout<<" rank "<<rank<<" total receiving  indicies count "<<total_receiving_count<<endl;
+//
+//    MPI_Alltoallv(sending_selected_nn_count_for_each_index, sending_selected_indices_count,
+//                  disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
+//                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
+//
+//    MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
+//                  receiving_selected_indices,
+//                  receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
+//
+//
+//
+//
+//    for (int i = 0; i < this->world_size; i++) {
+//        total_receiving_nn_count += receiving_selected_nn_indices_count[i];
+//        disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
+//                            receiving_selected_nn_indices_count[i - 1]) : 0;
+//    }
+//
+//
+//   int *receiving_selected_nn_indices = new int[total_receiving_nn_count];
+//
+//    cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
+//
+//
+//
+//   MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices, MPI_INT,
+//           receiving_selected_nn_indices,
+//        receiving_selected_indices_count, disps_receiving_selected_nn_indices, MPI_INT, MPI_COMM_WORLD);
 
 
 

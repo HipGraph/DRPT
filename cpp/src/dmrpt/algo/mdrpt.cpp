@@ -595,7 +595,7 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
 
 
 
-    std::map<int, vector<int >> collected_dist_th_map; // key->indices value->ranks and threshold
+    std::map<int, vector<VALUE_TYPE >> collected_dist_th_map; // key->indices value->ranks and threshold
 
     for (int i = 0; i < this->world_size; i++) {
         int amount = receiving_indices_count[i];

@@ -675,7 +675,7 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
      int *disps_receiving_selected_nn_indices = new int[this->world_size]();
 
     for (int i = 0; i < this->world_size; i++) {
-        disps_receiving_selected_indices = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
+        disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
                                                       receiving_selected_indices_count[i - 1]) : 0;
         disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
                                                        sending_selected_indices_count[i - 1]) : 0;

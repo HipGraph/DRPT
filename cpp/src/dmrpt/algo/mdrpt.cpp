@@ -750,8 +750,8 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
     cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
 
     for (int i = 0; i < this->world_size; i++) {
-       cout<<" my rank "<<rank <<" sending to rank "<<i<<sending_selected_indices_nn_count[i]<<" disps "<< disps_sending_selected_nn_indices[i]<<endl
-        cout<<" my rank "<<rank <<" receiving from rank "<<i<<receiving_selected_nn_indices_count[i]<<" disps "<< disps_receiving_selected_nn_indices[i]<<endl
+       cout<<" my rank "<<rank <<" sending to rank "<<i<<sending_selected_indices_nn_count[i]<<" disps "<< disps_sending_selected_nn_indices[i]<<endl;
+        cout<<" my rank "<<rank <<" receiving from rank "<<i<<receiving_selected_nn_indices_count[i]<<" disps "<< disps_receiving_selected_nn_indices[i]<<endl;
     }
 
 

@@ -621,7 +621,7 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
         final_indices_allocation[min_rank].push_back(it.first);
     }
 
-    std::map<int, vector<VALUE_TYPE >> final_nn_sending_map;
+    std::map<int, vector<DataPoint >> final_nn_sending_map;
 
     int *sending_selected_indices_count = new int[this->world_size]();
     int *sending_selected_indices_nn_count = new int[this->world_size]();
@@ -694,7 +694,7 @@ void dmrpt::MDRPT::communicate_nns(std::map<int, vector < dmrpt::DataPoint>> &lo
                     vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j]];
                     sending_selected_indices[inc] = final_indices[j];
                     for (int k = 0; k < nn_sending.size(); k++) {
-                        sending_selected_nn_indices[selected_nn] = nn_sending[k];
+                        sending_selected_nn_indices[selected_nn] = nn_sending[k].index;
                         selected_nn++;
                     }
                     sending_selected_nn_count_for_each_index[inc] = nn_sending.size();

@@ -748,7 +748,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
            receiving_selected_nn_indices,
         receiving_selected_indices_count, disps_receiving_selected_nn_indices, MPI_INT, MPI_COMM_WORLD);
 
-
+    cout<<"MPI all completed"<<endl;
 
 
 }

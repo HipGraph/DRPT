@@ -378,44 +378,17 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
 
 std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>> &local_nns, int nn) {
-//char hostname[HOST_NAME_MAX];
-//char results[500];
-//int host = gethostname(hostname, HOST_NAME_MAX);
-//string file_path_distance = output_path + "distance_distribution" + to_string(rank) + ".txt";
-//std::strcpy(results, file_path_distance
-//.
-//
-//c_str()
-//
-//);
-//std::strcpy(results
-//+
-//strlen(file_path_distance
-//.
-//
-//c_str()
-//
-//), hostname);
-//
-//ofstream fout1(results, std::ios_base::app);
-
 
     int *sending_indices_count = new int[this->world_size]();
     int *receiving_indices_count = new int[this->world_size]();
 
     int send_count = local_nns.size();
 
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
-        sending_indices_count[i] =
-                send_count;
+    for (int i = 0;i < this->world_size;i++) {
+        sending_indices_count[i] = send_count;
     }
 
-    MPI_Alltoall(sending_indices_count,
-                 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
 
     int total_receving = 0;
 
@@ -763,32 +736,32 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
          endl;
 
 
-    delete sending_indices_count;
-    delete receiving_indices_count;
-    delete disps_receiving_indices;
-    delete disps_sending_indices;
-    delete sending_indices ;
-    delete sending_max_dist_thresholds;
-    delete receiving_indices ;
-    delete receiving_max_dist_thresholds;
-    delete sending_selected_indices_count;
-    delete sending_selected_indices_nn_count;
-    delete receiving_selected_indices_count;
-    delete receiving_selected_indices_nn_count;
-    delete sending_selected_indices;
-    delete sending_selected_nn_count_for_each_index;
-    delete sending_selected_nn_indices;
-    delete sending_selected_nn_dst;
-    delete disps_receiving_selected_indices;
-    delete disps_sending_selected_indices;
-    delete disps_sending_selected_nn_indices;
-    delete disps_receiving_selected_nn_indices;
+    delete[] sending_indices_count;
+    delete[] receiving_indices_count;
+    delete[] disps_receiving_indices;
+    delete[] disps_sending_indices;
+    delete[] sending_indices ;
+    delete[] sending_max_dist_thresholds;
+    delete[] receiving_indices ;
+    delete[] receiving_max_dist_thresholds;
+    delete[] sending_selected_indices_count;
+    delete[] sending_selected_indices_nn_count;
+    delete[] receiving_selected_indices_count;
+    delete[] receiving_selected_indices_nn_count;
+    delete[] sending_selected_indices;
+    delete[] sending_selected_nn_count_for_each_index;
+    delete[] sending_selected_nn_indices;
+    delete[] sending_selected_nn_dst;
+    delete[] disps_receiving_selected_indices;
+    delete[] disps_sending_selected_indices;
+    delete[] disps_sending_selected_nn_indices;
+    delete[] disps_receiving_selected_nn_indices;
 
 
-    delete receiving_selected_indices;
-//    delete receiving_selected_nn_indices;
-//    delete receiving_selected_nn_dst;
-//    delete receiving_selected_nn_indices_count_process;
+    delete[] receiving_selected_indices;
+    delete[] receiving_selected_nn_indices;
+    delete[] receiving_selected_nn_dst;
+    delete[] receiving_selected_nn_indices_count_process;
 
 
     return final_nn_map;

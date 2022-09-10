@@ -681,34 +681,24 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     int total_receiving_nn_count = 0;
 
     int *receiving_selected_nn_indices_count_process = new int[this->world_size]();
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+
+    for (int i = 0;i < this->world_size;i++) {
         int co = receiving_selected_indices_count[i];
         int offset = disps_receiving_selected_indices[i];
         int per_pro_co = 0;
-        for (
-                int k = offset;
-                k < (co + offset); k++) {
+        for (int k = offset;k < (co + offset); k++) {
             per_pro_co += receiving_selected_nn_indices_count[k];
-
         }
-        total_receiving_nn_count +=
-                per_pro_co;
-        receiving_selected_nn_indices_count_process[i] =
-                per_pro_co;
+        total_receiving_nn_count +=per_pro_co;
+        receiving_selected_nn_indices_count_process[i] =per_pro_co;
         disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
                                                             receiving_selected_nn_indices_count_process[i]) : 0;
     }
 
-
     int *receiving_selected_nn_indices = new int[total_receiving_nn_count]();
     VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count]();
 
-    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<
-         endl;
+    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
 
 
     MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
@@ -798,7 +788,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     delete receiving_selected_indices;
 //    delete receiving_selected_nn_indices;
 //    delete receiving_selected_nn_dst;
-    delete receiving_selected_nn_indices_count_process;
+//    delete receiving_selected_nn_indices_count_process;
 
 
     return final_nn_map;

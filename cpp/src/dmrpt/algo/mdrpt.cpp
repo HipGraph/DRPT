@@ -378,7 +378,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
 
 std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int nn) {
-
+    char hostname[HOST_NAME_MAX];
     char results[500];
     string file_path_distance = output_path + "distance_distribution" + to_string(rank)+ ".txt";
     std::strcpy(results, file_path_distance.c_str());

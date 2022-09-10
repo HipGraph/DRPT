@@ -796,7 +796,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
 
 
     delete receiving_selected_indices;
-    delete receiving_selected_nn_indices;
+//    delete receiving_selected_nn_indices;
 //    delete receiving_selected_nn_dst;
     delete receiving_selected_nn_indices_count_process;
 

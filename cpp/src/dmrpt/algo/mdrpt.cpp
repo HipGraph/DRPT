@@ -821,19 +821,18 @@ delete receiving_selected_indices_nn_count;
 delete sending_selected_indices;
 delete sending_selected_nn_count_for_each_index;
 delete sending_selected_nn_indices;
-//delete(sending_selected_nn_dst);
-//delete(disps_receiving_selected_indices);
-//delete(disps_sending_selected_indices);
-//delete(disps_sending_selected_nn_indices);
-//delete(disps_receiving_selected_nn_indices);
-//delete(receiving_selected_indices);
-//delete(receiving_selected_nn_indices);
-//delete(receiving_selected_nn_dst);
-//delete(receiving_selected_nn_indices_count_process);
+delete sending_selected_nn_dst;
+delete disps_receiving_selected_indices;
+delete disps_sending_selected_indices;
+delete disps_sending_selected_nn_indices;
+delete disps_receiving_selected_nn_indices;
+delete receiving_selected_indices;
+delete receiving_selected_nn_indices;
+delete receiving_selected_nn_dst;
+delete receiving_selected_nn_indices_count_process;
 
 
-return
-final_nn_map;
+return final_nn_map;
 
 }
 

@@ -645,7 +645,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
 //            (its->second) = dst;
 //        }
 
-    }
+//    }
 
     cout<<" rank "<<rank<< " completed insertion "<<endl;
 

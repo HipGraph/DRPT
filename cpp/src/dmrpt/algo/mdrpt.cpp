@@ -592,8 +592,8 @@ int *sending_indices_count = new int[this->world_size]();
     }
 
 
-    int *receiving_selected_nn_indices = new int[total_receiving_nn_count];
-    VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count];
+    int *receiving_selected_nn_indices = new int[total_receiving_nn_count]();
+    VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count]();
 
     cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count << endl;
 
@@ -603,11 +603,6 @@ int *sending_indices_count = new int[this->world_size]();
                   receiving_selected_nn_indices,
                   receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_INT,
                   MPI_COMM_WORLD);
-
-
-
-
-
 
 //
     MPI_Alltoallv(sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,

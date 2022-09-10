@@ -137,7 +137,7 @@ void dmrpt::MDRPT::grow_trees(float density) {
 
     for (int i = 0; i < ntrees; i++) {
         this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-        leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points(i, true);
+        leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points(i, false);
     }
     auto stop_collect = high_resolution_clock::now();
     auto collect_time = duration_cast<microseconds>(stop_collect - start_collect);

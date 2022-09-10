@@ -185,7 +185,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
-         << endl;
+    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count() << endl;
     MPI_Finalize();
 }

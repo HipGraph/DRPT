@@ -372,14 +372,14 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
     auto start_query = high_resolution_clock::now();
 
-    communicate_nns(local_nn_map, nn);
+    std::map<int, vector < dmrpt::DataPoint>>  final_map =  communicate_nns(local_nn_map, nn);
 
     auto stop_query = high_resolution_clock::now();
     auto query_time = duration_cast<microseconds>(stop_query - start_query);
 
     fout << " distance calculation " << distance_time.count() << " communication time " << query_time.count() << endl;
 
-    return local_nn_map;
+    return final_map;
 }
 
 

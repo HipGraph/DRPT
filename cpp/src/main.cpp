@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     if (fout.is_open()) {
         if (data_points.size() > 0) {
 
-            cout<<" rank "<<rank<<data_points.size()<<endl;
+            cout << " rank " << rank << data_points.size() << endl;
 
             for (int k = 0; k < data_points.size(); k++) {
                 if (data_points[k].size() > 0) {
@@ -174,8 +174,7 @@ int main(int argc, char *argv[]) {
                     if (vec.size() > 0) {
                         for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
                             if (vec[l].src_index != vec[l].index) {
-                                    fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
-                                }
+                                fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
                             }
                         }
                     }
@@ -185,6 +184,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count() << endl;
+    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
+         << endl;
     MPI_Finalize();
 }

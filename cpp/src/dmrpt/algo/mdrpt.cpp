@@ -435,52 +435,31 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     std::map<int, vector<VALUE_TYPE >>
             collected_dist_th_map; // key->indices value->ranks and threshold
 
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+    for (int i = 0;i < this->world_size;i++) {
         int amount = receiving_indices_count[i];
         int offset = disps_receiving_indices[i];
-        for (
-                int j = offset;
-                j < (offset + amount); j++) {
+        for (int j = offset;j < (offset + amount); j++) {
             int index = receiving_indices[j];
             VALUE_TYPE dist_th = receiving_max_dist_thresholds[j];
-            if (collected_dist_th_map.
-                    find(index)
-                == collected_dist_th_map.
-
-                    end()
-
-                    ) {
+            if (collected_dist_th_map.find(index)== collected_dist_th_map.end()) {
                 vector<VALUE_TYPE> distanceThresholdVec(this->world_size, std::numeric_limits<VALUE_TYPE>::max());
-                distanceThresholdVec[i] =
-                        dist_th;
-                collected_dist_th_map.
-                        insert(pair < int, vector < VALUE_TYPE >>
-                                                               (index, distanceThresholdVec));
+                distanceThresholdVec[i] =dist_th;
+                collected_dist_th_map.insert(pair < int, vector < VALUE_TYPE >>(index, distanceThresholdVec));
             } else {
                 auto it = collected_dist_th_map.find(index);
-                (it->second)[i] =
-                        dist_th;
+                (it->second)[i] =dist_th;
             }
         }
     }
 
     vector <vector<int>> final_indices_allocation(this->world_size);
 
-    for (
-        auto const &it
-            : collected_dist_th_map) {
+    for (auto const &it: collected_dist_th_map) {
         int min_rank = std::min_element((it.second).begin(), (it.second).end()) - (it.second).begin();
-        final_indices_allocation[min_rank].
-                push_back(it
-                                  .first);
+        final_indices_allocation[min_rank].push_back(it.first);
     }
 
-    std::map<int, vector<DataPoint >>
-            final_nn_sending_map;
+    std::map<int, vector<DataPoint >> final_nn_sending_map;
 
     int *sending_selected_indices_count = new int[this->world_size]();
     int *sending_selected_indices_nn_count = new int[this->world_size]();
@@ -494,83 +473,44 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
 
     std::map<int, vector<DataPoint>>
             final_nn_map;
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+    for (int i = 0;i < this->world_size;i++) {
         int count = 0;
         int nn_count = 0;
-        for (
-                int j = 0;
-                j < final_indices_allocation[i].
-
-                        size();
-
-                j++) {
+        for (int j = 0;j < final_indices_allocation[i].size();j++) {
             int index = final_indices_allocation[i][j];
             VALUE_TYPE dst_th = collected_dist_th_map[index][i];
             if (i != this->rank) {
-                if (local_nns.
-                        find(index)
-                    != local_nns.
-
-                        end()
-
-                        ) {
+                if (local_nns.find(index)!= local_nns.end()) {
                     vector <dmrpt::DataPoint> target;
-                    std::copy_if(local_nns[index]
-                                         .
-
-                                                 begin(), local_nns[index]
-
-                                         .
-
-                                                 end(), std::back_inserter(target),
-
-                                 [dst_th](
+                    std::copy_if(local_nns[index].begin(), local_nns[index].end(),
+                                 std::back_inserter(target),[dst_th](
                                          dmrpt::DataPoint dataPoint
                                  ) {
                                      return dataPoint.
                                              distance < dst_th;
                                  });
-                    if (target.
-
-                            size()
-
-                        > 0) {
+                    if (target.size()> 0) {
                         final_nn_sending_map.
-                                insert(pair < int, vector < DataPoint >>
-                                                                      (index, target));
-                        nn_count += target.
-
-                                size();
-
+                                insert(pair < int, vector < DataPoint >>(index, target));
+                        nn_count += target.size();
                         count++;
                     }
 //                    local_nns.erase(local_nns.find(index));
                 }
             } else {
                 final_nn_map.
-                        insert(pair < int, vector < DataPoint >>
-                                                              (index, local_nns[index]));
+                        insert(pair < int, vector < DataPoint >>(index, local_nns[index]));
             }
         }
 
-        sending_selected_indices_count[i] =
-                count;
-        sending_selected_indices_nn_count[i] =
-                nn_count;
-        total_selected_indices_count +=
-                count;
-        total_selected_indices_nn_count +=
-                nn_count;
+        sending_selected_indices_count[i] =count;
+        sending_selected_indices_nn_count[i] = nn_count;
+        total_selected_indices_count += count;
+        total_selected_indices_nn_count += nn_count;
     }
 
 
-    MPI_Alltoall(sending_selected_indices_count,
-                 1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT,
-                 MPI_COMM_WORLD);
+    MPI_Alltoall(sending_selected_indices_count,1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT,MPI_COMM_WORLD);
 
 
     int *sending_selected_indices = new int[total_selected_indices_count]();
@@ -587,11 +527,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     int *disps_sending_selected_nn_indices = new int[this->world_size]();
     int *disps_receiving_selected_nn_indices = new int[this->world_size]();
 
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+    for (int i = 0;i < this->world_size;i++) {
         disps_receiving_selected_indices[i] = (i > 0) ? (disps_receiving_selected_indices[i - 1] +
                                                          receiving_selected_indices_count[i - 1]) : 0;
         disps_sending_selected_indices[i] = (i > 0) ? (disps_sending_selected_indices[i - 1] +
@@ -685,9 +621,6 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
                   MPI_COMM_WORLD
     );
 
-    cout << " rank<" << rank << " all mpi communication completed " <<
-         endl;
-
     int nn_index = 0;
     for (int i = 0; i < total_receiving_count; i++) {
         int src_index = receiving_selected_indices[i];
@@ -727,10 +660,6 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
         }
 
     }
-
-    cout << " rank " << rank << " completed insertion " <<
-         endl;
-
 
     delete[] sending_indices_count;
     delete[] receiving_indices_count;

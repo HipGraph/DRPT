@@ -377,7 +377,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 }
 
 
-std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint> &local_nns, int nn) {
+std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>> &local_nns, int nn) {
 //char hostname[HOST_NAME_MAX];
 //char results[500];
 //int host = gethostname(hostname, HOST_NAME_MAX);
@@ -633,53 +633,24 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
 
     int inc = 0;
     int selected_nn = 0;
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+    for (int i = 0;i < this->world_size;i++) {
         total_receiving_count += receiving_selected_indices_count[i];
         if (i != this->rank) {
             vector<int> final_indices = final_indices_allocation[i];
-            for (
-                    int j = 0;
-                    j < final_indices.
-
-                            size();
-
-                    j++) {
-                if (final_nn_sending_map.
-                        find(final_indices[j])
-                    != final_nn_sending_map.
-
-                        end()
-
-                        ) {
+            for (int j = 0;j < final_indices.size();j++) {
+                if (final_nn_sending_map.find(final_indices[j]) != final_nn_sending_map.end()) {
                     vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j]];
-                    if (nn_sending.
-
-                            size()
-
-                        > 0) {
+                    if (nn_sending.size()> 0) {
                         sending_selected_indices[inc] = final_indices[j];
-                        for (
-                                int k = 0;
-                                k < nn_sending.
-
-                                        size();
-
-                                k++) {
+                        for (int k = 0;k < nn_sending.size();k++) {
                             sending_selected_nn_indices[selected_nn] = nn_sending[k].
                                     index;
-                            fout1 << final_indices[j] << ' ' << nn_sending[k].index << ' ' << nn_sending[k].distance <<
-                                  endl;
-                            sending_selected_nn_dst[selected_nn] = nn_sending[k].
-                                    distance;
+//                            fout1 << final_indices[j] << ' ' << nn_sending[k].index << ' ' << nn_sending[k].distance <<
+//                                  endl;
+                            sending_selected_nn_dst[selected_nn] = nn_sending[k].distance;
                             selected_nn++;
                         }
-                        sending_selected_nn_count_for_each_index[inc] = nn_sending.
-
-                                size();
+                        sending_selected_nn_count_for_each_index[inc] = nn_sending.size();
 
                         inc++;
                     }

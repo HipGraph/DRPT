@@ -607,21 +607,21 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
 
     cout << " rank<" <<rank<<" all mpi communication completeed " << endl;
 
-    int nn_index = 0;
-    for (int i = 0; i < total_receiving_count; i++) {
-        int src_index = receiving_selected_indices[i];
-        int nn_count = receiving_selected_nn_indices_count[i];
-        vector <DataPoint> vec;
-        for (int j = 0; j < nn_count; j++) {
-            int nn_indi = receiving_selected_nn_indices[nn_index];
-            VALUE_TYPE distance = receiving_selected_nn_dst[nn_index];
-            DataPoint dataPoint;
-            dataPoint.src_index = src_index;
-            dataPoint.index = nn_indi;
-            dataPoint.distance = distance;
-            vec.push_back(dataPoint);
-            nn_index++;
-        }
+//    int nn_index = 0;
+//    for (int i = 0; i < total_receiving_count; i++) {
+//        int src_index = receiving_selected_indices[i];
+//        int nn_count = receiving_selected_nn_indices_count[i];
+//        vector <DataPoint> vec;
+//        for (int j = 0; j < nn_count; j++) {
+//            int nn_indi = receiving_selected_nn_indices[nn_index];
+//            VALUE_TYPE distance = receiving_selected_nn_dst[nn_index];
+//            DataPoint dataPoint;
+//            dataPoint.src_index = src_index;
+//            dataPoint.index = nn_indi;
+//            dataPoint.distance = distance;
+//            vec.push_back(dataPoint);
+//            nn_index++;
+//        }
 
 //        auto its = final_nn_map.find(src_index);
 //        if (its == final_nn_map.end()) {

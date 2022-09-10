@@ -165,6 +165,9 @@ int main(int argc, char *argv[]) {
 
     if (fout.is_open()) {
         if (data_points.size() > 0) {
+
+            cout<<" rank "<<rank<<data_points.size()<<endl;
+
             for (int k = 0; k < data_points.size(); k++) {
                 if (data_points[k].size() > 0) {
                     vector <DataPoint> vec = data_points[k];

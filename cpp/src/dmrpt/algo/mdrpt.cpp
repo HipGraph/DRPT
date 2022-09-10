@@ -395,11 +395,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     int *disps_receiving_indices = new int[this->world_size]();
     int *disps_sending_indices = new int[this->world_size]();
 
-    for (
-            int i = 0;
-            i < this->
-                    world_size;
-            i++) {
+    for (int i = 0;i < this->world_size;i++) {
         total_receving += receiving_indices_count[i];
         disps_sending_indices[i] = 0;
         disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
@@ -665,7 +661,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
         total_receiving_nn_count +=per_pro_co;
         receiving_selected_nn_indices_count_process[i] =per_pro_co;
         disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
-                                                            receiving_selected_nn_indices_count_process[i]) : 0;
+                                                            receiving_selected_nn_indices_count_process[i-1]) : 0;
     }
 
     int *receiving_selected_nn_indices = new int[total_receiving_nn_count]();

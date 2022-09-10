@@ -36,7 +36,9 @@ namespace dmrpt {
         trees_leaf_all;
 
     private:
-       void communicate_nns (std::map<int, vector<dmrpt::DataPoint> >  &local_nns, int nn);
+        void communicate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, int nn);
+
+        void calculate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn);
 
 
     public:
@@ -44,8 +46,6 @@ namespace dmrpt {
               int total_data_set_size, int rank, int world_size, string input_path, string output_path);
 
         void grow_trees(float density);
-
-        void calculate_nns(std::map<int, vector<dmrpt::DataPoint> >  &local_nns,int tree, int nn);
 
         std::map<int, vector<DataPoint>> gather_nns(int nn);
 

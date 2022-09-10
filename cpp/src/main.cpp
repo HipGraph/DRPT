@@ -186,5 +186,6 @@ int main(int argc, char *argv[]) {
 
     fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
          << endl;
+    cout<< " calling mpi finalize "<< rank<<endl;
     MPI_Finalize();
 }

@@ -605,7 +605,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                   receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE,
                   MPI_COMM_WORLD);
 
-    cout << " rank all mpi communication completeed" << endl;
+    cout << " rank<" <<rank<<" all mpi communication completeed " << endl;
 
     int nn_index = 0;
     for (int i = 0; i < total_receiving_count; i++) {
@@ -623,27 +623,27 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
             nn_index++;
         }
 
-        auto its = final_nn_map.find(src_index);
-        if (its == final_nn_map.end()) {
-            final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
-        } else {
-            vector <DataPoint> dst;
-            vector <DataPoint> ex_vec = its->second;
-            sort(vec.begin(), vec.end(),
-                 [](const DataPoint &lhs, const DataPoint &rhs) {
-                     return lhs.distance < rhs.distance;
-                 });
-            std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
-                       vec.end(), std::back_inserter(dst), [](const DataPoint &lhs, const DataPoint &rhs) {
-                        return lhs.distance < rhs.distance;
-                    });
-            dst.erase(unique(dst.begin(), dst.end(),
-                             [](const DataPoint &lhs,
-                                const DataPoint &rhs) {
-                                 return lhs.index == rhs.index;
-                             }), dst.end());
-            (its->second) = dst;
-        }
+//        auto its = final_nn_map.find(src_index);
+//        if (its == final_nn_map.end()) {
+//            final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
+//        } else {
+//            vector <DataPoint> dst;
+//            vector <DataPoint> ex_vec = its->second;
+//            sort(vec.begin(), vec.end(),
+//                 [](const DataPoint &lhs, const DataPoint &rhs) {
+//                     return lhs.distance < rhs.distance;
+//                 });
+//            std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
+//                       vec.end(), std::back_inserter(dst), [](const DataPoint &lhs, const DataPoint &rhs) {
+//                        return lhs.distance < rhs.distance;
+//                    });
+//            dst.erase(unique(dst.begin(), dst.end(),
+//                             [](const DataPoint &lhs,
+//                                const DataPoint &rhs) {
+//                                 return lhs.index == rhs.index;
+//                             }), dst.end());
+//            (its->second) = dst;
+//        }
 
     }
 

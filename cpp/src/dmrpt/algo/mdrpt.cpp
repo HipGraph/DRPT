@@ -330,12 +330,6 @@ dmrpt::MDRPT::gather_nns(int nn) {
     ofstream fout(results, std::ios_base::app);
 
 
-//    string file_path_distance = output_path + "distance_distribution" + to_string(rank)+ ".txt";
-//    std::strcpy(results, file_path_distance.c_str());
-//    std::strcpy(results + strlen(file_path_distance.c_str()), hostname);
-//
-//    ofstream fout1(results, std::ios_base::app);
-
     auto start_distance = high_resolution_clock::now();
 
     int chunk_size = this->total_data_set_size / this->world_size;
@@ -386,7 +380,16 @@ dmrpt::MDRPT::gather_nns(int nn) {
 std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int nn) {
 
 
-    int *sending_indices_count = new int[this->world_size]();
+    string file_path_distance = output_path + "distance_distribution" + to_string(rank)+ ".txt";
+    std::strcpy(results, file_path_distance.c_str());
+    std::strcpy(results + strlen(file_path_distance.c_str()), hostname);
+
+    ofstream fout1(results, std::ios_base::app);
+
+
+
+
+int *sending_indices_count = new int[this->world_size]();
     int *receiving_indices_count = new int[this->world_size]();
 
     int send_count = local_nns.size();
@@ -488,7 +491,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                         nn_count += target.size();
                         count++;
                     }
-                    local_nns.erase(local_nns.find(index));
+//                    local_nns.erase(local_nns.find(index));
                 }
             }else {
                 final_nn_map.insert(pair < int, vector < DataPoint >> (index, local_nns[index]));
@@ -542,6 +545,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                         sending_selected_indices[inc] = final_indices[j];
                         for (int k = 0; k < nn_sending.size(); k++) {
                             sending_selected_nn_indices[selected_nn] = nn_sending[k].index;
+                            fout1<< final_indices[j] << ' '<<nn_sending[k].index<< ' '<< nn_sending[k].distance<<endl;
                             sending_selected_nn_dst[selected_nn] = nn_sending[k].distance;
                             selected_nn++;
                         }
@@ -598,6 +602,12 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                   receiving_selected_nn_indices,
                   receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_INT,
                   MPI_COMM_WORLD);
+
+
+
+
+
+
 //
     MPI_Alltoallv(sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
                   MPI_VALUE_TYPE,
@@ -605,7 +615,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                   receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE,
                   MPI_COMM_WORLD);
 
-    cout << " rank<" <<rank<<" all mpi communication completeed " << endl;
+    cout << " rank<" <<rank<<" all mpi communication completed " << endl;
 
 //    int nn_index = 0;
 //    for (int i = 0; i < total_receiving_count; i++) {

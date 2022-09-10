@@ -593,17 +593,17 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
     cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count << endl;
 
 
-    MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
-                  MPI_INT,
-                  receiving_selected_nn_indices,
-                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_INT,
-                  MPI_COMM_WORLD);
-
-    MPI_Alltoallv(sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
-                  MPI_VALUE_TYPE,
-                  receiving_selected_nn_dst,
-                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE,
-                  MPI_COMM_WORLD);
+//    MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+//                  MPI_INT,
+//                  receiving_selected_nn_indices,
+//                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_INT,
+//                  MPI_COMM_WORLD);
+//
+//    MPI_Alltoallv(sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+//                  MPI_VALUE_TYPE,
+//                  receiving_selected_nn_dst,
+//                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE,
+//                  MPI_COMM_WORLD);
 
     cout << " rank<" <<rank<<" all mpi communication completeed " << endl;
 

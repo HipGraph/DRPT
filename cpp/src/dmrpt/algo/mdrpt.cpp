@@ -383,7 +383,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 }
 
 
-void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int nn) {
+std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int nn) {
 
 
     int *sending_indices_count = new int[this->world_size]();
@@ -670,6 +670,9 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
     free(disps_receiving_selected_nn_indices);
     free(receiving_selected_indices);
     free(receiving_selected_nn_indices_count_process);
+
+
+    return final_nn_map;
 
 }
 

@@ -647,6 +647,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
 
     }
 
+    cout<<" rank "<<rank<< " completed insertion "<<endl;
+
 
     free(sending_indices_count);
     free(receiving_indices_count);

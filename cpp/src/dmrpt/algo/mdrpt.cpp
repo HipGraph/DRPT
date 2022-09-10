@@ -772,6 +772,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                   receiving_selected_nn_dst,
                   receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
+   cout<<" rank all mpi commuication compelteed"<<endl;
 
     int nn_index = 0;
     for (int i = 0; i < total_receiving_count; i++) {

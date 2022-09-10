@@ -174,9 +174,6 @@ int main(int argc, char *argv[]) {
                     if (vec.size() > 0) {
                         for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
                             if (vec[l].src_index != vec[l].index) {
-                                if (algo == 0) {
-                                    fout1 << k + rank * chunk_size + 1 << ' ' << vec[l].index + 1 << endl;
-                                } else {
                                     fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
                                 }
                             }
@@ -186,6 +183,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
 
     fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
          << endl;

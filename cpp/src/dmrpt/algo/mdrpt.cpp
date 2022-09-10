@@ -470,13 +470,15 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
 
     int total_selected_indices_count = 0;
     int total_selected_indices_nn_count = 0;
+
+    std::map<int, vector<DataPoint>> final_nn_map;
     for (int i = 0; i < this->world_size; i++) {
         int count = 0;
         int nn_count = 0;
-        if (i != this->rank) {
-            for (int j = 0; j < final_indices_allocation[i].size(); j++) {
-                int index = final_indices_allocation[i][j];
-                VALUE_TYPE dst_th = collected_dist_th_map[index][i];
+        for (int j = 0; j < final_indices_allocation[i].size(); j++) {
+            int index = final_indices_allocation[i][j];
+            VALUE_TYPE dst_th = collected_dist_th_map[index][i];
+            if (i != this->rank) {
                 if (local_nns.find(index) != local_nns.end()) {
                     vector <dmrpt::DataPoint> target;
                     std::copy_if(local_nns[index].begin(), local_nns[index].end(), std::back_inserter(target),
@@ -488,8 +490,11 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                     }
                     local_nns.erase(local_nns.find(index));
                 }
+            }else {
+                final_nn_map.insert(pair < int, vector < DataPoint >> (index, local_nns[index]));
             }
         }
+
         sending_selected_indices_count[i] = count;
         sending_selected_indices_nn_count[i] = nn_count;
         total_selected_indices_count += count;
@@ -618,9 +623,9 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
             nn_index++;
         }
 
-        auto its = local_nns.find(src_index);
-        if (its == local_nns.end()) {
-            local_nns.insert(pair < int, vector < DataPoint >> (src_index, vec));
+        auto its = final_nn_map.find(src_index);
+        if (its == final_nn_map.end()) {
+            final_nn_map.insert(pair < int, vector < DataPoint >> (src_index, vec));
         } else {
             vector <DataPoint> dst;
             vector <DataPoint> ex_vec = its->second;

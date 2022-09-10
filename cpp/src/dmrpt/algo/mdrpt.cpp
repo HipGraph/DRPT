@@ -657,8 +657,6 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
                 }
             }
         }
-        cout<< " my rank "<<rank<<" sending rank "<<i<<" my count "<<count<<endl;
-        cout<< " my rank "<<rank<<" sending rank nn "<<i<<" my count "<<nn_count<<endl;
         sending_selected_indices_count[i] = count;
         sending_selected_indices_nn_count[i] = nn_count;
         total_selected_indices_count += count;
@@ -746,7 +744,6 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
             per_pro_co += receiving_selected_nn_indices_count[k];
 
         }
-        cout<<" my rank "<<rank<<" recegin cout from "<<i<<per_pro_co<<endl;
         total_receiving_nn_count += per_pro_co;
         receiving_selected_nn_indices_count_process[i]=per_pro_co;
         disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] + receiving_selected_nn_indices_count_process[i]) : 0;
@@ -757,11 +754,6 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
     VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count];
 
     cout<<" rank "<<rank<<" total receiving nn indicies "<<total_receiving_nn_count<<endl;
-
-    for (int i = 0; i < this->world_size; i++) {
-       cout<<" my rank "<<rank <<" sending to rank "<<i<<sending_selected_indices_nn_count[i]<<" disps "<< disps_sending_selected_nn_indices[i]<<endl;
-        cout<<" my rank "<<rank <<" receiving from rank "<<i<<receiving_selected_nn_indices_count[i]<<" disps "<< disps_receiving_selected_nn_indices[i]<<endl;
-    }
 
 
    MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices, MPI_INT,
@@ -777,7 +769,7 @@ void dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns
     int nn_index = 0;
     for (int i = 0; i < total_receiving_count; i++) {
         int src_index = receiving_selected_indices[i];
-        int nn_count = receiving_selected_indices_count[i];
+        int nn_count = receiving_selected_nn_indices_count[i];
         vector <DataPoint> vec;
         for (int j = 0; j < nn_count; j++) {
             int nn_indi = receiving_selected_nn_indices[nn_index];

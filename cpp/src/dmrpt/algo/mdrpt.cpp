@@ -826,10 +826,11 @@ delete disps_receiving_selected_indices;
 delete disps_sending_selected_indices;
 delete disps_sending_selected_nn_indices;
 delete disps_receiving_selected_nn_indices;
-delete receiving_selected_indices;
-delete receiving_selected_nn_indices;
-delete receiving_selected_nn_dst;
-delete receiving_selected_nn_indices_count_process;
+
+//delete receiving_selected_indices;
+//delete receiving_selected_nn_indices;
+//delete receiving_selected_nn_dst;
+//delete receiving_selected_nn_indices_count_process;
 
 
 return final_nn_map;

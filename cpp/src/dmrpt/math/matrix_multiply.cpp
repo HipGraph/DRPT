@@ -8,6 +8,7 @@
 #include <iostream>
 #include <omp.h>
 #include <fstream>
+#include <math.h>
 
 using namespace std;
 

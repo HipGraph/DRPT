@@ -42,15 +42,12 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows
     return result;
 }
 
-VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, float density) {
+VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, float density, int seed) {
     VALUE_TYPE *A;
     int size = rows * cols;
     A = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * size);
 
-    int seed = 0;
-    std::random_device rd;
-    int s = seed ? seed : rd();
-    std::mt19937 gen(s);
+    std::mt19937 gen(seed);
     std::uniform_real_distribution<float> uni_dist(0, 1);
     std::normal_distribution<float> norm_dist(0, 1);
 
@@ -68,57 +65,57 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix(int rows, int cols, 
 }
 
 VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_size, int total_dimension, int levels,
-                                                          float density) {
+                                                          float density, int seed) {
 
     VALUE_TYPE *global_project_matrix;
-    int local_rows;
-    int length = total_dimension / world_size;
-    if (rank < world_size - 1) {
-        local_rows = length;
-    } else if (rank == world_size - 1) {
-        local_rows = total_dimension - rank * (length);
-    }
-    VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix(local_rows, levels, density);
+//    int local_rows;
+//    int length = total_dimension / world_size;
+//    if (rank < world_size - 1) {
+//        local_rows = length;
+//    } else if (rank == world_size - 1) {
+//        local_rows = total_dimension - rank * (length);
+//    }
+    VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix(total_dimension, levels, density,seed);
 
-    global_project_matrix = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * total_dimension * levels);
+//    global_project_matrix = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * total_dimension * levels);
+//
+//
+//    int my_start, my_end;
+//    if (rank < world_size - 1) {
+//        my_start = rank * length * levels;
+//        my_end = my_start + length * levels - 1;
+//    } else if (rank == world_size - 1) {
+//        my_start = rank * length * levels;
+//        my_end = total_dimension * levels - 1;
+//    }
+//
+//    for (int i = my_start; i <= my_end; i++) {
+//        global_project_matrix[i] = local_sparse_matrix[i - my_start];
+//    }
+//
+//    int my_total = local_rows * levels;
+//
+//    int *counts = new int[world_size];
+//    int *disps = new int[world_size];
+//
+//    for (int i = 0; i < world_size - 1; i++)
+//        counts[i] = length * levels;
+//    counts[world_size - 1] = total_dimension * levels - length * levels * (world_size - 1);
+//
+//    disps[0] = 0;
+//    for (int i = 1; i < world_size; i++)
+//        disps[i] = disps[i - 1] + counts[i - 1];
+//
+//
+//    MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_VALUE_TYPE,
+//                   global_project_matrix, counts, disps, MPI_VALUE_TYPE, MPI_COMM_WORLD);
+//
+//
+//    delete[] disps;
+//    delete[] counts;
+//    free(local_sparse_matrix);
 
-
-    int my_start, my_end;
-    if (rank < world_size - 1) {
-        my_start = rank * length * levels;
-        my_end = my_start + length * levels - 1;
-    } else if (rank == world_size - 1) {
-        my_start = rank * length * levels;
-        my_end = total_dimension * levels - 1;
-    }
-
-    for (int i = my_start; i <= my_end; i++) {
-        global_project_matrix[i] = local_sparse_matrix[i - my_start];
-    }
-
-    int my_total = local_rows * levels;
-
-    int *counts = new int[world_size];
-    int *disps = new int[world_size];
-
-    for (int i = 0; i < world_size - 1; i++)
-        counts[i] = length * levels;
-    counts[world_size - 1] = total_dimension * levels - length * levels * (world_size - 1);
-
-    disps[0] = 0;
-    for (int i = 1; i < world_size; i++)
-        disps[i] = disps[i - 1] + counts[i - 1];
-
-
-    MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_VALUE_TYPE,
-                   global_project_matrix, counts, disps, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-
-
-    delete[] disps;
-    delete[] counts;
-    free(local_sparse_matrix);
-
-    return global_project_matrix;
+    return local_sparse_matrix;
 
 }
 

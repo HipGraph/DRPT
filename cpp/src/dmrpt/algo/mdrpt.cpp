@@ -96,8 +96,21 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     auto start_matrix_index = high_resolution_clock::now();
 
+    int seed = 0;
+    int *receive = new int[1];
+    if(this->rank==0){
+        std::random_device rd;
+        seed = rd();
+        receive[0]=seed;
+        MPI_Bcast(receive , 1, MPI_INT, this->rank, );
+    }else{
+        MPI_Bcast(receive , 1, MPI_INT, NULL, MPI_COMM_WORLD);
+    }
+
+
+
     VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
-                                                          global_tree_depth * this->ntrees, density);
+                                                          global_tree_depth * this->ntrees, density,receive[0]);
 
     // P= X.R
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
@@ -253,6 +266,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     delete[] execution_times;
     delete[] execution_times_global;
+    delete[] receive;
 }
 
 void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int tree, int nn) {

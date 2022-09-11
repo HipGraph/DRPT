@@ -18,8 +18,8 @@ namespace dmrpt{
     class MathOp{
     public:
         VALUE_TYPE* multiply_mat(VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols,int A_cols,int alpha);
-        VALUE_TYPE* build_sparse_local_random_matrix(int rows, int cols, float density);
-        VALUE_TYPE* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density);
+        VALUE_TYPE* build_sparse_local_random_matrix(int rows, int cols, float density, int seed);
+        VALUE_TYPE* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density, int seed);
         VALUE_TYPE* convert_to_row_major_format(vector<vector<VALUE_TYPE>> data);
         VALUE_TYPE* distributed_mean(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements_per_col, dmrpt::StorageFormat format,int rank);
         VALUE_TYPE* distributed_variance(VALUE_TYPE *data, int rows, int cols,int total_elements_per_col, dmrpt::StorageFormat format,int rank);

@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
     char stats[500];
     char results[500];
 
-//    int host = gethostname(hostname, HOST_NAME_MAX);
+    int host = gethostname(hostname, HOST_NAME_MAX);
 
     string file_path_stat = output_path + "stats.txt.";
     std::strcpy(stats, file_path_stat.c_str());

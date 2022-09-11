@@ -102,7 +102,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
         std::random_device rd;
         seed = rd();
         receive[0]=seed;
-        MPI_Bcast(receive , 1, MPI_INT, this->rank, );
+        MPI_Bcast(receive , 1, MPI_INT, this->rank, MPI_COMM_WORLD);
     }else{
         MPI_Bcast(receive , 1, MPI_INT, NULL, MPI_COMM_WORLD);
     }
@@ -190,10 +190,27 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     auto start_collect_local = high_resolution_clock::now();
 
+    int *receive_ntrees = new int[this->ntrees]();
+
+    if(this->rank==0) {
+        for (int i = 0; i < this->ntrees; i++) {
+            std::random_device rd;
+            int seed = rd();
+            receive_ntrees[i] = seed;
+        }
+        MPI_Bcast(receive_ntrees , this->ntrees, MPI_INT, this->rank, MPI_COMM_WORLD);
+    }else{
+        MPI_Bcast(receive_ntrees , this->ntrees, MPI_INT, NULL, MPI_COMM_WORLD);
+    }
+
+
+
     for (int i = 0; i < ntrees; i++) {
         vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
+
+
         VALUE_TYPE *C = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
-                                                              local_tree_depth, density);
+                                                              local_tree_depth, density,receive_ntrees[i]);
 
         cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
 

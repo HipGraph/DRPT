@@ -240,11 +240,11 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     double * execution_times = new double [5];
 
     double * execution_times_global = new double [5];
-    execution_times[0]=matrix_time.count()/1000000;
-    execution_times[1]=index_time.count()/1000000;
-    execution_times[2]=tree_leaf_corr_time.count()/1000000;
-    execution_times[3]= collect_time.count()/1000000;
-    execution_times[4]=collect_time_local.count()/1000000;
+    execution_times[0]=matrix_time.count()/1000;
+    execution_times[1]=index_time.count()/1000;
+    execution_times[2]=tree_leaf_corr_time.count()/1000;
+    execution_times[3]= collect_time.count()/1000;
+    execution_times[4]=collect_time_local.count()/1000;
 
     MPI_Allreduce(execution_times, execution_times_global, 5, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
@@ -393,8 +393,8 @@ dmrpt::MDRPT::gather_nns(int nn) {
     double * execution_times = new double [2];
 
     double * execution_times_global = new double [2];
-    execution_times[0]=distance_time.count()/1000000;
-    execution_times[1]=query_time.count()/1000000;
+    execution_times[0]=distance_time.count()/1000;
+    execution_times[1]=query_time.count()/1000;
 
     MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 

@@ -163,13 +163,14 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
         string line;
         int count = 0;
         int index = 0;
-        if (getline(file, line)) {
+        while (getline(file, line)) {
             if (count >= starting_point && count < endpoint) {
-                istringstream iss(line);
+                std::stringstream   linestream(line);
+                std::string data;
                 VALUE_TYPE n;
                 int di = 0;
-                while (iss >> n) {
-                    arr[index][di] = n;
+                while (std::getline(linestream, data,' ') {
+                    arr[index][di] = atoi(data);
                     di++;
                 }
                 index++;

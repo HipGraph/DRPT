@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
     int nn = 0;
     int batch_size = 1000;
     double tree_depth_ratio = 0.5;
+    bool use_locality_optimization= true;
 
     for (int p = 0; p < argc; p++) {
 
@@ -57,6 +58,8 @@ int main(int argc, char *argv[]) {
             density = atoi(argv[p + 1]);
         } else if (strcmp(argv[p], "-nn") == 0) {
             nn = atoi(argv[p + 1]);
+        }else if (strcmp(argv[p], "-locality") == 0) {
+            use_locality_optimization = atoi(argv[p + 1])==1?true:false;
         }
 
     }
@@ -143,7 +146,7 @@ int main(int argc, char *argv[]) {
 
     cout << " start growing trees " << rank << endl;
 
-    mdrpt.grow_trees(density);
+    mdrpt.grow_trees(density,use_locality_optimization);
     cout << " completed growing trees " << rank << endl;
     auto stop_index_building = high_resolution_clock::now();
 

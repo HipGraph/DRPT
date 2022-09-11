@@ -87,7 +87,6 @@ int main(int argc, char *argv[]) {
         density = 1.0 / sqrt(dimension);
     }
 
-
     int rank, size;
 
     MPI_Init(&argc, &argv);
@@ -105,11 +104,11 @@ int main(int argc, char *argv[]) {
     char stats[500];
     char results[500];
 
-    int host = gethostname(hostname, HOST_NAME_MAX);
+//    int host = gethostname(hostname, HOST_NAME_MAX);
 
     string file_path_stat = output_path + "stats.txt.";
     std::strcpy(stats, file_path_stat.c_str());
-    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
+//    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
 
     string file_path = output_path + "results.txt.";
     std::strcpy(results, file_path.c_str());
@@ -183,9 +182,21 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    double *execution_times = new double[3];
 
-    fout << rank << ' ' << io_time.count() << ' ' << duration_index_building.count() << ' ' << duration_query.count()
+    double *execution_times_global = new double[3];
+    execution_times[0] = io_time.count();
+    execution_times[1] = duration_index_building.count();
+    execution_times[2] = duration_query.count();
+
+    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    fout << rank << ' ' << (execution_times_global[0] / size) << ' ' << (execution_times_global[1] / size) << ' '
+         << (execution_times_global[2] / size)
          << endl;
-    cout<< " calling mpi finalize "<< rank<<endl;
+
+    delete[] execution_times;
+    delete[] execution_times_global;
+
     MPI_Finalize();
 }

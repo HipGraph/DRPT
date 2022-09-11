@@ -30,8 +30,7 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
                               int tree_depth,
                               vector <vector<VALUE_TYPE>> original_data, int ntrees,
-                              int starting_index, int total_data_set_size, int rank, int world_size, string input_path,
-                              string output_path) {
+                              int starting_index, int total_data_set_size, int rank, int world_size) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
     this->projected_matrix = projected_matrix;
@@ -53,10 +52,6 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->world_size = world_size;
 
     this->data_points = original_data;
-
-    this->input_path = input_path;
-    this->output_path = output_path;
-
 }
 
 template<typename T> vector <T> slice(vector < T >
@@ -585,14 +580,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
 
 void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
-//    char results[500];
-//    char hostname[HOST_NAME_MAX];
-//    int host = gethostname(hostname, HOST_NAME_MAX);
-//    string file_path_stat = output_path + "child_tracker.txt." + to_string(rank) + ".";
-//    std::strcpy(results, file_path_stat.c_str());
-//    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-//
-//    ofstream fout(results, std::ios_base::app);
 
     vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
             vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
@@ -694,16 +681,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     }
 
 
-//    for (int j = 0; j < this->ntrees - 1; j++) {
-//        fout << " tree " << j << " and  " << " tree" << j + 1 << endl;
-//        for (int k = 0; k < total_leaf_size; k++) {
-//            vector <dmrpt::PriorityMap> vec = candidate_mapping[j][k][j + 1];
-//            fout << vec[0].priority << ' ';
-//        }
-//        fout << endl;
-//    }
-
-
     for (int k = 0; k < total_leaf_size; k++) {
         int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
@@ -720,14 +697,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
         }
     }
-
-//    for (int i = 0; i < total_leaf_size; i++) {
-//        vector<int> vec = final_tree_leaf_mapping[i];
-//        for (int k = 0; k < vec.size(); k++) {
-//            fout << vec[k] << ' ';
-//        }
-//        fout << endl;
-//    }
 
 }
 

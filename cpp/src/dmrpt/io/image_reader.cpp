@@ -169,7 +169,7 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
                 std::string data;
                 VALUE_TYPE n;
                 int di = 0;
-                while (std::getline(linestream, data,' ') {
+                while (std::getline(linestream, data,' ')) {
                     arr[index][di] = atoi(data);
                     di++;
                 }

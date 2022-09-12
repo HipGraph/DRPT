@@ -177,7 +177,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
-#pragma  omp parallel for
+//#pragma  omp parallel for
             for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 DataPoint dataPoint;
@@ -237,7 +237,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
-        cout<<" rank "<<rank<< " depth "<< depth<< " datavec size"<<data_vec_size<<endl;
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],

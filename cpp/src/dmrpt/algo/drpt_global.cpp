@@ -237,14 +237,15 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
-        cout<<" rank "<<rank<<" depth "<<depth<<" data vec sixe"<<data_vec_size<<endl;
+        cout<<" rank "<<rank<<" depth "<<depth<<" data vec size "<<data_vec_size<<" number of bins"<<no_of_bins<<endl;
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
-                                                       28, dmrpt::StorageFormat::RAW, this->rank);
+                                                       no_of_bins, dmrpt::StorageFormat::RAW, this->rank);
 
 
         VALUE_TYPE median = result[0];
+        cout<<" rank "<<rank<<" calculated median "<<median<<endl;
 
         this->trees_splits[tree][split_starting_index + i] = median;
 

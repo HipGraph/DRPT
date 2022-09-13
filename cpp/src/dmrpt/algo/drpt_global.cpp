@@ -266,7 +266,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
                 if(this->index_to_tree_leaf_mapper.find(selected_data.index) == this->index_to_tree_leaf_mapper.end()){
                     vector<int> vec(this->ntrees);
-                    this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (dataPoint.index, vec));
+                    this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (selected_data.index, vec));
                 }
 
 

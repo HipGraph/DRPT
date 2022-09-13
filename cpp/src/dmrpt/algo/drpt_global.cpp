@@ -177,7 +177,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
-//#pragma  omp parallel for
+#pragma  omp parallel for
             for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 DataPoint dataPoint;
@@ -185,8 +185,6 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 dataPoint.index = j + this->starting_data_index;
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
-                vector<int> vec(this->ntrees);
-                this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (dataPoint.index, vec));
             }
         }
 
@@ -265,6 +263,13 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                                        return n.index == index;
                                                                    });
                 DataPoint selected_data = (*it);
+
+                if(this->index_to_tree_leaf_mapper.find(selected_data.index) == this->index_to_tree_leaf_mapper.end()){
+                    vector<int> vec(this->ntrees);
+                    this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (dataPoint.index, vec));
+                }
+
+
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
@@ -576,6 +581,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             candidate_mapping[tree][leaf] = vector < vector < dmrpt::PriorityMap >> (this->ntrees);
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
 
+#pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
 
                 vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];

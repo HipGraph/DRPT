@@ -41,36 +41,17 @@ dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_d
     this->trees_leaf_all = vector < vector < vector < DataPoint > >>(ntrees);
 }
 
-template<typename T> vector <T> slice(vector < T >
-const &v,
-int m,
-int n
-) {
-auto first = v.cbegin() + m;
-auto last = v.cbegin() + n + 1;
+template<typename T> vector <T> slice(vector < T >const &v, int m, int n ) {
+   auto first = v.cbegin() + m;
+   auto last = v.cbegin() + n + 1;
 
-std::vector <T> vec(first, last);
-return
-vec;
+   std::vector <T> vec(first, last);
+   return vec;
 }
 
 
-template<typename T> bool allEqual(std::vector < T >
-const &v) {
-return
-std::adjacent_find(v
-.
-
-begin(), v
-
-.
-
-end(), std::not_equal_to<T>()
-
-) == v.
-
-end();
-
+template<typename T> bool allEqual(std::vector < T >const &v) {
+return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
 void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
@@ -363,9 +344,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
     }
 }
 
-std::map<int, vector < dmrpt::DataPoint>>
-
-dmrpt::MDRPT::gather_nns(int nn) {
+std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn) {
 
     cout << "gathering started " << endl;
     char results[500];

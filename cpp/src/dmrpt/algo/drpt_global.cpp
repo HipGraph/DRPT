@@ -279,9 +279,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                 vector<int> vec(this->ntrees);
                                 this->index_to_tree_leaf_mapper.insert(pair < int,
                                                                        vector < int >> (selected_data.index, vec));
-                                this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
-
                             }
+                            this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
                         }
 
                     }
@@ -297,9 +296,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                 vector<int> vec(this->ntrees);
                                 this->index_to_tree_leaf_mapper.insert(pair < int,
                                                                        vector < int >> (selected_data.index, vec));
-                                this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
-
                             }
+                            this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
                         }
                     }
                 }

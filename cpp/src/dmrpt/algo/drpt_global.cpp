@@ -264,22 +264,43 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                                    });
                 DataPoint selected_data = (*it);
 
-                if(this->index_to_tree_leaf_mapper.find(selected_data.index) == this->index_to_tree_leaf_mapper.end()){
-                    vector<int> vec(this->ntrees);
-                    this->index_to_tree_leaf_mapper.insert(pair < int, vector < int >> (selected_data.index, vec));
-                }
+
+
 
 
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
+#pragma omp critical
+                        {
+                            if (this->index_to_tree_leaf_mapper.find(selected_data.index) ==
+                                this->index_to_tree_leaf_mapper.end()) {
+
+                                vector<int> vec(this->ntrees);
+                                this->index_to_tree_leaf_mapper.insert(pair < int,
+                                                                       vector < int >> (selected_data.index, vec));
+                                this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
+
+                            }
+                        }
+
                     }
 
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
+#pragma omp critical
+                        {
+                            if (this->index_to_tree_leaf_mapper.find(selected_data.index) ==
+                                this->index_to_tree_leaf_mapper.end()) {
+
+                                vector<int> vec(this->ntrees);
+                                this->index_to_tree_leaf_mapper.insert(pair < int,
+                                                                       vector < int >> (selected_data.index, vec));
+                                this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
+
+                            }
+                        }
                     }
                 }
             }

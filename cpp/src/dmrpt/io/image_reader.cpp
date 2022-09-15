@@ -235,7 +235,7 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     while(getline(str, token, delim)){
         //cout << "rank:" << RANK << ":" << token << endl;
         if(isdigit(token[0])){
-            VALUETYPE d = atof(token.c_str());
+            VALUE_TYPE d = atof(token.c_str());
             v.push_back(d);
             //cout << "Digit:" << v.size() << endl;
         }else if(token.compare("\n") == 0){

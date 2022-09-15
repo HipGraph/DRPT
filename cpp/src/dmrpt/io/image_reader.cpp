@@ -184,4 +184,72 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
     return arr;
 }
 
+vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, char delim) {
+    MPI_Offset globalstart, globalend, filesize;
+    MPI_File in;
+    ierr = MPI_File_open(MPI_COMM_WORLD, path, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
+    if (ierr) {
+        cout<<" can't open file "<<endl;
+    }
+
+    int perpsize;//perprocess size
+    char *chunk;
+    //read relevant chunk
+    MPI_File_get_size(*in, &filesize);
+    filesize--;
+    perpsize = filesize / world_size;
+    globalstart = rank * perpsize;
+    globalend = globalstart + perpsize - 1;
+
+    if (rank == world_size-1)
+        globalend = filesize-1;
+    //add overlap to the end
+    if (rank != world_size-1)
+        globalend += overlap;
+    perpsize =  globalend - globalstart + 1;
+    chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+    //read corresponding part
+    MPI_File_read_at_all(*in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+    chunk[perpsize] = '\0';
+    int locstart=0, locend=perpsize-1;
+    vector<vector<VALUETYPE> > output;
+
+    //move to next full delim of number
+    if(rank != world_size - 1){
+        while(chunk[locend] != delim)
+            locend++;
+        locend++;
+    }
+
+    if (rank != 0) {
+        while(chunk[locstart] != delim)
+            locstart++;
+        locstart++;
+    }
+    perpsize = locend-locstart+1;
+    vector<VALUETYPE> v;
+
+    stringstream str(chunk);
+    string token;
+    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
+    while(getline(str, token, delim)){
+        //cout << "rank:" << RANK << ":" << token << endl;
+        if(isdigit(token[0])){
+            VALUETYPE d = atof(token.c_str());
+            v.push_back(d);
+            //cout << "Digit:" << v.size() << endl;
+        }else if(token.compare("\n") == 0){
+            output.push_back(v);
+            v.clear();
+            cout << "Newline:" << v.size() << ":" << output.size() << endl;
+        }
+    }
+    cout << "Output size:" << output.size() << ":" << v.size() << endl;
+    for(int i = 0; i < v.size(); i++){
+        cout << v[i] << " ";
+    }
+    cout << endl;
+    return output;
+}
+
 

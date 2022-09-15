@@ -187,7 +187,7 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
 vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, char delim) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
-    ierr = MPI_File_open(MPI_COMM_WORLD, path, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
+    int ierr = MPI_File_open(MPI_COMM_WORLD, path, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
     if (ierr) {
         cout<<" can't open file "<<endl;
     }
@@ -195,7 +195,7 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     int perpsize;//perprocess size
     char *chunk;
     //read relevant chunk
-    MPI_File_get_size(*in, &filesize);
+    MPI_File_get_size(in, &filesize);
     filesize--;
     perpsize = filesize / world_size;
     globalstart = rank * perpsize;
@@ -209,10 +209,10 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     perpsize =  globalend - globalstart + 1;
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
-    MPI_File_read_at_all(*in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+    MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
     chunk[perpsize] = '\0';
     int locstart=0, locend=perpsize-1;
-    vector<vector<VALUETYPE> > output;
+    vector<vector<VALUE_TYPE>> output;
 
     //move to next full delim of number
     if(rank != world_size - 1){

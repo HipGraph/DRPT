@@ -241,13 +241,10 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
         }else if(token.compare("\n") == 0){
             output.push_back(v);
             v.clear();
-            cout << "Newline:" << v.size() << ":" << output.size() << endl;
+//            cout << "Newline:" << v.size() << ":" << output.size() << endl;
         }
     }
     cout << "Output size:" << output.size() << ":" << v.size() << endl;
-    for(int i = 0; i < v.size(); i++){
-        cout << v[i] << " ";
-    }
     cout << endl;
     return output;
 }

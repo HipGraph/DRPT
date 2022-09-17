@@ -266,23 +266,21 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 
         fout << " tree  " << k << " ";
         for (int i = 0; i < this->tree_depth - 1; i++) {
-            fout << " level " << i <<" "<< exeuction_times_global[i]/world_size;
+            fout << " level " << i << " " << exeuction_times_global[i] / world_size;
         }
-        fout << " init time " << exeuction_times_global[this->tree_depth]/this->world_size << " "<<endl;
+        fout << " init time " << exeuction_times_global[this->tree_depth] / this->world_size << " " << endl;
     }
 
 }
 
 
-void
-dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
+void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
                                        int depth, int tree) {
 
     char results[500];
     string file_path_stat = output_path + "stats_divided_sub_tree_debug.txt";
     std::strcpy(results, file_path_stat.c_str());
     ofstream fout(results, std::ios_base::app);
-
 
 
     int current_nodes = (1 << (depth));
@@ -295,8 +293,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         split_starting_index = 0;
     }
 
-    double total_distribution_median_time=0;
-    double total_time_loop_compute=0;
+    double total_distribution_median_time = 0;
+    double total_time_loop_compute = 0;
     MathOp mathOp;
     for (int i = 0; i < current_nodes; i++) {
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
@@ -327,8 +325,9 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                        7, dmrpt::StorageFormat::RAW, this->rank);
 
         auto stop_distribtuion_time_index = high_resolution_clock::now();
-        auto distribtuion_time_index = duration_cast<microseconds>(stop_distribtuion_time_index - start_distribtuion_time_index);
-        total_distribution_median_time += distribtuion_time_index.count()/1000;
+        auto distribtuion_time_index = duration_cast<microseconds>(
+                stop_distribtuion_time_index - start_distribtuion_time_index);
+        total_distribution_median_time += distribtuion_time_index.count() / 1000;
 
 
         VALUE_TYPE median = result[0];
@@ -339,23 +338,22 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         auto start_loop_compute_index = high_resolution_clock::now();
         vector <DataPoint> left_childs_global;
         vector <DataPoint> right_childs_global;
-#pragma omp parallel
-        {
-            vector <DataPoint> left_childs;
-            vector <DataPoint> right_childs;
-#pragma omp for  nowait
-            for (int k = 0; k < data_vector.size(); k++) {
-                int index = data_vector[k].index;
-                std::vector<DataPoint>::iterator it = std::find_if(this->trees_data[tree][depth + 1].begin(),
-                                                                   this->trees_data[tree][depth + 1].end(),
-                                                                   [index](DataPoint const &n) {
-                                                                       return n.index == index;
-                                                                   });
-                DataPoint selected_data = (*it);
 
+        vector <DataPoint> left_childs;
+        vector <DataPoint> right_childs;
+#pragma omp parallel for
+        for (int k = 0; k < data_vector.size(); k++) {
+            int index = data_vector[k].index;
+//                std::vector<DataPoint>::iterator it = std::find_if(this->trees_data[tree][depth + 1].begin(),
+//                                                                   this->trees_data[tree][depth + 1].end(),
+//                                                                   [index](DataPoint const &n) {
+//                                                                       return n.index == index;
+//                                                                   });
+//                DataPoint selected_data = (*it);
+            DataPoint selected_data = this->trees_data[tree][depth + 1][index - this->starting_data_index];
 
-                if (data_vector[k].value <= median) {
-                    left_childs.push_back(selected_data);
+            if (data_vector[k].value <= median) {
+                left_childs.push_back(selected_data);
 //                    if (depth == this->tree_depth - 2) {
 //#pragma omp critical
 //                        {
@@ -371,8 +369,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 //
 //                    }
 
-                } else {
-                    right_childs.push_back(selected_data);
+            } else {
+                right_childs.push_back(selected_data);
 //                    if (depth == this->tree_depth - 2) {
 //#pragma omp critical
 //                        {
@@ -386,20 +384,17 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 //                            this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
 //                        }
 //                    }
-                }
-            }
-#pragma omp critical
-            {
-                left_childs_global.insert(left_childs_global.end(), left_childs.begin(), left_childs.end());
-                right_childs_global.insert(right_childs_global.end(), right_childs.begin(), right_childs.end());
-
             }
         }
+
+        left_childs_global.insert(left_childs_global.end(), left_childs.begin(), left_childs.end());
+        right_childs_global.insert(right_childs_global.end(), right_childs.begin(), right_childs.end());
+
 
         auto end_loop_compute_index = high_resolution_clock::now();
 
         auto loop_compute_time_index = duration_cast<microseconds>(end_loop_compute_index - start_loop_compute_index);
-        total_time_loop_compute += loop_compute_time_index.count()/1000;
+        total_time_loop_compute += loop_compute_time_index.count() / 1000;
 
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
@@ -413,7 +408,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     }
 
 
-
     if (depth == this->tree_depth - 2) {
         return;
     }
@@ -423,7 +417,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     int *disps = new int[this->world_size];
 
 // Displacement for the first chunk of data - 0
-    for (int i = 0; i < this->world_size; i++) {
+    for (int i = 0;i < this->world_size;i++) {
         disps[i] = (i > 0) ? (disps[i - 1] + 2 * current_nodes) : 0;
     }
 
@@ -431,44 +425,50 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
     int *process_counts = new int[this->world_size];
 
-    for (int k = 0; k < this->world_size; k++) {
-        process_counts[k] = 2 * current_nodes;
+    for (int k = 0;k < this->world_size;k++) {
+        process_counts[k] = 2 *current_nodes;
     }
-    for (int j = 0; j < current_nodes; j++) {
+    for (int j = 0;j < current_nodes;j++) {
         int id = (next_split + 2 * j);
-        total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size();
-        total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id + 1].size();
+        total_counts[2 * j + this->rank * current_nodes* 2] = child_data_tracker[id].size();
+        total_counts[2 * j + 1 + this->rank * current_nodes* 2] = child_data_tracker[id + 1].size();
     }
 
-    MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
+    MPI_Allgatherv(MPI_IN_PLACE,
+                   0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
 
 
-    for (int j = 0; j < current_nodes; j++) {
+    for (int j = 0;j < current_nodes;j++) {
         int left_totol = 0;
         int right_total = 0;
         int id = (next_split + 2 * j);
-        for (int k = 0; k < this->world_size; k++) {
+        for (int k = 0;k < this->world_size;k++) {
 
             left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];
             right_total = right_total + total_counts[2 * j + 1 + k * current_nodes * 2];
         }
 
-        total_size_vector[id] = left_totol;
-        total_size_vector[id + 1] = right_total;
+        total_size_vector[id] =left_totol;
+        total_size_vector[id + 1] =right_total;
     }
 
     free(process_counts);
     free(total_counts);
     free(disps);
 
-    double * execution_times = new double [2];
-    execution_times[0]=total_distribution_median_time;
-    execution_times[1]=total_time_loop_compute;
-    double * exeuction_times_global = new double [2];
+    double *execution_times = new double[2];
+    execution_times[0] =
+            total_distribution_median_time;
+    execution_times[1] =
+            total_time_loop_compute;
+    double *exeuction_times_global = new double[2];
 
-    MPI_Allreduce(execution_times, exeuction_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(execution_times, exeuction_times_global,
+                  2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << " tree" << tree << " median time "<<exeuction_times_global[0]/this->world_size<<" loop compute time "<<exeuction_times_global[1]/this->world_size<<endl;
+    fout << " tree" << tree << " median time " << exeuction_times_global[0] / this->world_size << " loop compute time "
+         << exeuction_times_global[1] / this->world_size <<
+         endl;
 }
 
 

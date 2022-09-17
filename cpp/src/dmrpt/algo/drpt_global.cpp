@@ -224,6 +224,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+        this->index_to_tree_leaf_mapper = vector<vector<int>>(this->intial_no_of_data_points)
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
@@ -235,6 +236,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 dataPoint.index = j + this->starting_data_index;
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
+                this->index_to_tree_leaf_mapper[j]= vector<int>(this->ntrees);
             }
         }
 
@@ -323,7 +325,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
-                                                       7, dmrpt::StorageFormat::RAW, this->rank);
+                                                       no_of_bins, dmrpt::StorageFormat::RAW, this->rank);
 
         auto stop_distribtuion_time_index = high_resolution_clock::now();
         auto distribtuion_time_index = duration_cast<microseconds>(
@@ -357,43 +359,21 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
-//                    if (depth == this->tree_depth - 2) {
-//#pragma omp critical
-//                        {
-//                            if (this->index_to_tree_leaf_mapper.find(selected_data.index) ==
-//                                this->index_to_tree_leaf_mapper.end()) {
-//
-//                                vector<int> vec(this->ntrees);
-//                                this->index_to_tree_leaf_mapper.insert(pair < int,
-//                                                                       vector < int >> (selected_data.index, vec));
-//                            }
-//                            this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
-//                        }
-//
-//                    }
-
+                    if (depth == this->tree_depth - 2) {
+                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
+                    }
                 } else {
                     right_childs.push_back(selected_data);
-//                    if (depth == this->tree_depth - 2) {
-//#pragma omp critical
-//                        {
-//                            if (this->index_to_tree_leaf_mapper.find(selected_data.index) ==
-//                                this->index_to_tree_leaf_mapper.end()) {
-//
-//                                vector<int> vec(this->ntrees);
-//                                this->index_to_tree_leaf_mapper.insert(pair < int,
-//                                                                       vector < int >> (selected_data.index, vec));
-//                            }
-//                            this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
-//                        }
-//                    }
+                    if (depth == this->tree_depth - 2) {
+                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
+                    }
                 }
             }
+
 #pragma omp critical
             {
                 left_childs_global.insert(left_childs_global.end(), left_childs.begin(), left_childs.end());
                 right_childs_global.insert(right_childs_global.end(), right_childs.begin(), right_childs.end());
-
             }
         }
 
@@ -703,11 +683,11 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             candidate_mapping[tree][leaf] = vector < vector < dmrpt::PriorityMap >> (this->ntrees);
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
 
-
+#pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
 
                 vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
-#pragma omp parallel for
+
                 for (int j = 0; j < vec.size(); j++) {
                     if (correlation_matrix[tree][leaf][j].size() == 0) {
                         correlation_matrix[tree][leaf][j] = vector<float>(total_leaf_size, 0);

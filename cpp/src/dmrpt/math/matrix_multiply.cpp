@@ -232,6 +232,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             int start1 = factor * (std1 + std2 + std3);
             VALUE_TYPE step1 = sigma / (2 * pow(2, std1 * factor) - 2);
 
+#pragma omp parallel for
             for (int k = start1, j = 1; k < start1 + std1 * factor; k++, j++) {
                 VALUE_TYPE rate = j * step1;
                 distribution[k] = mu + rate;
@@ -242,6 +243,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             int rstart2 = start1 - std1 * factor;
             VALUE_TYPE step2 = sigma / (2 * pow(2, std2 * factor) - 2);
 
+#pragma omp parallel for
             for (int k = start2, j = 1; k < start2 + std2 * factor; k++, j++) {
                 VALUE_TYPE rate = sigma + j * step2;
                 distribution[k] = mu + rate;
@@ -252,6 +254,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             int rstart3 = rstart2 - std2 * factor;
             VALUE_TYPE step3 = sigma / (2 * pow(2, std3 * factor) - 2);
 
+#pragma omp parallel for
             for (int k = start3, j = 1; k < start3 + std3 * factor; k++, j++) {
                 VALUE_TYPE rate = 2 * sigma + j * step3;
                 distribution[k] = mu + rate;
@@ -259,6 +262,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             }
 
 
+#pragma omp parallel for
             for (int k = 0; k < local_rows; k++) {
                 int flag = 1;
                 for (int j = 1; j < 2 * no_of_bins + 2; j++) {

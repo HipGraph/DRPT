@@ -268,7 +268,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         for (int i = 0; i < this->tree_depth - 1; i++) {
             fout << " level " << i << execution_times[i];
         }
-        fout << " init time " << execution_times[this->tree_depth] << " ";
+        fout << " init time " << execution_times[this->tree_depth] << " "<<endl;
     }
 
 }

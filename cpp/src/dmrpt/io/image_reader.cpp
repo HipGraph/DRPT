@@ -192,8 +192,6 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
         cout<<" can't open file "<<endl;
     }
 
-
-
     int perpsize;//perprocess size
     char *chunk;
     //read relevant chunk

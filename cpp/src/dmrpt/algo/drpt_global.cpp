@@ -30,7 +30,8 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
                               int tree_depth,
                               vector <vector<VALUE_TYPE>> original_data, int ntrees,
-                              int starting_index, int total_data_set_size, int rank, int world_size) {
+                              int starting_index, int total_data_set_size, int rank, int world_size,
+                              string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
     this->projected_matrix = projected_matrix;
@@ -52,17 +53,35 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->world_size = world_size;
 
     this->data_points = original_data;
+    this->output_path = output_path;
 }
 
-template<typename T> vector <T> slice(vector < T >const &v,int m,int n) {
-     auto first = v.cbegin() + m;
-     auto last = v.cbegin() + n + 1;
-     std::vector <T> vec(first, last);
-     return vec;
+template<typename T> vector <T> slice(vector < T >
+const &v,
+int m,
+int n
+) {
+auto first = v.cbegin() + m;
+auto last = v.cbegin() + n + 1;
+std::vector <T> vec(first, last);
+return
+vec;
 }
 
-template<typename T> bool allEqual(std::vector < T >const &v) {
-    returnstd::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
+template<typename T> bool allEqual(std::vector < T >
+const &v) {
+returnstd::adjacent_find(v
+.
+
+begin(), v
+
+.
+
+end(), std::not_equal_to<T>()
+
+) == v.
+
+end();
 
 }
 
@@ -74,17 +93,17 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
         count[i]++;
     }
 
-    std::sort(v.begin(),v.end(),[&count](T const &a, T const &b) {
-                if (a == b) {
-                    return false;
-                }
-                if (count[a] > count[b]) {
-                    return true;
-                } else if (count[a] < count[b]) {
-                    return false;
-                }
-                return a < b;
-            });
+    std::sort(v.begin(), v.end(), [&count](T const &a, T const &b) {
+        if (a == b) {
+            return false;
+        }
+        if (count[a] > count[b]) {
+            return true;
+        } else if (count[a] < count[b]) {
+            return false;
+        }
+        return a < b;
+    });
     auto last = std::unique(v.begin(), v.end());
     v.erase(last, v.end());
 
@@ -105,33 +124,48 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
              [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
                  return lhs.priority > rhs.priority;
              });
-
     }
 }
 
 
 int select_next_candidate(vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
-                          vector < vector < int >> &final_tree_leaf_mapping, int current_tree,
-                          int selecting_tree, int selecting_leaf, int previouse_leaf, int total_leaf_size) {
-      vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+                          vector < vector < int >> &final_tree_leaf_mapping, int
+current_tree,
+int selecting_tree,
+int selecting_leaf,
+int previouse_leaf,
+int total_leaf_size
+) {
+vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 
-   for (int i = 0;i<vec.size();i++) {
-      dmrpt::PriorityMap can_leaf = vec[i];
-      int id = can_leaf.leaf_index;
-      bool candidate = true;
+for (
+int i = 0;
+i<vec.
+
+size();
+
+i++) {
+dmrpt::PriorityMap can_leaf = vec[i];
+int id = can_leaf.leaf_index;
+bool candidate = true;
 
 // checking already taken
-for (int j = selecting_leaf - 1; j >= 0; j--) {
-    if (final_tree_leaf_mapping[j][selecting_tree] == id) {
-       candidate = false;
-    }
-   }
+for (
+int j = selecting_leaf - 1;
+j >= 0; j--) {
+if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+candidate = false;
+}
+}
 
-for (int j = 0; j<total_leaf_size; j++) {
-   vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-    if (j != previouse_leaf) {
-      std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
+for (
+int j = 0;
+j<total_leaf_size;
+j++) {
+vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+if (j != previouse_leaf) {
+std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
                                                             neighbour_vec.begin() + 1,
                                                             [can_leaf](
                                                                     dmrpt::PriorityMap const &n) {
@@ -140,23 +174,36 @@ for (int j = 0; j<total_leaf_size; j++) {
                                                                         n.leaf_index ==
                                                                         can_leaf.leaf_index);
                                                             });
-if (it != neighbour_vec.begin()+ 1) {
-   candidate = false;
-     }
-     }
-    }
+if (it != neighbour_vec.
+
+begin()
+
++ 1) {
+candidate = false;
+}
+}
+}
 
 if (candidate) {
-   final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
-   leaf_index;
-    return can_leaf.leaf_index;
-   }
- }
-   return -1;
+final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
+leaf_index;
+return can_leaf.
+leaf_index;
+}
+}
+return -1;
 }
 
 
 void dmrpt::DRPTGlobal::grow_global_tree() {
+
+
+    char results[500];
+    string file_path_stat = output_path + "stats_divided_debug.txt";
+    std::strcpy(results, file_path_stat.c_str());
+    ofstream fout(results, std::ios_base::app);
+
+
     if (this->tree_depth <= 0 || this->tree_depth > log2(this->intial_no_of_data_points)) {
         throw std::out_of_range(" depth should be in range [1,....,log2(rows)]");
     }
@@ -168,7 +215,10 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
+
     for (int k = 0; k < this->ntrees; k++) {
+        auto initialization_time_index = high_resolution_clock::now();
+
         this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
         this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
         this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
@@ -192,10 +242,33 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         vector<int> total_size_vector(total_split_size);
         child_data_tracker[0] = this->trees_data[k][0];
         total_size_vector[0] = this->total_data_set_size;
+
+        auto stop_initialization_time_index = high_resolution_clock::now();
+        auto time_index = duration_cast<microseconds>(stop_initialization_time_index - initialization_time_index);
+
+
+        double *execution_times = new double[this->tree_depth + 1];
+        double *exeuction_times_global = new double[this->tree_depth + 1];
+
+
         for (int i = 0; i < this->tree_depth - 1; i++) {
             cout << " working on tree depth" << i << endl;
+            auto start_level_time_index = high_resolution_clock::now();
             this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
+            auto stop_level_time_index = high_resolution_clock::now();
+            auto time_level_index = duration_cast<microseconds>(stop_level_time_index - start_level_time_index);
+            execution_times[i] = time_level_index.count() / 1000;
         }
+        execution_times[this->tree_depth] = time_index.count() / 1000;
+
+        int count = this->tree_depth + 1;
+        MPI_Allreduce(execution_times, exeuction_times_global, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+        fout << " tree" << k << " ";
+        for (int i = 0; i < this->tree_depth - 1; i++) {
+            fout << " level " << i << execution_times[i];
+        }
+        fout << " init time " << execution_times[this->tree_depth] << " ";
     }
 
 }
@@ -235,7 +308,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         int no_of_bins = 1 + (3.322 * log2(data_vec_size));
 
-        cout<<" rank "<<rank<<" depth "<<depth<<" data vec size "<<data_vec_size<<" number of bins"<<no_of_bins<<endl;
+        cout << " rank " << rank << " depth " << depth << " data vec size " << data_vec_size << " number of bins"
+             << no_of_bins << endl;
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
@@ -243,7 +317,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
 
         VALUE_TYPE median = result[0];
-        cout<<" rank "<<rank<<" calculated median "<<median<<endl;
+        cout << " rank " << rank << " calculated median " << median << endl;
 
         this->trees_splits[tree][split_starting_index + i] = median;
 
@@ -263,9 +337,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                                                                        return n.index == index;
                                                                    });
                 DataPoint selected_data = (*it);
-
-
-
 
 
                 if (data_vector[k].value <= median) {

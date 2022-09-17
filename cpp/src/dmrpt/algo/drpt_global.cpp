@@ -224,10 +224,11 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-        this->index_to_tree_leaf_mapper = vector<vector<int>>(this->intial_no_of_data_points)
+        this->index_to_tree_leaf_mapper = vector<vector<int>>(this->intial_no_of_data_points);
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
+
 #pragma  omp parallel for
             for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;

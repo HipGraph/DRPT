@@ -296,6 +296,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     }
 
     double total_distribution_median_time=0;
+    double total_time_loop_compute=0;
     MathOp mathOp;
     for (int i = 0; i < current_nodes; i++) {
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
@@ -327,7 +328,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         auto stop_distribtuion_time_index = high_resolution_clock::now();
         auto distribtuion_time_index = duration_cast<microseconds>(stop_distribtuion_time_index - start_distribtuion_time_index);
-        total_distribution_median_time += distribtuion_time_index.count();
+        total_distribution_median_time += distribtuion_time_index.count()/1000;
 
 
         VALUE_TYPE median = result[0];
@@ -335,7 +336,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         this->trees_splits[tree][split_starting_index + i] = median;
 
-
+        auto start_loop_compute_index = high_resolution_clock::now();
         vector <DataPoint> left_childs_global;
         vector <DataPoint> right_childs_global;
 #pragma omp parallel
@@ -394,6 +395,11 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
             }
         }
+
+        auto end_loop_compute_index = high_resolution_clock::now();
+
+        auto loop_compute_time_index = duration_cast<microseconds>(end_loop_compute_index - start_loop_compute_index);
+        total_time_loop_compute += loop_compute_time_index.count()/1000;
 
         child_data_tracker[left_index] = left_childs_global;
         child_data_tracker[right_index] = right_childs_global;
@@ -455,13 +461,14 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     free(total_counts);
     free(disps);
 
-    double * execution_times = new double [1];
+    double * execution_times = new double [2];
     execution_times[0]=total_distribution_median_time;
-    double * exeuction_times_global = new double [1];
+    execution_times[1]=total_distribution_median_time-total_time_loop_compute;
+    double * exeuction_times_global = new double [2];
 
-    MPI_Allreduce(execution_times, exeuction_times_global, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(execution_times, exeuction_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << " tree" << tree << " median time "<<exeuction_times_global[0]/this->world_size<<endl;
+    fout << " tree" << tree << " median time "<<exeuction_times_global[0]/this->world_size<<" loop compute time "<<exeuction_times_global[1]/this->world_size<<endl;
 }
 
 

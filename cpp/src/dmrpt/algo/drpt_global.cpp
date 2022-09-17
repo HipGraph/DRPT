@@ -463,7 +463,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
     double * execution_times = new double [2];
     execution_times[0]=total_distribution_median_time;
-    execution_times[1]=total_distribution_median_time-total_time_loop_compute;
+    execution_times[1]=total_time_loop_compute;
     double * exeuction_times_global = new double [2];
 
     MPI_Allreduce(execution_times, exeuction_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);

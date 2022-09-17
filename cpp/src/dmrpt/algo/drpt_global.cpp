@@ -356,7 +356,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
-                    if (depth == this->tree_depth - 2) {
+//                    if (depth == this->tree_depth - 2) {
 //#pragma omp critical
 //                        {
 //                            if (this->index_to_tree_leaf_mapper.find(selected_data.index) ==

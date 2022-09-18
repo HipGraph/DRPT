@@ -145,9 +145,9 @@ VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE
     return arr;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements,
+VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col,
                                             dmrpt::StorageFormat format, int rank) {
-    int size = local_rows * local_cols;
+
     VALUE_TYPE *sums = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     VALUE_TYPE *gsums = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     for (int i = 0; i < local_cols; i++) {
@@ -156,7 +156,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, int local_rows, in
     if (format == dmrpt::StorageFormat::RAW) {
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-            for (int j = 0; j < local_rows; j++) {
+            for (int j = 0; j < local_rows[i]; j++) {
                 sum = sum + data[i + j * local_cols];
             }
             sums[i] = sum;
@@ -165,16 +165,15 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, int local_rows, in
     MPI_Allreduce(sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
 
     for (int i = 0; i < local_cols; i++) {
-        gsums[i] = gsums[i] / total_elements;
+        gsums[i] = gsums[i] / total_elements[i];
     }
     free(sums);
     return gsums;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements,
+VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col,
                                                 dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
-    int size = local_rows * local_cols;
     VALUE_TYPE *var = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     VALUE_TYPE *gvariance = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     for (int i = 0; i < local_cols; i++) {
@@ -183,7 +182,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, int local_rows
     if (format == dmrpt::StorageFormat::RAW) {
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-            for (int j = 0; j < local_rows; j++) {
+            for (int j = 0; j < local_rows[i]; j++) {
                 VALUE_TYPE diff = (data[i + j * local_cols] - means[i]);
                 sum = sum + (diff * diff);
             }
@@ -193,7 +192,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, int local_rows
     MPI_Allreduce(var, gvariance, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
 
     for (int i = 0; i < local_cols; i++) {
-        gvariance[i] = gvariance[i] / (total_elements - 1);
+        gvariance[i] = gvariance[i] / (total_elements[i] - 1);
 //        cout<<"Rank "<<rank<<"Variance "<< gvariance[i]<<" "<<endl;
     }
     free(means);
@@ -202,12 +201,11 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, int local_rows
 
 
 VALUE_TYPE *
-dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_cols, int total_elements, int no_of_bins,
+dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, int no_of_bins,
                                   dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
     VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements, format, rank);
     VALUE_TYPE *medians = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
-    int size = local_rows * local_cols;
 
     int std1 = 4, std2 = 2, std3 = 1;
 
@@ -225,101 +223,97 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
     int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
     int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
 
-    if (format == dmrpt::StorageFormat::RAW) {
-
-        for (int i = 0; i < local_cols; i++) {
-            VALUE_TYPE mu = means[i];
-            VALUE_TYPE sigma = variance[i];
-            sigma = sqrt(sigma);
+    for (int i = 0; i < local_cols; i++) {
+        VALUE_TYPE mu = means[i];
+        VALUE_TYPE sigma = variance[i];
+        sigma = sqrt(sigma);
 //            cout << "Col " << i << " mean " << mu << " variance " << sigma << endl;
-            VALUE_TYPE val = 0.0;
+        VALUE_TYPE val = 0.0;
 
 
-            vector<int> frequency(dist_length, 0);
+        vector<int> frequency(dist_length, 0);
 
-            int start1 = factor * (std1 + std2 + std3);
-            VALUE_TYPE step1 = sigma / (2 * pow(2, std1 * factor) - 2);
-
-
-            for (int k = start1, j = 1; k < start1 + std1 * factor; k++, j++) {
-                VALUE_TYPE rate = j * step1;
-                distribution[k + dist_length * i] = mu + rate;
-                distribution[start1 - j + dist_length * i] = mu - rate;
-            }
-
-            int start2 = start1 + std1 * factor;
-            int rstart2 = start1 - std1 * factor;
-            VALUE_TYPE step2 = sigma / (2 * pow(2, std2 * factor) - 2);
+        int start1 = factor * (std1 + std2 + std3);
+        VALUE_TYPE step1 = sigma / (2 * pow(2, std1 * factor) - 2);
 
 
-            for (int k = start2, j = 1; k < start2 + std2 * factor; k++, j++) {
-                VALUE_TYPE rate = sigma + j * step2;
-                distribution[k + dist_length * i] = mu + rate;
-                distribution[rstart2 - j + dist_length * i] = mu - rate;
-            }
+        for (int k = start1, j = 1; k < start1 + std1 * factor; k++, j++) {
+            VALUE_TYPE rate = j * step1;
+            distribution[k + dist_length * i] = mu + rate;
+            distribution[start1 - j + dist_length * i] = mu - rate;
+        }
 
-            int start3 = start2 + std2 * factor;
-            int rstart3 = rstart2 - std2 * factor;
-            VALUE_TYPE step3 = sigma / (2 * pow(2, std3 * factor) - 2);
+        int start2 = start1 + std1 * factor;
+        int rstart2 = start1 - std1 * factor;
+        VALUE_TYPE step2 = sigma / (2 * pow(2, std2 * factor) - 2);
 
 
-            for (int k = start3, j = 1; k < start3 + std3 * factor; k++, j++) {
-                VALUE_TYPE rate = 2 * sigma + j * step3;
-                distribution[k + dist_length * i] = mu + rate;
-                distribution[rstart3 - j + dist_length * i] = mu - rate;
-            }
+        for (int k = start2, j = 1; k < start2 + std2 * factor; k++, j++) {
+            VALUE_TYPE rate = sigma + j * step2;
+            distribution[k + dist_length * i] = mu + rate;
+            distribution[rstart2 - j + dist_length * i] = mu - rate;
+        }
+
+        int start3 = start2 + std2 * factor;
+        int rstart3 = rstart2 - std2 * factor;
+        VALUE_TYPE step3 = sigma / (2 * pow(2, std3 * factor) - 2);
+
+
+        for (int k = start3, j = 1; k < start3 + std3 * factor; k++, j++) {
+            VALUE_TYPE rate = 2 * sigma + j * step3;
+            distribution[k + dist_length * i] = mu + rate;
+            distribution[rstart3 - j + dist_length * i] = mu - rate;
+        }
 
 
 #pragma omp parallel for
-            for (int k = 0; k < local_rows; k++) {
-                int flag = 1;
-                for (int j = 1; j < 2 * no_of_bins + 2; j++) {
-                    VALUE_TYPE dval = data[i + k * local_cols];
-                    if (distribution[j - 1 + dist_length * i] < dval && distribution[j + dist_length * i] >= dval) {
-                        flag = 0;
-                        frequency[j] += 1;
-                    }
-                }
-                if (flag) {
-                    frequency[0] += 1;
+        for (int k = 0; k < local_rows[i]; k++) {
+            int flag = 1;
+            for (int j = 1; j < 2 * no_of_bins + 2; j++) {
+                VALUE_TYPE dval = data[i + k * local_cols];
+                if (distribution[j - 1 + dist_length * i] < dval && distribution[j + dist_length * i] >= dval) {
+                    flag = 0;
+                    frequency[j] += 1;
                 }
             }
-
-            for (int k = i*dist_length; k < dist_length +i*dist_length; k++) {
-                freqarray[k] = frequency[k-i*dist_length];
-                gfrequency[k] = 0;
+            if (flag) {
+                frequency[0] += 1;
             }
-
         }
 
-        MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-
-        for (int i = 0; i < local_cols; i++) {
-            VALUE_TYPE cfreq = 0;
-            VALUE_TYPE cper = 0;
-            int selected_index = -1;
-            for (int k = 1 + i * dist_length; k < dist_length + i * dist_length; k++) {
-                cfreq += gfrequency[k];
-                cper += gfrequency[k] * 100 / total_elements;
-                if (cper > 50) {
-                    selected_index = k;
-                    break;
-                }
-            }
-
-            int count = gfrequency[selected_index];
-
-
-            VALUE_TYPE median = distribution[selected_index - 1] +
-                                ((total_elements / 2 - (cfreq - count)) / count) *
-                                (distribution[selected_index] - distribution[selected_index - 1]);
-            medians[i] = median;
+        for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
+            freqarray[k] = frequency[k - i * dist_length];
+            gfrequency[k] = 0;
         }
-
-        free(gfrequency);
-        free(freqarray);
 
     }
+
+    MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    for (int i = 0; i < local_cols; i++) {
+        VALUE_TYPE cfreq = 0;
+        VALUE_TYPE cper = 0;
+        int selected_index = -1;
+        for (int k = 1 + i * dist_length; k < dist_length + i * dist_length; k++) {
+            cfreq += gfrequency[k];
+            cper += gfrequency[k] * 100 / total_elements[i];
+            if (cper > 50) {
+                selected_index = k;
+                break;
+            }
+        }
+
+        int count = gfrequency[selected_index];
+
+
+        VALUE_TYPE median = distribution[selected_index - 1] +
+                            ((total_elements[i] / 2 - (cfreq - count)) / count) *
+                            (distribution[selected_index] - distribution[selected_index - 1]);
+        medians[i] = median;
+    }
+
+    free(gfrequency);
+    free(freqarray);
 
     return medians;
 }

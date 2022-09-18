@@ -224,7 +224,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
         this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
         this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-        this->index_to_tree_leaf_mapper = vector<vector<int>>(this->intial_no_of_data_points);
+        this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
 
         for (int i = 0; i < this->tree_depth; i++) {
             this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
@@ -237,7 +237,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
                 dataPoint.index = j + this->starting_data_index;
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
-                this->index_to_tree_leaf_mapper[j]= vector<int>(this->ntrees);
+                this->index_to_tree_leaf_mapper[j] = vector<int>(this->ntrees);
             }
         }
 
@@ -300,6 +300,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     double total_distribution_median_time = 0;
     double total_time_loop_compute = 0;
     MathOp mathOp;
+
+
     for (int i = 0; i < current_nodes; i++) {
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         int data_vec_size = data_vector.size();
@@ -324,9 +326,15 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         auto start_distribtuion_time_index = high_resolution_clock::now();
 
-        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
-                                                       total_size_vector[split_starting_index + i],
-                                                       28, dmrpt::StorageFormat::RAW, this->rank);
+        vector<int> data_vec_size_vec(1);
+        data_vec_size_vec[0] = data_vec_size;
+
+        vector<int> total_data_size_vec(1);
+        total_data_size_vec[0] = total_size_vector[split_starting_index + i];
+
+
+        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size_vec, 1, total_data_size_vec, 28,
+                                                       dmrpt::StorageFormat::RAW, this->rank);
 
         auto stop_distribtuion_time_index = high_resolution_clock::now();
         auto distribtuion_time_index = duration_cast<microseconds>(
@@ -361,12 +369,14 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index-this->starting_data_index][tree] = selected_leaf_left;
+                        this->index_to_tree_leaf_mapper[selected_data.index -
+                                                        this->starting_data_index][tree] = selected_leaf_left;
                     }
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index-this->starting_data_index][tree] = selected_leaf_right;
+                        this->index_to_tree_leaf_mapper[selected_data.index -
+                                                        this->starting_data_index][tree] = selected_leaf_right;
                     }
                 }
             }
@@ -687,7 +697,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 #pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
 
-                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index-this->starting_data_index];
+                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index - this->starting_data_index];
 
                 for (int j = 0; j < vec.size(); j++) {
                     if (correlation_matrix[tree][leaf][j].size() == 0) {

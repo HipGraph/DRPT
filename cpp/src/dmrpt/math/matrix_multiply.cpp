@@ -165,7 +165,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
     MPI_Allreduce(sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
 
     for (int i = 0; i < local_cols; i++) {
-        gsums[i] = gsums[i] / total_elements[i];
+        gsums[i] = gsums[i] / total_elements_per_col[i];
     }
     free(sums);
     return gsums;
@@ -173,7 +173,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
 
 VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col,
                                                 dmrpt::StorageFormat format, int rank) {
-    VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
+    VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
     VALUE_TYPE *var = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     VALUE_TYPE *gvariance = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
     for (int i = 0; i < local_cols; i++) {
@@ -203,8 +203,8 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
 VALUE_TYPE *
 dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, int no_of_bins,
                                   dmrpt::StorageFormat format, int rank) {
-    VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements, format, rank);
-    VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements, format, rank);
+    VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
+    VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements_per_col, format, rank);
     VALUE_TYPE *medians = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
 
     int std1 = 4, std2 = 2, std3 = 1;

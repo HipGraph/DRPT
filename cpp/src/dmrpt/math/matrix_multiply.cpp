@@ -226,6 +226,9 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE mu = means[i];
         VALUE_TYPE sigma = variance[i];
+
+        cout<<"rank "<<rank<<" i "<<i<<" mean "<<mu<<" sigma "<<sigma<<endl;
+
         sigma = sqrt(sigma);
 //            cout << "Col " << i << " mean " << mu << " variance " << sigma << endl;
         VALUE_TYPE val = 0.0;
@@ -283,6 +286,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
 
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];
+            cout<<" rank "<<rank<<" frequency "<<freqarray[k]<<" i "<<i<<endl;
             gfrequency[k] = 0;
         }
 

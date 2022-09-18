@@ -192,7 +192,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
     MPI_Allreduce(var, gvariance, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
 
     for (int i = 0; i < local_cols; i++) {
-        gvariance[i] = gvariance[i] / (total_elements[i] - 1);
+        gvariance[i] = gvariance[i] / (total_elements_per_col[i] - 1);
 //        cout<<"Rank "<<rank<<"Variance "<< gvariance[i]<<" "<<endl;
     }
     free(means);
@@ -296,7 +296,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
         int selected_index = -1;
         for (int k = 1 + i * dist_length; k < dist_length + i * dist_length; k++) {
             cfreq += gfrequency[k];
-            cper += gfrequency[k] * 100 / total_elements[i];
+            cper += gfrequency[k] * 100 / total_elements_per_col[i];
             if (cper > 50) {
                 selected_index = k;
                 break;
@@ -307,7 +307,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
 
 
         VALUE_TYPE median = distribution[selected_index - 1] +
-                            ((total_elements[i] / 2 - (cfreq - count)) / count) *
+                            ((total_elements_per_col[i] / 2 - (cfreq - count)) / count) *
                             (distribution[selected_index] - distribution[selected_index - 1]);
         medians[i] = median;
     }

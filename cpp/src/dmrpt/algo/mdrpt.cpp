@@ -651,7 +651,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
     int *receiving_selected_nn_indices = new int[total_receiving_nn_count]();
     VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count]();
 
-    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
+//    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
 
 
     MPI_Alltoallv(sending_selected_nn_indices, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,

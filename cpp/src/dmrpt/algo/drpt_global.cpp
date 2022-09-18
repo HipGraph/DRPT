@@ -318,7 +318,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         total_data_count_prev += data_vector.size();
     }
 
-    int no_of_bins = 1 + (3.322 * log2(data_vec_size));
+//    int no_of_bins = 1 + (3.322 * log2(data_vec_size));
     cout << " rank " << rank << " depth " << depth << endl;
     auto start_distribtuion_time_index = high_resolution_clock::now();
     VALUE_TYPE *result = mathOp.distributed_median(data, local_data_row_count, current_nodes, total_data_row_count, 28,
@@ -344,6 +344,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         auto start_loop_compute_index = high_resolution_clock::now();
         vector <DataPoint> left_childs_global;
         vector <DataPoint> right_childs_global;
+        vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
 #pragma omp parallel
         {
             vector <DataPoint> left_childs;

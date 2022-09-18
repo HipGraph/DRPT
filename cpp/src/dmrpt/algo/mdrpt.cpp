@@ -193,7 +193,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
         VALUE_TYPE *C = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
                                                               local_tree_depth, density,receive_ntrees[i]);
 
-        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
+//        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
 
         int data_nodes_count_per_process = 0;
 

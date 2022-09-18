@@ -76,7 +76,7 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_si
 //    } else if (rank == world_size - 1) {
 //        local_rows = total_dimension - rank * (length);
 //    }
-    VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix(total_dimension, levels, density,seed);
+    VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix(total_dimension, levels, density, seed);
 
 //    global_project_matrix = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * total_dimension * levels);
 //
@@ -215,6 +215,14 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
         medians[k] = INFINITY;
     }
 
+
+    int factor = (int) ceil(no_of_bins * 1.0 / (std1 + std2 + std3));
+
+    int dist_length = 2 * factor * (std1 + std2 + std3) + 2;
+
+    vector<VALUE_TYPE> distribution(dist_length * local_cols, 0);
+
+
     if (format == dmrpt::StorageFormat::RAW) {
 
         for (int i = 0; i < local_cols; i++) {
@@ -223,11 +231,9 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             sigma = sqrt(sigma);
 //            cout << "Col " << i << " mean " << mu << " variance " << sigma << endl;
             VALUE_TYPE val = 0.0;
-            int factor = (int) ceil(no_of_bins * 1.0 / (std1 + std2 + std3));
 
-            vector<VALUE_TYPE> distribution(2 * factor * (std1 + std2 + std3) + 2, 0);
 
-            vector<int> frequency(2 * factor * (std1 + std2 + std3) + 2, 0);
+            vector<int> frequency(dist_length, 0);
 
             int start1 = factor * (std1 + std2 + std3);
             VALUE_TYPE step1 = sigma / (2 * pow(2, std1 * factor) - 2);
@@ -235,8 +241,8 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
             for (int k = start1, j = 1; k < start1 + std1 * factor; k++, j++) {
                 VALUE_TYPE rate = j * step1;
-                distribution[k] = mu + rate;
-                distribution[start1 - j] = mu - rate;
+                distribution[k + dist_length * i] = mu + rate;
+                distribution[start1 - j + dist_length * i] = mu - rate;
             }
 
             int start2 = start1 + std1 * factor;
@@ -246,8 +252,8 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
             for (int k = start2, j = 1; k < start2 + std2 * factor; k++, j++) {
                 VALUE_TYPE rate = sigma + j * step2;
-                distribution[k] = mu + rate;
-                distribution[rstart2 - j] = mu - rate;
+                distribution[k + dist_length * i] = mu + rate;
+                distribution[rstart2 - j + dist_length * i] = mu - rate;
             }
 
             int start3 = start2 + std2 * factor;
@@ -257,8 +263,8 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
             for (int k = start3, j = 1; k < start3 + std3 * factor; k++, j++) {
                 VALUE_TYPE rate = 2 * sigma + j * step3;
-                distribution[k] = mu + rate;
-                distribution[rstart3 - j] = mu - rate;
+                distribution[k + dist_length * i] = mu + rate;
+                distribution[rstart3 - j + dist_length * i] = mu - rate;
             }
 
 
@@ -267,7 +273,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
                 int flag = 1;
                 for (int j = 1; j < 2 * no_of_bins + 2; j++) {
                     VALUE_TYPE dval = data[i + k * local_cols];
-                    if (distribution[j - 1] < dval && distribution[j] >= dval) {
+                    if (distribution[j - 1 + dist_length * i] < dval && distribution[j + dist_length * i] >= dval) {
                         flag = 0;
                         frequency[j] += 1;
                     }
@@ -277,26 +283,22 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
                 }
             }
 
-            int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
-            int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
-            for (int k = 0; k < distribution.size(); k++) {
-                freqarray[k] = frequency[k];
-                gfrequency[k] = 0;
-            }
+        }
 
+        int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
+        int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
+        for (int k = 0; k < distribution.size(); k++) {
+            freqarray[k] = frequency[k];
+            gfrequency[k] = 0;
+        }
 
-            MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-//            for(int k=0;k<distribution.size();k++){
-//                if (rank==0) {
-//                    cout << "k "<<k<<" distribution " << distribution[k] << " Frequency " << gfrequency[k] << endl;
-//                }
-//            }
-
+        for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE cfreq = 0;
             VALUE_TYPE cper = 0;
             int selected_index = -1;
-            for (int k = 1; k < distribution.size(); k++) {
+            for (int k = 1 + i * dist_length; k < dist_length + i * dist_length; k++) {
                 cfreq += gfrequency[k];
                 cper += gfrequency[k] * 100 / total_elements;
                 if (cper > 50) {
@@ -312,11 +314,11 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
                                 ((total_elements / 2 - (cfreq - count)) / count) *
                                 (distribution[selected_index] - distribution[selected_index - 1]);
             medians[i] = median;
-
-            free(gfrequency);
-            free(freqarray);
-
         }
+
+        free(gfrequency);
+        free(freqarray);
+
     }
 
     return medians;

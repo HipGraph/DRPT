@@ -361,12 +361,12 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_left;
+                        this->index_to_tree_leaf_mapper[selected_data.index-this->starting_data_index][tree] = selected_leaf_left;
                     }
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index][tree] = selected_leaf_right;
+                        this->index_to_tree_leaf_mapper[selected_data.index-this->starting_data_index][tree] = selected_leaf_right;
                     }
                 }
             }
@@ -687,7 +687,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 #pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
 
-                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index];
+                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index-this->starting_data_index];
 
                 for (int j = 0; j < vec.size(); j++) {
                     if (correlation_matrix[tree][leaf][j].size() == 0) {

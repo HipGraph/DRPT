@@ -262,7 +262,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
             }
 
 
-
+#pragma omp parallel for
             for (int k = 0; k < local_rows; k++) {
                 int flag = 1;
                 for (int j = 1; j < 2 * no_of_bins + 2; j++) {

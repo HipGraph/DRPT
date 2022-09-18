@@ -326,7 +326,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 
         VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size, 1,
                                                        total_size_vector[split_starting_index + i],
-                                                       no_of_bins, dmrpt::StorageFormat::RAW, this->rank);
+                                                       28, dmrpt::StorageFormat::RAW, this->rank);
 
         auto stop_distribtuion_time_index = high_resolution_clock::now();
         auto distribtuion_time_index = duration_cast<microseconds>(

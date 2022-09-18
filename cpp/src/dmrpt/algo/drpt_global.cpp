@@ -302,10 +302,33 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     MathOp mathOp;
 
 
+    VALUE_TYPE *data = new VALUE_TYPE[this->intial_no_of_data_points];
+    int total_data_count_prev = 0;
+    vector<int> local_data_row_count(current_nodes);
+    vector<int> total_data_row_count(current_nodes);
+
     for (int i = 0; i < current_nodes; i++) {
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
-        int data_vec_size = data_vector.size();
-        VALUE_TYPE *data = new VALUE_TYPE[data_vec_size];
+        local_data_row_count[i] = data_vector.size();
+        total_data_row_count[i] = total_size_vector[split_starting_index + i];
+#pragma omp parallel for
+        for (int j = 0; j < data_vector.size(); j++) {
+            data[j + total_data_count_prev] = data_vector[j].value;
+        }
+        total_data_count_prev += data_vector.size();
+    }
+
+    int no_of_bins = 1 + (3.322 * log2(data_vec_size));
+    cout << " rank " << rank << " depth " << depth << endl;
+    auto start_distribtuion_time_index = high_resolution_clock::now();
+    VALUE_TYPE *result = mathOp.distributed_median(data, local_data_row_count, current_nodes, total_data_row_count, 28,
+                                                   dmrpt::StorageFormat::RAW, this->rank);
+    auto stop_distribtuion_time_index = high_resolution_clock::now();
+    auto distribtuion_time_index = duration_cast<microseconds>(
+            stop_distribtuion_time_index - start_distribtuion_time_index);
+    total_distribution_median_time += distribtuion_time_index.count() / 1000;
+
+    for (int i = 0; i < current_nodes; i++) {
 
         int left_index = (next_split + 2 * i);
         int right_index = left_index + 1;
@@ -313,36 +336,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int selected_leaf_left = left_index - (1 << (this->tree_depth - 1)) + 1;
         int selected_leaf_right = selected_leaf_left + 1;
 
-
-#pragma omp parallel for
-        for (int j = 0; j < data_vector.size(); j++) {
-            data[j] = data_vector[j].value;
-        }
-
-        int no_of_bins = 1 + (3.322 * log2(data_vec_size));
-
-        cout << " rank " << rank << " depth " << depth << " data vec size " << data_vec_size << " number of bins"
-             << no_of_bins << endl;
-
-        auto start_distribtuion_time_index = high_resolution_clock::now();
-
-        vector<int> data_vec_size_vec(1);
-        data_vec_size_vec[0] = data_vec_size;
-
-        vector<int> total_data_size_vec(1);
-        total_data_size_vec[0] = total_size_vector[split_starting_index + i];
-
-
-        VALUE_TYPE *result = mathOp.distributed_median(data, data_vec_size_vec, 1, total_data_size_vec, 28,
-                                                       dmrpt::StorageFormat::RAW, this->rank);
-
-        auto stop_distribtuion_time_index = high_resolution_clock::now();
-        auto distribtuion_time_index = duration_cast<microseconds>(
-                stop_distribtuion_time_index - start_distribtuion_time_index);
-        total_distribution_median_time += distribtuion_time_index.count() / 1000;
-
-
-        VALUE_TYPE median = result[0];
+        VALUE_TYPE median = result[i];
         cout << " rank " << rank << " calculated median " << median << endl;
 
         this->trees_splits[tree][split_starting_index + i] = median;
@@ -400,8 +394,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             this->trees_leaf_first_indices[tree][selected_leaf_right] = right_childs_global;
 
         }
-        free(data);
-        free(result);
+
     }
 
 
@@ -451,6 +444,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     free(process_counts);
     free(total_counts);
     free(disps);
+    free(data);
+    free(result);
 
     double *execution_times = new double[2];
     execution_times[0] = total_distribution_median_time;

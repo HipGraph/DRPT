@@ -128,70 +128,70 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 }
 
 
-int select_next_candidate(vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
-                          vector < vector < int >> &final_tree_leaf_mapping, int
-current_tree,
-int selecting_tree,
-int selecting_leaf,
-int previouse_leaf,
-int total_leaf_size
+int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>>> &candidate_mapping,
+                          vector <vector<int >> &final_tree_leaf_mapping, int
+                          current_tree,
+                          int selecting_tree,
+                          int selecting_leaf,
+                          int previouse_leaf,
+                          int total_leaf_size
 ) {
-vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 
-for (
-int i = 0;
-i<vec.
+    for (
+            int i = 0;
+            i < vec.
 
-size();
+                    size();
 
-i++) {
-dmrpt::PriorityMap can_leaf = vec[i];
-int id = can_leaf.leaf_index;
-bool candidate = true;
+            i++) {
+        dmrpt::PriorityMap can_leaf = vec[i];
+        int id = can_leaf.leaf_index;
+        bool candidate = true;
 
 // checking already taken
-for (
-int j = selecting_leaf - 1;
-j >= 0; j--) {
-if (final_tree_leaf_mapping[j][selecting_tree] == id) {
-candidate = false;
-}
-}
+        for (
+                int j = selecting_leaf - 1;
+                j >= 0; j--) {
+            if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+                candidate = false;
+            }
+        }
 
-for (
-int j = 0;
-j<total_leaf_size;
-j++) {
-vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-if (j != previouse_leaf) {
-std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
-                                                            neighbour_vec.begin() + 1,
-                                                            [can_leaf](
-                                                                    dmrpt::PriorityMap const &n) {
-                                                                return (n.priority >
-                                                                        can_leaf.priority &&
-                                                                        n.leaf_index ==
-                                                                        can_leaf.leaf_index);
-                                                            });
-if (it != neighbour_vec.
+        for (
+                int j = 0;
+                j < total_leaf_size;
+                j++) {
+            vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+            if (j != previouse_leaf) {
+                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
+                                                                            neighbour_vec.begin() + 1,
+                                                                            [can_leaf](
+                                                                                    dmrpt::PriorityMap const &n) {
+                                                                                return (n.priority >
+                                                                                        can_leaf.priority &&
+                                                                                        n.leaf_index ==
+                                                                                        can_leaf.leaf_index);
+                                                                            });
+                if (it != neighbour_vec.
 
-begin()
+                        begin()
 
-+ 1) {
-candidate = false;
-}
-}
-}
+                          + 1) {
+                    candidate = false;
+                }
+            }
+        }
 
-if (candidate) {
-final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
-leaf_index;
-return can_leaf.
-leaf_index;
-}
-}
-return -1;
+        if (candidate) {
+            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
+                    leaf_index;
+            return can_leaf.
+                    leaf_index;
+        }
+    }
+    return -1;
 }
 
 
@@ -336,7 +336,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int selected_leaf_right = selected_leaf_left + 1;
 
         VALUE_TYPE median = result[i];
-        cout << " rank " << rank << " calculated median " << median <<" for i"<<i << endl;
+        cout << " rank " << rank << " calculated median " << median << " for i" << i << endl;
 
         this->trees_splits[tree][split_starting_index + i] = median;
 
@@ -363,7 +363,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        int se_index = selected_data.index -this->starting_data_index;
+                        int se_index = selected_data.index - this->starting_data_index;
                         this->index_to_tree_leaf_mapper[selected_index][tree] = selected_leaf_right;
                     }
                 }
@@ -687,6 +687,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
             for (int c = 0; c < data_points.size(); c++) {
 
                 int selec_index = data_points[c].index - this->starting_data_index;
+                if (selec_index<0 || selec_index>this->intial_no_of_data_points){
+                    cout<<" going to segemenation fault"<<endl;
+                }
                 vector<int> vec = this->index_to_tree_leaf_mapper[selec_index];
 
                 for (int j = 0; j < vec.size(); j++) {

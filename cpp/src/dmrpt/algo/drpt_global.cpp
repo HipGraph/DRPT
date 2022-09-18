@@ -311,6 +311,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         local_data_row_count[i] = data_vector.size();
         total_data_row_count[i] = total_size_vector[split_starting_index + i];
+        cout<<" rank "<<rank<<" level "<<depth<<" child "<<i<<" data_vec_size "<<local_data_row_count[i]<<"total data count "<<total_data_row_count[i]<<endl;
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
             data[j + total_data_count_prev] = data_vector[j].value;

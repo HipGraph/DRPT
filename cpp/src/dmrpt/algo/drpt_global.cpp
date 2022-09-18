@@ -686,7 +686,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 #pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
 
-                vector<int> vec = this->index_to_tree_leaf_mapper[data_points[c].index - this->starting_data_index];
+                int selec_index = data_points[c].index - this->starting_data_index;
+                vector<int> vec = this->index_to_tree_leaf_mapper[selec_index];
 
                 for (int j = 0; j < vec.size(); j++) {
                     if (correlation_matrix[tree][leaf][j].size() == 0) {

@@ -154,11 +154,13 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
         sums[i] = 0.0;
     }
     if (format == dmrpt::StorageFormat::RAW) {
+        int data_count_prev=0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
             for (int j = 0; j < local_rows[i]; j++) {
-                sum = sum + data[i + j * local_cols];
+                sum = sum + data[j + data_count_prev];
             }
+            data_count_prev +=local_rows[i];
             sums[i] = sum;
         }
     }
@@ -180,12 +182,14 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
         var[i] = 0.0;
     }
     if (format == dmrpt::StorageFormat::RAW) {
+        int data_count_prev=0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
             for (int j = 0; j < local_rows[i]; j++) {
-                VALUE_TYPE diff = (data[i + j * local_cols] - means[i]);
+                VALUE_TYPE diff = (data[j + data_count_prev] - means[i]);
                 sum = sum + (diff * diff);
             }
+            data_count_prev +=local_rows[i];
             var[i] = sum;
         }
     }
@@ -223,6 +227,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
     int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
     int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
 
+    int data_count_prev =0;
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE mu = means[i];
         VALUE_TYPE sigma = variance[i];
@@ -269,11 +274,11 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
         }
 
 
-#pragma omp parallel for
+
         for (int k = 0; k < local_rows[i]; k++) {
             int flag = 1;
             for (int j = 1; j < 2 * no_of_bins + 2; j++) {
-                VALUE_TYPE dval = data[i + k * local_cols];
+                VALUE_TYPE dval = data[data_count_prev + k];
                 if (distribution[j - 1 + dist_length * i] < dval && distribution[j + dist_length * i] >= dval) {
                     flag = 0;
                     frequency[j] += 1;
@@ -283,6 +288,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
                 frequency[0] += 1;
             }
         }
+        data_count_prev +=local_rows[i];
 
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];

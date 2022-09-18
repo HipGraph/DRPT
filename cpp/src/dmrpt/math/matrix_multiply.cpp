@@ -222,6 +222,8 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
 
     vector<VALUE_TYPE> distribution(dist_length * local_cols, 0);
 
+    int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
+    int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
 
     if (format == dmrpt::StorageFormat::RAW) {
 
@@ -283,13 +285,11 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, int local_rows, int local_co
                 }
             }
 
-        }
+            for (int k = i*dist_length; k < dist_length +i*dist_length; k++) {
+                freqarray[k] = frequency[k-i*dist_length];
+                gfrequency[k] = 0;
+            }
 
-        int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
-        int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
-        for (int k = 0; k < distribution.size(); k++) {
-            freqarray[k] = frequency[k];
-            gfrequency[k] = 0;
         }
 
         MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);

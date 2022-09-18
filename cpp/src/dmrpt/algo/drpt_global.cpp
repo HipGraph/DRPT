@@ -311,7 +311,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         local_data_row_count[i] = data_vector.size();
         total_data_row_count[i] = total_size_vector[split_starting_index + i];
-        cout<<" rank "<< rank<<" i "<<i<<" local_data_row_count "<<local_data_row_count[i]<<" total data row count"<<total_data_row_count[i]<<endl;
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
             data[j + total_data_count_prev] = data_vector[j].value;
@@ -320,7 +319,6 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
     }
 
 //    int no_of_bins = 1 + (3.322 * log2(data_vec_size));
-    cout << " rank " << rank << " depth " << depth << endl;
     auto start_distribtuion_time_index = high_resolution_clock::now();
     VALUE_TYPE *result = mathOp.distributed_median(data, local_data_row_count, current_nodes, total_data_row_count, 28,
                                                    dmrpt::StorageFormat::RAW, this->rank);
@@ -353,26 +351,20 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 #pragma omp for  nowait
             for (int k = 0; k < data_vector.size(); k++) {
                 int index = data_vector[k].index;
-//                std::vector<DataPoint>::iterator it = std::find_if(this->trees_data[tree][depth + 1].begin(),
-//                                                                   this->trees_data[tree][depth + 1].end(),
-//                                                                   [index](DataPoint const &n) {
-//                                                                       return n.index == index;
-//                                                                   });
-//                DataPoint selected_data = (*it);
+
                 int selected_index = index - this->starting_data_index;
                 DataPoint selected_data = this->trees_data[tree][depth + 1][selected_index];
 
                 if (data_vector[k].value <= median) {
                     left_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index -
-                                                        this->starting_data_index][tree] = selected_leaf_left;
+                        this->index_to_tree_leaf_mapper[selected_index][tree] = selected_leaf_left;
                     }
                 } else {
                     right_childs.push_back(selected_data);
                     if (depth == this->tree_depth - 2) {
-                        this->index_to_tree_leaf_mapper[selected_data.index -
-                                                        this->starting_data_index][tree] = selected_leaf_right;
+                        int se_index = selected_data.index -this->starting_data_index;
+                        this->index_to_tree_leaf_mapper[selected_index][tree] = selected_leaf_right;
                     }
                 }
             }

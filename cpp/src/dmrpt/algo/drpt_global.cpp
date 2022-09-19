@@ -55,38 +55,18 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->output_path = output_path;
 }
 
-template<typename T> vector <T> slice(vector < T >
-const &v,
-int m,
-int n
-) {
-auto first = v.cbegin() + m;
-auto last = v.cbegin() + n + 1;
-std::vector <T> vec(first, last);
-return
-vec;
+template<typename T> vector <T> slice(vector < T > const &v, int m, int n ) {
+     auto first = v.cbegin() + m;
+     auto last = v.cbegin() + n + 1;
+     std::vector <T> vec(first, last);
+      return vec;
 }
 
-template<typename T> bool allEqual(std::vector < T >
-const &v) {
-return
-std::adjacent_find(v
-.
-
-begin(), v
-
-.
-
-end(), std::not_equal_to<T>()
-
-) == v.
-
-end();
-
+template<typename T> bool allEqual(std::vector < T > const &v) {
+    return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
-template<class T, class X>
-void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
+template<class T, class X> void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     std::unordered_map <T, size_t> count;
 
     for (T i: v) {
@@ -153,18 +133,6 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
         for (int j = 0;j < total_leaf_size;j++) {
             vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
             if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and neighbour_vec[0].leaf_index == can_leaf.leaf_index) {
-//                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
-//                                                                            neighbour_vec.begin() + 1,
-//                                                                            [can_leaf](
-//                                                                                    dmrpt::PriorityMap const &n) {
-//                                                                                return (n.priority >
-//                                                                                        can_leaf.priority &&
-//                                                                                        n.leaf_index ==
-//                                                                                        can_leaf.leaf_index);
-//                                                                            });
-//                if (neighbour_vec[0].priority > can_leaf.priority && n.leaf_index == can_leaf.leaf_index){
-//                     candidate = false;
-//                }
                 candidate= false;
                 break;
             }
@@ -615,10 +583,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
 
 void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
 
-    char results[500];
-    string file_path_stat = output_path + "stats_divided_sub_tree_debug.txt";
-    std::strcpy(results, file_path_stat.c_str());
-    ofstream fout(results, std::ios_base::app);
+//    char results[500];
+//    string file_path_stat = output_path + "stats_divided_sub_tree_debug.txt";
+//    std::strcpy(results, file_path_stat.c_str());
+//    ofstream fout(results, std::ios_base::app);
 
     auto start_tree_leaf_corr_high = high_resolution_clock::now();
 
@@ -764,11 +732,11 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
     execution_times[1] = tree_leaf_corr_time_low.count() / 1000;
     execution_times[2] = tree_leaf_corr_time_low_can.count() / 1000;
 
-    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-    fout << rank << " low time " << execution_times_global[1] / this->world_size << " high time  "
-         << (execution_times_global[0] / this->world_size) << " selec can"
-         << (execution_times_global[2] / this->world_size) << endl;
+//    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//
+//    fout << rank << " low time " << execution_times_global[1] / this->world_size << " high time  "
+//         << (execution_times_global[0] / this->world_size) << " selec can"
+//         << (execution_times_global[2] / this->world_size) << endl;
 
     delete[] my_sending_leafs;
     delete[] total_receiving_leafs;

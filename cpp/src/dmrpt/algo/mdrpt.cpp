@@ -424,15 +424,12 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
 
 
     char results[500];
-
 //    char hostname[HOST_NAME_MAX];
-
 //    gethostname(hostname, HOST_NAME_MAX);
     string file_path_stat = output_path + "stats_divided.txt.";
     std::strcpy(results, file_path_stat.c_str());
 //    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
     ofstream fout(results, std::ios_base::app);
-
 
 
     int *sending_indices_count = new int[this->world_size]();
@@ -444,7 +441,9 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
         sending_indices_count[i] = send_count;
     }
 
+
     MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
+
 
     int total_receving = 0;
 

@@ -71,7 +71,7 @@ namespace dmrpt {
         void
         grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);
 
-        void calculate_tree_leaf_correlation();
+        void calculate_tree_leaf_correlation(string outpath);
 
         vector <vector<DataPoint>> collect_similar_data_points(int tree, bool  use_data_locality_optimization);
 

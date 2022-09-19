@@ -65,7 +65,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     ofstream fout(results, std::ios_base::app);
 
-
+    auto start_conversion_index = high_resolution_clock::now();
     dmrpt::MathOp mathOp;
     VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
@@ -74,6 +74,8 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
     int local_tree_depth = this->tree_depth - global_tree_depth;
+    auto stop_conversion_index = high_resolution_clock::now();
+    auto conversion_time = duration_cast<microseconds>(stop_conversion_index - start_conversion_index);
     MPI_Barrier(MPI_COMM_WORLD);
     auto start_matrix_index = high_resolution_clock::now();
 
@@ -260,7 +262,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     MPI_Allreduce(execution_times, execution_times_global, 5, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << rank << " matrix  " << (execution_times_global[0]/this->world_size) << " global tree construction " << (execution_times_global[1]/this->world_size) << " data correlation "
+    fout << rank <<" conversion time "<<conversion_time.count()/1000<< " matrix  " << (execution_times_global[0]/this->world_size) << " global tree construction " << (execution_times_global[1]/this->world_size) << " data correlation "
          << (execution_times_global[2]/this->world_size)<< " data gathering  " <<(execution_times_global[3]/this->world_size) <<" local tree growing " <<(execution_times_global[4]/this->world_size)<<endl;
 
     delete[] execution_times;

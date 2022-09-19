@@ -126,7 +126,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     cout << " rank " << rank << " start tree leaf correlation " << endl;
     auto start_calculate_tree_leaf_corr = high_resolution_clock::now();
     if(use_locality_optimization) {
-        this->drpt_global.calculate_tree_leaf_correlation();
+        this->drpt_global.calculate_tree_leaf_correlation(this->output_path);
     }
     auto stop_calculate_tree_leaf_corr = high_resolution_clock::now();
     auto tree_leaf_corr_time = duration_cast<microseconds>(stop_calculate_tree_leaf_corr - start_calculate_tree_leaf_corr);

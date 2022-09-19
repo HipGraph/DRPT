@@ -128,70 +128,54 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 }
 
 
-int select_next_candidate(vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
-                          vector < vector < int >> &final_tree_leaf_mapping, int
-current_tree,
-int selecting_tree,
-int selecting_leaf,
-int previouse_leaf,
-int total_leaf_size
-) {
-vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>>> &candidate_mapping,
+                          vector <vector<int >> &final_tree_leaf_mapping, int current_tree, int selecting_tree,
+                          int selecting_leaf, int previouse_leaf,int total_leaf_size) {
+    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
-
-for (
-int i = 0;
-i<vec.
-
-size();
-
-i++) {
-dmrpt::PriorityMap can_leaf = vec[i];
-int id = can_leaf.leaf_index;
-bool candidate = true;
+    for (int i = 0;i < vec.size();i++) {
+        dmrpt::PriorityMap can_leaf = vec[i];
+        int id = can_leaf.leaf_index;
+        bool candidate = true;
 
 // checking already taken
-for (
-int j = selecting_leaf - 1;
-j >= 0; j--) {
-if (final_tree_leaf_mapping[j][selecting_tree] == id) {
-candidate = false;
-}
-}
+        for (int j = selecting_leaf - 1;j >= 0; j--) {
+            if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+                candidate = false;
+                break;
+            }
+        }
 
-for (
-int j = 0;
-j<total_leaf_size;
-j++) {
-vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-if (j != previouse_leaf) {
-std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
-                                                            neighbour_vec.begin() + 1,
-                                                            [can_leaf](
-                                                                    dmrpt::PriorityMap const &n) {
-                                                                return (n.priority >
-                                                                        can_leaf.priority &&
-                                                                        n.leaf_index ==
-                                                                        can_leaf.leaf_index);
-                                                            });
-if (it != neighbour_vec.
+        if (!candidate) {
+           continue;
+        }
 
-begin()
+        for (int j = 0;j < total_leaf_size;j++) {
+            vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+            if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and n.leaf_index == can_leaf.leaf_index) {
+//                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
+//                                                                            neighbour_vec.begin() + 1,
+//                                                                            [can_leaf](
+//                                                                                    dmrpt::PriorityMap const &n) {
+//                                                                                return (n.priority >
+//                                                                                        can_leaf.priority &&
+//                                                                                        n.leaf_index ==
+//                                                                                        can_leaf.leaf_index);
+//                                                                            });
+//                if (neighbour_vec[0].priority > can_leaf.priority && n.leaf_index == can_leaf.leaf_index){
+//                     candidate = false;
+//                }
+                candidate= false;
+                break;
+            }
+        }
 
-+ 1) {
-candidate = false;
-}
-}
-}
-
-if (candidate) {
-final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
-leaf_index;
-return can_leaf.
-leaf_index;
-}
-}
-return -1;
+        if (candidate) {
+            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
+            return can_leaf.leaf_index;
+        }
+    }
+    return -1;
 }
 
 
@@ -277,8 +261,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
 }
 
 
-void
-dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
+void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
                                        int depth, int tree) {
 
 //    char results[500];
@@ -640,7 +623,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
     auto start_tree_leaf_corr_high = high_resolution_clock::now();
 
 
-
     vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
             vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
 
@@ -770,20 +752,23 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
 
     auto tree_leaf_corr_time_low = duration_cast<microseconds>(stop_tree_leaf_corr_low - start_tree_leaf_corr_low);
 
-    auto tree_leaf_corr_time_low_can = duration_cast<microseconds>(stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
+    auto tree_leaf_corr_time_low_can = duration_cast<microseconds>(
+            stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
 
 
-    double * execution_times = new double [3]();
+    double *execution_times = new double[3]();
 
-    double * execution_times_global = new double [3]();
+    double *execution_times_global = new double[3]();
 
-    execution_times[0]=tree_leaf_corr_time_high.count()/1000;
-    execution_times[1]=tree_leaf_corr_time_low.count()/1000;
-    execution_times[2]=tree_leaf_corr_time_low_can.count()/1000;
+    execution_times[0] = tree_leaf_corr_time_high.count() / 1000;
+    execution_times[1] = tree_leaf_corr_time_low.count() / 1000;
+    execution_times[2] = tree_leaf_corr_time_low_can.count() / 1000;
 
     MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << rank <<" low time "<<execution_times_global[1]/this->world_size<< " high time  " << (execution_times_global[0]/this->world_size)<<" selec can"<<(execution_times_global[2]/this->world_size) <<endl;
+    fout << rank << " low time " << execution_times_global[1] / this->world_size << " high time  "
+         << (execution_times_global[0] / this->world_size) << " selec can"
+         << (execution_times_global[2] / this->world_size) << endl;
 
     delete[] my_sending_leafs;
     delete[] total_receiving_leafs;

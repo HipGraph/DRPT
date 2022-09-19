@@ -251,18 +251,20 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     auto end_collect_local = high_resolution_clock::now();
     auto collect_time_local = duration_cast<microseconds>(end_collect_local - start_collect_local);
 
-    double * execution_times = new double [5]();
+    double * execution_times = new double [6]();
 
-    double * execution_times_global = new double [5]();
+    double * execution_times_global = new double [6]();
     execution_times[0]=matrix_time.count()/1000;
     execution_times[1]=index_time.count()/1000;
     execution_times[2]=tree_leaf_corr_time.count()/1000;
     execution_times[3]= collect_time.count()/1000;
     execution_times[4]=collect_time_local.count()/1000;
+    execution_times[4]=collect_time_local.count()/1000;
+    execution_times[5]=conversion_time.count()/1000;
 
     MPI_Allreduce(execution_times, execution_times_global, 5, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << rank <<" conversion time "<<conversion_time.count()/1000<< " matrix  " << (execution_times_global[0]/this->world_size) << " global tree construction " << (execution_times_global[1]/this->world_size) << " data correlation "
+    fout << rank <<" conversion time "<<execution_times_global[5]/this->world_size<< " matrix  " << (execution_times_global[0]/this->world_size) << " global tree construction " << (execution_times_global[1]/this->world_size) << " data correlation "
          << (execution_times_global[2]/this->world_size)<< " data gathering  " <<(execution_times_global[3]/this->world_size) <<" local tree growing " <<(execution_times_global[4]/this->world_size)<<endl;
 
     delete[] execution_times;

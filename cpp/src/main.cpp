@@ -148,10 +148,12 @@ int main(int argc, char *argv[]) {
     int rows = imagedatas[0].size();
     int cols = imagedatas.size();
 
+    MPI_Barrier(MPI_COMM_WORLD);
 
     int chunk_size = data_set_size / size;
     MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
                         output_path);
+
     auto start_index_buildling = high_resolution_clock::now();
 
     cout << " start growing trees " << rank << endl;

@@ -78,7 +78,6 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     auto conversion_time = duration_cast<microseconds>(stop_conversion_index - start_conversion_index);
     auto start_matrix_index = high_resolution_clock::now();
-    MPI_Barrier(MPI_COMM_WORLD);
 
     int seed = 0;
     int *receive = new int[1]();

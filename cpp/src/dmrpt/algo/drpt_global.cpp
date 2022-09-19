@@ -39,7 +39,6 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->total_data_set_size = total_data_set_size;
     this->data_dimension = original_data[0].size();
 
-
     this->ntrees = ntrees;
 
     this->trees_data = vector < vector < vector < DataPoint>>>(ntrees);
@@ -56,37 +55,18 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->output_path = output_path;
 }
 
-template<typename T> vector <T> slice(vector < T >
-const &v,
-int m,
-int n
-) {
-auto first = v.cbegin() + m;
-auto last = v.cbegin() + n + 1;
-std::vector <T> vec(first, last);
-return
-vec;
+template<typename T> vector <T> slice(vector < T >const &v,int m,int n) {
+   auto first = v.cbegin() + m;
+   auto last = v.cbegin() + n + 1;
+   std::vector <T> vec(first, last);
+   return vec;
 }
 
-template<typename T> bool allEqual(std::vector < T >
-const &v) {
-returnstd::adjacent_find(v
-.
-
-begin(), v
-
-.
-
-end(), std::not_equal_to<T>()
-
-) == v.
-
-end();
-
+template<typename T> bool allEqual(std::vector < T > const &v) {
+   return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
-template<class T, class X>
-void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
+template<class T, class X> void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     std::unordered_map <T, size_t> count;
 
     for (T i: v) {
@@ -129,40 +109,23 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 
 
 int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>>> &candidate_mapping,
-                          vector <vector<int >> &final_tree_leaf_mapping, int
-                          current_tree,
-                          int selecting_tree,
-                          int selecting_leaf,
-                          int previouse_leaf,
-                          int total_leaf_size
-) {
+                          vector <vector<int >> &final_tree_leaf_mapping, int current_tree, int selecting_tree, int selecting_leaf, int previouse_leaf, int total_leaf_size) {
     vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 
-    for (
-            int i = 0;
-            i < vec.
-
-                    size();
-
-            i++) {
+    for (int i = 0;i < vec.size();i++) {
         dmrpt::PriorityMap can_leaf = vec[i];
         int id = can_leaf.leaf_index;
         bool candidate = true;
 
 // checking already taken
-        for (
-                int j = selecting_leaf - 1;
-                j >= 0; j--) {
+        for (int j = selecting_leaf - 1;j >= 0; j--) {
             if (final_tree_leaf_mapping[j][selecting_tree] == id) {
                 candidate = false;
             }
         }
 
-        for (
-                int j = 0;
-                j < total_leaf_size;
-                j++) {
+        for (int j = 0;j < total_leaf_size; j++) {
             vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
             if (j != previouse_leaf) {
                 std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
@@ -174,21 +137,15 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
                                                                                         n.leaf_index ==
                                                                                         can_leaf.leaf_index);
                                                                             });
-                if (it != neighbour_vec.
-
-                        begin()
-
-                          + 1) {
+                if (it != neighbour_vec.begin()+ 1) {
                     candidate = false;
                 }
             }
         }
 
         if (candidate) {
-            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
-                    leaf_index;
-            return can_leaf.
-                    leaf_index;
+            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
+            return can_leaf.leaf_index;
         }
     }
     return -1;
@@ -389,14 +346,11 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             this->trees_leaf_first_indices[tree][selected_leaf_right] = right_childs_global;
 
         }
-
     }
-
 
     if (depth == this->tree_depth - 2) {
         return;
     }
-
 
 // Displacements in the receive buffer for MPI_GATHERV
     int *disps = new int[this->world_size];
@@ -454,8 +408,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
 }
 
 
-vector <vector<dmrpt::DataPoint>>
-dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_optimization) {
+vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_optimization) {
 
     dmrpt::MathOp mathOp;
 
@@ -477,7 +430,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
     int process = 0;
     int *send_indices_count = new int[this->world_size];
     int *disps_indices_count = new int[this->world_size];
-
     int *send_values_count = new int[this->world_size];
     int *disps_values_count = new int[this->world_size];
 
@@ -501,18 +453,14 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
     send_indices_count[process] = sum_per_node;
     send_values_count[process] = sum_per_node * this->data_dimension;
 
-
     MPI_Alltoall(send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
                  MPI_INT, MPI_COMM_WORLD);
 
-
     int *total_leaf_count = new int[leafs_per_node];
-
     int *recev_indices_count = new int[this->world_size];
     int *recev_values_count = new int[this->world_size];
     int *recev_disps_count = new int[this->world_size];
     int *recev_disps_values_count = new int[this->world_size];
-
 
     int total_sum = 0;
     for (int j = 0; j < leafs_per_node; j++) {
@@ -541,14 +489,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
         recev_disps_values_count[i] = (i > 0) ? (recev_disps_values_count[i - 1] + recev_values_count[i - 1]) : 0;
     }
 
-
     int *receive_indices = new int[total_sum];
-
     VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * this->data_dimension];
-
     int *send_indices = new int[my_total];
     VALUE_TYPE *send_values = new VALUE_TYPE[my_total * this->data_dimension];
-
 
     int co = 0;
     for (int i = 0; i < total_leaf_size; i++) {
@@ -565,13 +509,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
         }
     }
 
-
     MPI_Alltoallv(send_indices, send_indices_count, disps_indices_count, MPI_INT, receive_indices,
                   recev_indices_count, recev_disps_count, MPI_INT, MPI_COMM_WORLD);
 
     MPI_Alltoallv(send_values, send_values_count, disps_values_count, MPI_VALUE_TYPE, receive_values,
                   recev_values_count, recev_disps_values_count, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-
 
     my_start_count = leafs_per_node * this->rank;
     if (this->rank < this->world_size - 1) {
@@ -652,7 +594,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
 
     vector <vector<int>> final_tree_leaf_mapping(total_leaf_size);
 
-
     int total_sending = this->ntrees * total_leaf_size * this->ntrees;
     int *my_sending_leafs = new int[total_sending]();
 
@@ -670,11 +611,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         disps_send[i] = 0;
         recieve_count[i] = total_sending;
         disps_recieve[i] = (i > 0) ? (disps_recieve[i - 1] + recieve_count[i - 1]) : 0;
-
     }
 
-    vector < vector < vector < vector < float >> >> correlation_matrix =
-            vector < vector < vector < vector < float >> >> (ntrees);
+    vector < vector < vector < vector < float >> >> correlation_matrix = vector < vector < vector < vector < float >> >> (ntrees);
 
     for (int tree = 0; tree < this->ntrees; tree++) {
         correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
@@ -720,7 +659,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
     MPI_Alltoallv(my_sending_leafs, send_count, disps_send, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
 
-
     for (int j = 0; j < this->ntrees; j++) {
         for (int k = 0; k < total_leaf_size; k++) {
             final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
@@ -744,7 +682,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
     }
 
-
     for (int k = 0; k < total_leaf_size; k++) {
         int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
@@ -754,7 +691,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
     }
 
-
     for (int i = 0; i < this->ntrees; i++) {
         for (int k = 0; k < total_leaf_size; k++) {
             int leaf_index = final_tree_leaf_mapping[k][i];
@@ -762,14 +698,12 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation() {
         }
     }
 
-
     delete[] my_sending_leafs;
     delete[] total_receiving_leafs;
     delete[] send_count;
     delete[] disps_send;
     delete[] recieve_count;
     delete[] disps_recieve;
-
 }
 
 

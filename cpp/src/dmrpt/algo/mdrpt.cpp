@@ -88,6 +88,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
         MPI_Bcast(receive , 1, MPI_INT, NULL, MPI_COMM_WORLD);
     }
 
+    auto stop_matrix_index = high_resolution_clock::now();
 
 
     VALUE_TYPE *B = mathOp.build_sparse_projection_matrix(this->rank, this->world_size, this->data_dimension,
@@ -97,7 +98,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     VALUE_TYPE *P = mathOp.multiply_mat(imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
                                         1.0);
 
-    auto stop_matrix_index = high_resolution_clock::now();
+
 
     auto matrix_time = duration_cast<microseconds>(stop_matrix_index - start_matrix_index);
 

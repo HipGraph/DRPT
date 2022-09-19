@@ -42,16 +42,16 @@ dmrpt::MDRPT::MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_d
 }
 
 template<typename T> vector <T> slice(vector < T >const &v, int m, int n ) {
-   auto first = v.cbegin() + m;
-   auto last = v.cbegin() + n + 1;
+         auto first = v.cbegin() + m;
+         auto last = v.cbegin() + n + 1;
 
-   std::vector <T> vec(first, last);
-   return vec;
+         std::vector <T> vec(first, last);
+         return vec;
 }
 
 
 template<typename T> bool allEqual(std::vector < T >const &v) {
-return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
+      return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
 void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
@@ -262,7 +262,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     execution_times[4]=collect_time_local.count()/1000;
     execution_times[5]=conversion_time.count()/1000;
 
-    MPI_Allreduce(execution_times, execution_times_global, 5, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(execution_times, execution_times_global, 6, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
     fout << rank <<" conversion time "<<execution_times_global[5]/this->world_size<< " matrix  " << (execution_times_global[0]/this->world_size) << " global tree construction " << (execution_times_global[1]/this->world_size) << " data correlation "
          << (execution_times_global[2]/this->world_size)<< " data gathering  " <<(execution_times_global[3]/this->world_size) <<" local tree growing " <<(execution_times_global[4]/this->world_size)<<endl;

@@ -74,7 +74,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
     int local_tree_depth = this->tree_depth - global_tree_depth;
-
+    MPI_Barrier(MPI_COMM_WORLD com);
     auto start_matrix_index = high_resolution_clock::now();
 
     int seed = 0;
@@ -249,9 +249,9 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     auto end_collect_local = high_resolution_clock::now();
     auto collect_time_local = duration_cast<microseconds>(end_collect_local - start_collect_local);
 
-    double * execution_times = new double [5];
+    double * execution_times = new double [5]();
 
-    double * execution_times_global = new double [5];
+    double * execution_times_global = new double [5]();
     execution_times[0]=matrix_time.count()/1000;
     execution_times[1]=index_time.count()/1000;
     execution_times[2]=tree_leaf_corr_time.count()/1000;
@@ -265,7 +265,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     delete[] execution_times;
     delete[] execution_times_global;
-    delete[] receive;
+//    delete[] receive;
 }
 
 void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, int tree, int nn) {

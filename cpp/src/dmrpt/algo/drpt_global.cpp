@@ -152,7 +152,7 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
 
         for (int j = 0;j < total_leaf_size;j++) {
             vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-            if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and n.leaf_index == can_leaf.leaf_index) {
+            if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and neighbour_vec[0].leaf_index == can_leaf.leaf_index) {
 //                std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(neighbour_vec.begin(),
 //                                                                            neighbour_vec.begin() + 1,
 //                                                                            [can_leaf](

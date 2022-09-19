@@ -74,7 +74,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
 
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
     int local_tree_depth = this->tree_depth - global_tree_depth;
-    MPI_Barrier(MPI_COMM_WORLD com);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto start_matrix_index = high_resolution_clock::now();
 
     int seed = 0;

@@ -78,7 +78,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     auto start_matrix_index = high_resolution_clock::now();
 
     int seed = 0;
-    int *receive = new int[1];
+    int *receive = new int[1]();
     if(this->rank==0){
         std::random_device rd;
         seed = rd();

@@ -744,6 +744,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
         }
     }
 
+    auto stop_tree_leaf_corr_low = high_resolution_clock::now();
+
+    auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now();
+
     for (int k = 0; k < total_leaf_size; k++) {
         int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {
@@ -753,6 +757,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
         }
     }
 
+    auto stop_tree_leaf_corr_low_select_can = high_resolution_clock::now();
+
+
     for (int i = 0; i < this->ntrees; i++) {
         for (int k = 0; k < total_leaf_size; k++) {
             int leaf_index = final_tree_leaf_mapping[k][i];
@@ -760,20 +767,23 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
         }
     }
 
-    auto stop_tree_leaf_corr_low = high_resolution_clock::now();
+
     auto tree_leaf_corr_time_low = duration_cast<microseconds>(stop_tree_leaf_corr_low - start_tree_leaf_corr_low);
 
+    auto tree_leaf_corr_time_low_can = duration_cast<microseconds>(stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
 
-    double * execution_times = new double [2]();
 
-    double * execution_times_global = new double [2]();
+    double * execution_times = new double [3]();
+
+    double * execution_times_global = new double [3]();
 
     execution_times[0]=tree_leaf_corr_time_high.count()/1000;
     execution_times[1]=tree_leaf_corr_time_low.count()/1000;
+    execution_times[2]=tree_leaf_corr_time_low_can.count()/1000;
 
-    MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    fout << rank <<" low time "<<execution_times_global[1]/this->world_size<< " high time  " << (execution_times_global[0]/this->world_size) <<endl;
+    fout << rank <<" low time "<<execution_times_global[1]/this->world_size<< " high time  " << (execution_times_global[0]/this->world_size)<<" selec can"<<(execution_times_global[2]/this->world_size) <<endl;
 
     delete[] my_sending_leafs;
     delete[] total_receiving_leafs;

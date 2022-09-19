@@ -197,7 +197,11 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     //read relevant chunk
     MPI_File_get_size(in, &filesize);
     filesize--;
+
     perpsize = filesize / world_size;
+
+//    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
+
     globalstart = rank * perpsize;
     globalend = globalstart + perpsize - 1;
 
@@ -207,6 +211,9 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     if (rank != world_size-1)
         globalend += overlap;
     perpsize =  globalend - globalstart + 1;
+
+    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
+
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
     MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
@@ -226,8 +233,12 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
             locstart++;
         locstart++;
     }
+
+
     perpsize = locend-locstart+1;
     vector<VALUE_TYPE> v;
+
+    cout<<"rank"<<rank<<" final chunk size "<<perpsize<<endl;
 
     stringstream str(chunk);
     string token;
@@ -241,7 +252,7 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
         }else if(token.compare("\n") == 0){
             output.push_back(v);
             v.clear();
-//            cout << "Newline:" << v.size() << ":" << output.size() << endl;
+            cout << "Newline:" << v.size() << ":" << output.size() << endl;
         }
     }
     cout << "Output size:" << output.size() << ":" << v.size() << endl;

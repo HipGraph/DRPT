@@ -233,6 +233,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if (rank != world_size - 1) {
         while (chunk[locend] != '\n')
             locend--;
+        locend++;
     }
 
     cout << "rank" << rank << " locsstart starting " << perpsize << endl;
@@ -240,6 +241,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if (rank != 0) {
         while (chunk[locstart] != '\n')
             locstart++;
+        locstart--;
     }
 
 

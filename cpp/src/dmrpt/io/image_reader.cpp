@@ -165,11 +165,11 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
         int index = 0;
         while (getline(file, line)) {
             if (count >= starting_point && count < endpoint) {
-                std::stringstream   linestream(line);
+                std::stringstream linestream(line);
                 std::string data;
                 VALUE_TYPE n;
                 int di = 0;
-                while (std::getline(linestream, data,' ')) {
+                while (std::getline(linestream, data, ' ')) {
                     arr[index][di] = atoi(data.c_str());
                     di++;
                 }
@@ -184,12 +184,13 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
     return arr;
 }
 
-vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, char delim) {
+vector <vector<VALUE_TYPE>>
+dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, char delim) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
     int ierr = MPI_File_open(MPI_COMM_WORLD, path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
     if (ierr) {
-        cout<<" can't open file "<<endl;
+        cout << " can't open file " << endl;
     }
 
     int perpsize;//perprocess size
@@ -205,57 +206,65 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
     globalstart = rank * perpsize;
     globalend = globalstart + perpsize - 1;
 
-    if (rank == world_size-1)
-        globalend = filesize-1;
+    if (rank == world_size - 1)
+        globalend = filesize - 1;
     //add overlap to the end
-    if (rank != world_size-1)
+    if (rank != world_size - 1)
         globalend += overlap;
-    perpsize =  globalend - globalstart + 1;
+    perpsize = globalend - globalstart + 1;
 
-    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
+    cout << "rank" << rank << " file size " << perpsize << endl;
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
     MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
     chunk[perpsize] = '\0';
-    int locstart=0, locend=perpsize-1;
-    vector<vector<VALUE_TYPE>> output;
+    int locstart = 0, locend = perpsize - 1;
+    vector <vector<VALUE_TYPE>> output;
 
     //move to next full delim of number
-    if(rank != world_size - 1){
-        while(chunk[locend] != delim)
+    if (rank != world_size - 1) {
+        while (chunk[locend] != delim)
             locend++;
         locend++;
     }
 
     if (rank != 0) {
-        while(chunk[locstart] != delim)
+        while (chunk[locstart] != delim)
             locstart++;
         locstart++;
     }
 
 
-    perpsize = locend-locstart+1;
+    perpsize = locend - locstart + 1;
     vector<VALUE_TYPE> v;
 
-    cout<<"rank"<<rank<<" final chunk size "<<perpsize<<endl;
+    if (rank == 0) {
+        cout << "rank" << rank << " final chunk size " << perpsize << endl;
+    }
 
     stringstream str(chunk);
     string token;
 //    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
-    while(getline(str, token, delim)){
+    while (getline(str, token, delim)) {
         //cout << "rank:" << RANK << ":" << token << endl;
-        if(isdigit(token[0])){
+        if (isdigit(token[0])) {
             VALUE_TYPE d = atof(token.c_str());
             v.push_back(d);
-            cout << "Digit:" << v.size() << endl;
-        }else if(token.compare("\n") == 0){
+            if (rank == 0) {
+                cout << "Digit:" << v.size() << endl;
+            }
+        } else if (token.compare("\n") == 0) {
             output.push_back(v);
             v.clear();
-            cout << "Newline:" << v.size() << ":" << output.size() << endl;
+            if (rank == 0) {
+                cout << "Newline:" << v.size() << ":" << output.size() << endl;
+            }
         }
     }
-    cout << "Output size:" << output.size() << ":" << v.size() << endl;
+    if (rank == 0) {
+        cout << "Output size:" << output.size() << ":" << v.size() << endl;
+    }
     cout << endl;
     return output;
 }

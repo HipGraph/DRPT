@@ -268,6 +268,10 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         v.clear();
 
     }
+
+    if(rank ==0){
+        cout << " first " << output[0][0] << " last size:" << output[0][output[0].size()-1] <<  endl;
+    }
 //    if (rank == 0) {
     cout << " rank " << rank << "Output size:" << output.size() << ":" << v.size() << endl;
 //    }

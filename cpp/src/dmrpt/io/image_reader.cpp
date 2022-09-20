@@ -252,7 +252,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
    cout << "rank:" << rank << ":size:" << str.str().length() << endl;
     while (getline(str, token, delim)) {
         if(rank ==1) {
-            cout << "rank:" << RANK << ":" << token << endl;
+            cout << "rank:" << rank << ":" << token << endl;
         }
         if (isdigit(token[0])) {
             VALUE_TYPE d = atof(token.c_str());

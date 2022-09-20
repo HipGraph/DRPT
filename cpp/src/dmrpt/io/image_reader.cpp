@@ -227,10 +227,11 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     //move to next full delim of number
     if (rank != world_size - 1) {
         while (chunk[locend] != delim)
-            cout<<"rank "<<rank<<" couting to delime"<<endl;
             locend++;
         locend++;
     }
+
+    cout << "rank" << rank << " locsstart starting " << perpsize << endl;
 
     if (rank != 0) {
         while (chunk[locstart] != delim)
@@ -250,7 +251,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     string token;
    cout << "rank:" << rank << ":size:" << str.str().length() << endl;
     while (getline(str, token, delim)) {
-        //cout << "rank:" << RANK << ":" << token << endl;
+        if(rank ==1) {
+            cout << "rank:" << RANK << ":" << token << endl;
+        }
         if (isdigit(token[0])) {
             VALUE_TYPE d = atof(token.c_str());
             v.push_back(d);

@@ -227,6 +227,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     //move to next full delim of number
     if (rank != world_size - 1) {
         while (chunk[locend] != delim)
+            cout<<"rank "<<rank<<" couting to delime"<<endl;
             locend++;
         locend++;
     }

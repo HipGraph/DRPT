@@ -249,28 +249,28 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     stringstream str(chunk);
     string token;
-   cout << "rank:" << rank << ":size:" << str.str().length() << endl;
+    cout << "rank:" << rank << ":size:" << str.str().length() << endl;
     while (getline(str, token, delim)) {
-        if(rank ==1) {
-            cout << "rank:" << rank << ":" << token << endl;
-        }
+//        if(rank ==1) {
+//            cout << "rank:" << rank << ":" << token << endl;
+//        }
         if (isdigit(token[0])) {
             VALUE_TYPE d = atof(token.c_str());
             v.push_back(d);
-            if (rank == 0) {
-                cout << "Digit:" << v.size() << endl;
-            }
+//            if (rank == 0) {
+//                cout << "Digit:" << v.size() << endl;
+//            }
         } else if (token.compare("\n") == 0) {
             output.push_back(v);
             v.clear();
-            if (rank == 0) {
-                cout << "Newline:" << v.size() << ":" << output.size() << endl;
-            }
+//            if (rank == 0) {
+//                cout << "Newline:" << v.size() << ":" << output.size() << endl;
+//            }
         }
     }
-    if (rank == 0) {
-        cout << "Output size:" << output.size() << ":" << v.size() << endl;
-    }
+//    if (rank == 0) {
+    cout << " rank " << rank << "Output size:" << output.size() << ":" << v.size() << endl;
+//    }
     cout << endl;
     return output;
 }

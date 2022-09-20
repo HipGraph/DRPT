@@ -220,7 +220,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
     cout << "rank" << rank << " mpi read complete " << perpsize << endl;
     chunk[perpsize] = '\0';
-    int locstart = 0, locend = perpsize - 1;
+    int locstart = 0, locend = perpsize;
     vector <vector<VALUE_TYPE>> output;
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;

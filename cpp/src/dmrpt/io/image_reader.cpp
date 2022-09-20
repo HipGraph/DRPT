@@ -242,13 +242,13 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
 
     stringstream str(chunk);
     string token;
-    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
+//    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
     while(getline(str, token, delim)){
         //cout << "rank:" << RANK << ":" << token << endl;
         if(isdigit(token[0])){
             VALUE_TYPE d = atof(token.c_str());
             v.push_back(d);
-            //cout << "Digit:" << v.size() << endl;
+            cout << "Digit:" << v.size() << endl;
         }else if(token.compare("\n") == 0){
             output.push_back(v);
             v.clear();

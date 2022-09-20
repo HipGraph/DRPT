@@ -225,9 +225,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
 
-    if(rank==0) {
+    if (rank == 0) {
 //        cout << "rank" << rank << " chunk ##### " << chunk << endl;
-        cout<<" chunk start"<< chunk[locstart]<<endl;
+        cout << " chunk start" << chunk[locstart] << endl;
     }
     //move to next full delim of number
     if (rank != world_size - 1) {
@@ -255,24 +255,17 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     stringstream str(chunk);
     string token;
     cout << "rank:" << rank << ":size:" << str.str().length() << endl;
-    while (getline(str, token, delim)) {
-        if(rank ==0) {
-            cout << "rank:" << rank << ":" << token << endl;
-            break;
+    while (getline(str, token)) {
+        std::stringstream linestream(token);
+        std::string data;
+        VALUE_TYPE n;
+        int di = 0;
+        while (std::getline(linestream, data, ' ')) {
+            v.push_back(atoi(data.c_str()));
         }
-        if (isdigit(token[0])) {
-            VALUE_TYPE d = atof(token.c_str());
-            v.push_back(d);
-//            if (rank == 0) {
-//                cout << "Digit:" << v.size() << endl;
-//            }
-        } else if (token.compare("\n") == 0) {
-            output.push_back(v);
-            v.clear();
-//            if (rank == 0) {
-//                cout << "Newline:" << v.size() << ":" << output.size() << endl;
-//            }
-        }
+        output.push_back(v);
+        v.clear();
+
     }
 //    if (rank == 0) {
     cout << " rank " << rank << "Output size:" << output.size() << ":" << v.size() << endl;

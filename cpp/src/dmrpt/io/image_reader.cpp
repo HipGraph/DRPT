@@ -197,7 +197,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     char *chunk;
     //read relevant chunk
     MPI_File_get_size(in, &filesize);
-    filesize--;
+//    filesize--;
 
     perpsize = filesize / world_size;
 

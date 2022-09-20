@@ -208,6 +208,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     if (rank == world_size - 1)
         globalend = filesize - 1;
+        globalstart = (rank * perpsize)-100;
     //add overlap to the end
     if (rank != world_size - 1)
         globalend += overlap;
@@ -230,19 +231,19 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 //        cout << " chunk start" << chunk[locstart] << endl;
 //    }
     //move to next full delim of number
-//    if (rank != world_size - 1) {
-//        while (chunk[locend] != '\n')
-//            locend--;
-//        locend++;
-//    }
+    if (rank != world_size - 1) {
+        while (chunk[locend] != '\n')
+            locend--;
+        locend++;
+    }
 //
 //    cout << "rank" << rank << " locsstart starting " << perpsize << endl;
 //
-//    if (rank != 0) {
-//        while (chunk[locstart] != '\n')
-//            locstart++;
-//        locstart--;
-//    }
+    if (rank != 0) {
+        while (chunk[locstart] != '\n')
+            locstart++;
+        locstart--;
+    }
 
 
     perpsize = locend - locstart + 1;

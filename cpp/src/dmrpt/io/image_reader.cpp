@@ -227,6 +227,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
     MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+
+    MPI_File_close(&in);
     cout << "rank" << rank << " mpi read complete " << perpsize << endl;
     chunk[perpsize] = '\0';
     int locstart = 0, locend = perpsize;

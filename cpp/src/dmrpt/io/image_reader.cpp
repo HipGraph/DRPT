@@ -225,10 +225,10 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
 
-    if (rank == 0) {
-//        cout << "rank" << rank << " chunk ##### " << chunk << endl;
-        cout << " chunk start" << chunk[locstart] << endl;
-    }
+//    if (rank == 0) {
+////        cout << "rank" << rank << " chunk ##### " << chunk << endl;
+//        cout << " chunk start" << chunk[locstart] << endl;
+//    }
     //move to next full delim of number
     if (rank != world_size - 1) {
         while (chunk[locend] != '\n')

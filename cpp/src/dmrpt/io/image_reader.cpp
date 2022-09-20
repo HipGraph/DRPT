@@ -246,6 +246,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     perpsize = locend - locstart + 1;
     vector<VALUE_TYPE> v;
 
+    cout << "rank" << rank << " locsstart  " << locstart<<" loc end"<<locend << endl;
 
     cout << "rank" << rank << " final chunk size " << perpsize << endl;
 

@@ -231,15 +231,15 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     }
     //move to next full delim of number
     if (rank != world_size - 1) {
-        while (chunk[locend] != delim)
-            locend++;
-        locend++;
+        while (chunk[locend] != '\n')
+            locend--;
+        locend--;
     }
 
     cout << "rank" << rank << " locsstart starting " << perpsize << endl;
 
     if (rank != 0) {
-        while (chunk[locstart] != delim)
+        while (chunk[locstart] != '\n')
             locstart++;
         locstart++;
     }

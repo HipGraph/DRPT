@@ -213,11 +213,12 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         globalend += overlap;
     perpsize = globalend - globalstart + 1;
 
-    cout << "rank" << rank << " file size " << perpsize << endl;
+    cout << "rank " << rank << " file size " << perpsize << endl;
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
     MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+    cout << "rank" << rank << " mpi read complete " << perpsize << endl;
     chunk[perpsize] = '\0';
     int locstart = 0, locend = perpsize - 1;
     vector <vector<VALUE_TYPE>> output;
@@ -245,7 +246,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     stringstream str(chunk);
     string token;
-//    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
+   cout << "rank:" << rank << ":size:" << str.str().length() << endl;
     while (getline(str, token, delim)) {
         //cout << "rank:" << RANK << ":" << token << endl;
         if (isdigit(token[0])) {

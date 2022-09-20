@@ -223,6 +223,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int locstart = 0, locend = perpsize - 1;
     vector <vector<VALUE_TYPE>> output;
 
+    cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
     //move to next full delim of number
     if (rank != world_size - 1) {
         while (chunk[locend] != delim)

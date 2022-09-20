@@ -242,7 +242,7 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::mpi_file_read(string path, int r
 
     stringstream str(chunk);
     string token;
-//    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
+    cout << "rank:" << rank << ":size:" << str.str().length() << ":" << chunk << endl;
     while(getline(str, token, delim)){
         //cout << "rank:" << RANK << ":" << token << endl;
         if(isdigit(token[0])){

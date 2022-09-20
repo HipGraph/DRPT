@@ -280,8 +280,11 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     int expected_chunk_size = total_data_set_size/world_size;
 
+
     if (rank=world_size-1)
         expected_chunk_size = total_data_set_size - rank * (total_data_set_size/world_size);
+
+    cout<<" rank "<<rank<<" expected chunk size"<<expected_chunk_size<<endl;
 
     if(rank==0 and output.size()>expected_chunk_size)
         return slice(output,0,expected_chunk_size-1);

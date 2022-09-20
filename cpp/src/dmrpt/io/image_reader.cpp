@@ -285,7 +285,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     if(rank==0 and output.size()>expected_chunk_size)
         return slice(output,0,expected_chunk_size-1)
-    else if(output.size()>expected_chunk_size):
+    else if(output.size()>expected_chunk_size)
         return slice(output,(output.size()-expected_chunk_size),output.size()-1)
 
 

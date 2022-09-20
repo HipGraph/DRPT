@@ -266,7 +266,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 //            if (rank == 0) {
 //                cout << "Digit:" << v.size() << endl;
 //            }
-        } else if (token.compare('\n') == 0) {
+        } else if (token.compare("\n") == 0) {
             output.push_back(v);
             v.clear();
 //            if (rank == 0) {

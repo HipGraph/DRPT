@@ -34,6 +34,13 @@ using namespace std;
 //    return imagesdata;
 //}
 
+template<typename T> vector <T> slice(vector < T > const &v, int m, int n ) {
+    auto first = v.cbegin() + m;
+    auto last = v.cbegin() + n + 1;
+    std::vector <T> vec(first, last);
+return vec;
+}
+
 int dmrpt::ImageReader::reverse_int(int i) {
     unsigned char ch1, ch2, ch3, ch4;
     ch1 = i & 255;
@@ -185,7 +192,7 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, char delim) {
+dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size, char delim) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
     int ierr = MPI_File_open(MPI_COMM_WORLD, path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
@@ -270,6 +277,17 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         v.clear();
 
     }
+
+    int expected_chunk_size = total_data_set_size/world_size;
+
+    if (rank=world_size-1)
+        expected_chunk_size = total_data_set_size - rank * (total_data_set_size/world_size)
+
+    if(rank==0 and output.size()>expected_chunk_size)
+        return slice(output,0,expected_chunk_size-1)
+    else if(output.size()>expected_chunk_size):
+        return slice(output,(output.size()-expected_chunk_size),output.size()-1)
+
 
     if(rank ==  0){
         cout << " first " << output[0][0] << " last size:" << output[0][output[0].size()-1] <<  endl;

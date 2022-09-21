@@ -208,7 +208,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if(error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
 //    filesize--;
 
-    perpsize = (*filesize) / world_size;
+    perpsize = (filesize) / world_size;
 
 //    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
 

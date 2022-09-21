@@ -195,7 +195,8 @@ vector <vector<VALUE_TYPE>>
 dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size, char delim) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
-    int ierr = MPI_File_open(MPI_COMM_WORLD, path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
+    const char* cstr = path.c_str();
+    int ierr = MPI_File_open(MPI_COMM_WORLD, cstr, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
     if (ierr) {
         cout << " can't open file " << endl;
     }
@@ -207,7 +208,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if(error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
 //    filesize--;
 
-    perpsize = filesize / world_size;
+    perpsize = (*filesize) / world_size;
 
 //    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
 

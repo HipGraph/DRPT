@@ -228,7 +228,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << "rank " << rank << " file size " << perpsize << endl;
 
-    int perpsize = 100000000008/world_size;
+     perpsize = 100000000008/world_size;
 
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));

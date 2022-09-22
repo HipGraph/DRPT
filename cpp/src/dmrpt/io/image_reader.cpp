@@ -255,8 +255,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
-        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< perpsize<<endl;
-        if (index >= perpsize)
+        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< globalend<<endl;
+        if (index > globalend)
             break;
 
         char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
@@ -267,8 +267,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         cout << "rank" << rank << " chunk read ######  " << i << endl;
         memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
-        if(index+chunk_lo>perpsize)
-            current_chunk = perpsize- index;
+        if(index+chunk_lo>globalend)
+            current_chunk = globalend- index;
 
         index = index + current_chunk;
 

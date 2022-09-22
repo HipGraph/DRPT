@@ -230,7 +230,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     }
 
     if (rank != 0) {
-        globalstart = (rank * perpsize) - 1;
+        globalstart = (rank * perpsize) - overlap;
     }
 
     //add overlap to the end

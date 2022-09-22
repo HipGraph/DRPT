@@ -265,9 +265,10 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         cout << "rank" << rank << " chunk read ######  " << i << endl;
         memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
-        index = index + current_chunk;
         if(index+chunk_lo>perpsize)
             current_chunk = perpsize- index;
+
+        index = index + current_chunk;
 
         free(chunk_lo_arr);
     }

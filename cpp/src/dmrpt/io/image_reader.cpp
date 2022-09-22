@@ -205,30 +205,30 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int perpsize;//perprocess size
     char *chunk;
     //read relevant chunk
-    int  error  = MPI_File_get_size(in, &filesize);
+//    int  error  = MPI_File_get_size(in, &filesize);
 //    filesize = 17550888879;
 //    if(error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
 //    filesize--;
 
-    perpsize = (filesize) / world_size;
+//    perpsize = (filesize) / world_size;
 
 //    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
 
-    globalstart = rank * perpsize;
-    globalend = globalstart + perpsize - 1;
-
-    if (rank == world_size - 1) {
-        globalend = filesize - 1;
-        globalstart = (rank * perpsize) - 100;
-    }
-    //add overlap to the end
-    if (rank != world_size - 1)
-        globalend += overlap;
-    perpsize = globalend - globalstart + 1;
+//    globalstart = rank * perpsize;
+//    globalend = globalstart + perpsize - 1;
+//
+//    if (rank == world_size - 1) {
+//        globalend = filesize - 1;
+//        globalstart = (rank * perpsize) - 100;
+//    }
+//    //add overlap to the end
+//    if (rank != world_size - 1)
+//        globalend += overlap;
+//    perpsize = globalend - globalstart + 1;
 
     cout << "rank " << rank << " file size " << perpsize << endl;
 
-     perpsize = 17550888879/world_size;
+    perpsize = 17550888879/world_size;
 
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));

@@ -231,7 +231,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     int chunk_lo=1073741824;
 
-    int number_of_chunks = (perpsize)/number_of_chunks;
+    int number_of_chunks = (perpsize)/chunk_lo;
 
     cout<<" rank "<< rank <<" number of chunks"<<number_of_chunks<<endl;
 

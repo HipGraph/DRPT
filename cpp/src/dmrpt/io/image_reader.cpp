@@ -244,7 +244,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     long chunk_lo = 1073741824;
 
-    int number_of_chunks = ceil((perpsize) / chunk_lo) +1;
+    int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
 
     cout << " rank " << rank << " number of chunks" << number_of_chunks << endl;
 
@@ -255,7 +255,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
-        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< globalend<<endl;
+        cout << "rank " << rank << " index " << index << " perpsize " << globalend << endl;
         if (index > globalend)
             break;
 
@@ -267,8 +267,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         cout << "rank" << rank << " chunk read ######  " << i << endl;
         memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
-        if(index+chunk_lo>globalend)
-            current_chunk = globalend- index;
+        if (index + chunk_lo > globalend)
+            current_chunk = globalend - index;
 
         index = index + current_chunk;
 
@@ -285,19 +285,13 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
 
-//    if (rank == 0) {
-////        cout << "rank" << rank << " chunk ##### " << chunk << endl;
-//        cout << " chunk start" << chunk[locstart] << endl;
-//    }
     //move to next full delim of number
     if (rank != world_size - 1) {
         while (chunk[locend] != '\n')
             locend--;
         locend++;
     }
-//
-//    cout << "rank" << rank << " locsstart starting " << perpsize << endl;
-//
+
     if (rank != 0) {
         while (chunk[locstart] != '\n')
             locstart++;
@@ -332,7 +326,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long expected_chunk_size = total_data_set_size / world_size;
 
 
-    if (rank = world_size - 1)
+    if (rank == world_size - 1)
         expected_chunk_size = total_data_set_size - rank * (total_data_set_size / world_size);
 
     cout << " rank " << rank << " expected chunk size" << expected_chunk_size << " output size " << output.size()
@@ -344,12 +338,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         return slice(output, (output.size() - expected_chunk_size), output.size() - 1);
 
 
-    if (rank == 0) {
-        cout << " first " << output[0][0] << " last size:" << output[0][output[0].size() - 1] << endl;
-    }
-//    if (rank == 0) {
-    cout << " rank " << rank << "Output size:" << output.size() << ":" << v.size() << endl;
-//    }
+    cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;
+
     cout << endl;
     return output;
 }

@@ -242,7 +242,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     cout << "rank " << rank << " file size " << perpsize << endl;
 
 
-    int chunk_lo = 1073741824;
+    long chunk_lo = 1073741824;
 
     int number_of_chunks = ceil((perpsize) / chunk_lo);
 
@@ -251,8 +251,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
-    int index = 0;
-    int current_chunk = chunk_lo;
+    long index = 0;
+    long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
         if (index >= perpsize)

@@ -272,7 +272,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         index = index + current_chunk;
 
-        free(chunk_lo_arr);
+//        free(chunk_lo_arr);
     }
 
     MPI_File_close(&in);

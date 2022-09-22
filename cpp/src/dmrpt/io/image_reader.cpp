@@ -228,9 +228,12 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << "rank " << rank << " file size " << perpsize << endl;
 
+    int perpsize = 100000000008/world_size;
+
+
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
     //read corresponding part
-    MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+    MPI_File_read_at_all(in, 0, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
 
     MPI_File_close(&in);
     cout << "rank" << rank << " mpi read complete " << perpsize << endl;

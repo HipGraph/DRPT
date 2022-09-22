@@ -97,7 +97,8 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if (tree_depth == 0) {
-        tree_depth = static_cast<int>(log2((data_set_size / size)) - 3);
+        tree_depth = static_cast<int>(log2((data_set_size / size)) - (log2(nn)+1));
+        cout<<" tree depth "<<tree_depth<<endl;
     }
 
 

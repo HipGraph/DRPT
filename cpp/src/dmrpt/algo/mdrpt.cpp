@@ -302,11 +302,11 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
 #pragma omp parallel for
             for (int j = 0; j < data_points.size(); j++) {
 
-//                VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
-//                                                                data_points[j].image_data);
+                  VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
+                                                                data_points[j].image_data);
 
-                VALUE_TYPE distance = mathOp.calculate_approx_distance(data_points[k].image_data,
-                                                                data_points[j].image_data,0,data_points[j].image_data.size());
+//                VALUE_TYPE distance = mathOp.calculate_approx_distance(data_points[k].image_data,
+//                                                                data_points[j].image_data,0,data_points[j].image_data.size());
 
                 DataPoint dataPoint;
                 dataPoint.src_index = data_points[k].index;

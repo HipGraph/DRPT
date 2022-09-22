@@ -236,7 +236,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     MPI_File_close(&in);
     cout << "rank" << rank << " mpi read complete " << perpsize << endl;
     chunk[perpsize] = '\0';
-    int locstart = 0, locend = perpsize;
+    long locstart = 0, locend = perpsize;
     vector <vector<VALUE_TYPE>> output;
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
@@ -285,7 +285,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     }
 
-    int expected_chunk_size = total_data_set_size/world_size;
+    long expected_chunk_size = total_data_set_size/world_size;
 
 
     if (rank=world_size-1)

@@ -239,14 +239,14 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
     for(int i=0;i<number_of_chunks;i++) {
-        char *chunk_lo = (char *) malloc((chunk_lo) * sizeof(char));
+        char *chunk_lo_arr = (char *) malloc((chunk_lo) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i*chunk_lo;
 
         //read corresponding part
-        MPI_File_read_at_all(in, globalstart_lo, chunk_lo, chunk_lo, MPI_CHAR, MPI_STATUS_IGNORE);
+        MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, chunk_lo, MPI_CHAR, MPI_STATUS_IGNORE);
 
-        cout << "rank" << rank << " chunk read ######  " << chunk_lo<< endl;
-        free(chunk_lo);
+        cout << "rank" << rank << " chunk read ######  " << chunk_lo_arr<< endl;
+        free(chunk_lo_arr);
 
     }
 

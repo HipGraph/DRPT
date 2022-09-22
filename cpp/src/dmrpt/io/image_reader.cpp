@@ -219,8 +219,6 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     perpsize = (filesize) / world_size;
 
-    cout << "rank" << rank << " file size " << perpsize << endl;
-
     globalstart = rank * perpsize;
     globalend = globalstart + perpsize - 1;
 
@@ -239,14 +237,10 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     perpsize = globalend - globalstart + 1;
 
-    cout << "rank " << rank << " file size " << perpsize << endl;
-
 
     long chunk_lo = 1073741824;
 
     int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
-
-    cout << " rank " << rank << " number of chunks" << number_of_chunks << endl;
 
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
@@ -255,7 +249,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
-        cout << "rank " << rank << " index " << index << " perpsize " << globalend << endl;
+
         if (index > globalend)
             break;
 
@@ -265,7 +259,6 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         //read corresponding part
         MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
-        cout << "rank" << rank << " chunk read ######  " << i << endl;
         memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
         if (index + chunk_lo > globalend)
             current_chunk = globalend - index;
@@ -281,9 +274,6 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long locstart = 0, locend = perpsize;
     vector <vector<VALUE_TYPE>> output;
 
-    cout << "rank" << rank << " locsstart  " << locstart << " loc end" << locend << endl;
-
-    cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
 
     //move to next full delim of number
     if (rank != world_size - 1) {
@@ -301,10 +291,6 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     perpsize = locend - locstart + 1;
     vector<VALUE_TYPE> v;
-
-    cout << "rank" << rank << " after locsstart  " << locstart << " after loc end" << locend << endl;
-
-    cout << "rank" << rank << " final chunk size " << perpsize << endl;
 
 
     stringstream str(chunk);

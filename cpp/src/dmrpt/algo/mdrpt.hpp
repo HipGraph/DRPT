@@ -41,6 +41,8 @@ namespace dmrpt {
 
         void calculate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn);
 
+        void approx_distance_by_kd_tree(vector<DataPoint> datapoints,int nn);
+
 
     public:
         MDRPT(int ntrees, int algo, vector <vector<VALUE_TYPE>> original_data, int tree_depth, double tree_depth_ratio,

@@ -148,7 +148,8 @@ VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE
     return arr;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col,
+VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+                                            vector<int> total_elements_per_col,
                                             dmrpt::StorageFormat format, int rank) {
 
     VALUE_TYPE *sums = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
@@ -157,13 +158,13 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
         sums[i] = 0.0;
     }
     if (format == dmrpt::StorageFormat::RAW) {
-        int data_count_prev=0;
+        int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
             for (int j = 0; j < local_rows[i]; j++) {
                 sum = sum + data[j + data_count_prev];
             }
-            data_count_prev +=local_rows[i];
+            data_count_prev += local_rows[i];
             sums[i] = sum;
         }
     }
@@ -176,7 +177,8 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
     return gsums;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col,
+VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+                                                vector<int> total_elements_per_col,
                                                 dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
     VALUE_TYPE *var = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
@@ -185,14 +187,14 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
         var[i] = 0.0;
     }
     if (format == dmrpt::StorageFormat::RAW) {
-        int data_count_prev=0;
+        int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
             for (int j = 0; j < local_rows[i]; j++) {
                 VALUE_TYPE diff = (data[j + data_count_prev] - means[i]);
                 sum = sum + (diff * diff);
             }
-            data_count_prev +=local_rows[i];
+            data_count_prev += local_rows[i];
             var[i] = sum;
         }
     }
@@ -208,10 +210,12 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
 
 
 VALUE_TYPE *
-dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, int no_of_bins,
+dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+                                  vector<int> total_elements_per_col, int no_of_bins,
                                   dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
-    VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements_per_col, format, rank);
+    VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements_per_col, format,
+                                                      rank);
     VALUE_TYPE *medians = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
 
     int std1 = 4, std2 = 2, std3 = 1;
@@ -230,7 +234,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
     int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
     int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
 
-    int data_count_prev =0;
+    int data_count_prev = 0;
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE mu = means[i];
         VALUE_TYPE sigma = variance[i];
@@ -275,7 +279,6 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
         }
 
 
-
         for (int k = 0; k < local_rows[i]; k++) {
             int flag = 1;
             for (int j = 1; j < 2 * no_of_bins + 2; j++) {
@@ -289,7 +292,7 @@ dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int 
                 frequency[0] += 1;
             }
         }
-        data_count_prev +=local_rows[i];
+        data_count_prev += local_rows[i];
 
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];
@@ -337,6 +340,27 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> data, vector<VAL
 
     cblas_saxpy(data.size(), -1, data_arr, 1, query_arr, 1);
     return cblas_snrm2(data.size(), query_arr, 1);
+}
+
+
+float dmrpt::MathOp::calculate_approx_distance(vector<float> &A, vector<float> &B, int start_index, int end_index) {
+
+    if (end_index == start_index + 1) {
+        long x = (A[start_index] - B[start_index]);
+        return abs(x);
+    } else {
+        int chunk = (end_index - start_index) / 2;
+//        cout<< "chunk" <<chunk<<endl;
+        int mid_index = start_index + chunk;
+        float val_left = distance_approx(A, B, start_index, mid_index);
+        float val_right = distance_approx(A, B, mid_index, end_index);
+        float max = std::max(val_left, val_right);
+        float min = std::min(val_left, val_right);
+        float alpha = 0.9604;
+        float beta = 0.3978;
+        float distance = alpha * max + beta * min;
+        return distance;
+    }
 }
 
 

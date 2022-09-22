@@ -754,3 +754,16 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, v
 
 }
 
+
+void dmrpt::MDRPT::approx_distance_by_kd_tree(vector <DataPoint> datapoints, int nn) {
+
+
+
+
+
+
+
+
+
+}
+

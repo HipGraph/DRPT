@@ -352,8 +352,8 @@ float dmrpt::MathOp::calculate_approx_distance(vector<float> &A, vector<float> &
         int chunk = (end_index - start_index) / 2;
 //        cout<< "chunk" <<chunk<<endl;
         int mid_index = start_index + chunk;
-        float val_left = distance_approx(A, B, start_index, mid_index);
-        float val_right = distance_approx(A, B, mid_index, end_index);
+        float val_left = calculate_approx_distance(A, B, start_index, mid_index);
+        float val_right = calculate_approx_distance(A, B, mid_index, end_index);
         float max = std::max(val_left, val_right);
         float min = std::min(val_left, val_right);
         float alpha = 0.9604;

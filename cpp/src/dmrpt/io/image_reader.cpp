@@ -226,10 +226,11 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     if (rank == world_size - 1) {
         globalend = filesize - 1;
+        globalstart = (rank * perpsize) - overlap;
     }
 
     if (rank != 0) {
-        globalstart = (rank * perpsize) - overlap;
+        globalstart = (rank * perpsize) - 1;
     }
 
     //add overlap to the end
@@ -256,6 +257,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     for (int i = 0; i < number_of_chunks; i++) {
         if (index >= perpsize)
             break;
+
+        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< perpsize<<endl;
 
         char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;

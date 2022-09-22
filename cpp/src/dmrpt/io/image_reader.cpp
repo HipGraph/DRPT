@@ -219,7 +219,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     if (rank == world_size - 1) {
         globalend = filesize - 1;
-        globalstart = (rank * perpsize) - 100;
+        globalstart = (rank * perpsize) - overlap;
     }
     //add overlap to the end
     if (rank != world_size - 1)
@@ -229,9 +229,26 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     cout << "rank " << rank << " file size " << perpsize << endl;
 
 
+    int chunk_lo=1073741824;
+
+    int number_of_chunks = (perpsize)/number_of_chunks;
+
+    cout<<" rank "<< rank <<" number of chunks"<<number_of_chunks<<endl;
+
+
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
-    //read corresponding part
-    MPI_File_read_at_all(in, globalstart, chunk, perpsize, MPI_CHAR, MPI_STATUS_IGNORE);
+
+    for(int i=0;i<number_of_chunks;i++) {
+        char *chunk_lo = (char *) malloc((chunk_lo) * sizeof(char));
+        MPI_Offset globalstart_lo = globalstart + i*chunk_lo;
+
+        //read corresponding part
+        MPI_File_read_at_all(in, globalstart_lo, chunk_lo, chunk_lo, MPI_CHAR, MPI_STATUS_IGNORE);
+
+        cout << "rank" << rank << " chunk read ######  " << chunk_lo<< endl;
+        free(chunk_lo);
+
+    }
 
     MPI_File_close(&in);
     cout << "rank" << rank << " mpi read complete " << perpsize << endl;

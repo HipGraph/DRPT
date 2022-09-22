@@ -6,6 +6,7 @@
 #include <sstream>
 #include "mpi.h"
 #include <cstring>
+#include <cmath>
 //#include <opencv2/opencv.hpp>
 //#include <opencv2/imgcodecs/imgcodecs.hpp>
 
@@ -36,11 +37,16 @@ using namespace std;
 //    return imagesdata;
 //}
 
-template<typename T> vector <T> slice(vector < T > const &v, int m, int n ) {
-    auto first = v.cbegin() + m;
-    auto last = v.cbegin() + n + 1;
-    std::vector <T> vec(first, last);
-return vec;
+template<typename T> vector <T> slice(vector < T >
+const &v,
+int m,
+int n
+) {
+auto first = v.cbegin() + m;
+auto last = v.cbegin() + n + 1;
+std::vector <T> vec(first, last);
+return
+vec;
 }
 
 int dmrpt::ImageReader::reverse_int(int i) {
@@ -194,10 +200,11 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size, char delim) {
+dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size,
+                                  char delim) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
-    const char* cstr = path.c_str();
+    const char *cstr = path.c_str();
     int ierr = MPI_File_open(MPI_COMM_WORLD, cstr, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
     if (ierr) {
         cout << " can't open file " << endl;
@@ -206,52 +213,63 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long perpsize;//perprocess size
     char *chunk;
     //read relevant chunk
-    int  error  = MPI_File_get_size(in, &filesize);
-    filesize = 17550888879;
-    if(error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
+    int error = MPI_File_get_size(in, &filesize);
+    if (error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
     filesize--;
 
     perpsize = (filesize) / world_size;
 
-    cout<<"rank"<<rank<<" file size "<<perpsize<<endl;
+    cout << "rank" << rank << " file size " << perpsize << endl;
 
     globalstart = rank * perpsize;
     globalend = globalstart + perpsize - 1;
 
     if (rank == world_size - 1) {
         globalend = filesize - 1;
+    }
+
+    if (rank != 0) {
         globalstart = (rank * perpsize) - overlap;
     }
+
     //add overlap to the end
     if (rank != world_size - 1)
         globalend += overlap;
+
     perpsize = globalend - globalstart + 1;
 
     cout << "rank " << rank << " file size " << perpsize << endl;
 
 
-    int chunk_lo=1073741824;
+    long chunk_lo = 1073741824;
 
-    int number_of_chunks = (perpsize)/chunk_lo;
+    int number_of_chunks = ceil((perpsize) / chunk_lo);
 
-    cout<<" rank "<< rank <<" number of chunks"<<number_of_chunks<<endl;
+    cout << " rank " << rank << " number of chunks" << number_of_chunks << endl;
 
 
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
-    int index=0;
+    int index = 0;
+    long current_chunk = chunk_lo;
 
-    for(int i=0;i<number_of_chunks;i++) {
-        char *chunk_lo_arr = (char *) malloc((chunk_lo) * sizeof(char));
-        MPI_Offset globalstart_lo = globalstart + i*chunk_lo;
+    for (int i = 0; i < number_of_chunks; i++) {
+        if (index >= perpsize)
+            break;
+
+        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
+        MPI_Offset globalstart_lo = globalstart + i * current_chunk;
 
         //read corresponding part
-        MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, chunk_lo, MPI_CHAR, MPI_STATUS_IGNORE);
+        MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
-        cout << "rank" << rank << " chunk read ######  "<<i<< endl;
-        memcpy(&chunk[index],&chunk_lo_arr[0],chunk_lo);
-        index = index+ chunk_lo;
+        cout << "rank" << rank << " chunk read ######  " << i << endl;
+        memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
+        index = index + current_chunk;
+        if(index+chunk_lo>perpsize)
+            current_chunk = perpsize- index;
 
+        free(chunk_lo_arr)
     }
 
     MPI_File_close(&in);
@@ -260,7 +278,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long locstart = 0, locend = perpsize;
     vector <vector<VALUE_TYPE>> output;
 
-    cout << "rank" << rank << " locsstart  " << locstart<<" loc end"<<locend << endl;
+    cout << "rank" << rank << " locsstart  " << locstart << " loc end" << locend << endl;
 
     cout << "rank" << rank << " null character assigned completed " << perpsize << endl;
 
@@ -287,7 +305,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     perpsize = locend - locstart + 1;
     vector<VALUE_TYPE> v;
 
-    cout << "rank" << rank << " after locsstart  " << locstart<<" after loc end"<<locend << endl;
+    cout << "rank" << rank << " after locsstart  " << locstart << " after loc end" << locend << endl;
 
     cout << "rank" << rank << " final chunk size " << perpsize << endl;
 
@@ -308,22 +326,23 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     }
 
-    long expected_chunk_size = total_data_set_size/world_size;
+    long expected_chunk_size = total_data_set_size / world_size;
 
 
-    if (rank=world_size-1)
-        expected_chunk_size = total_data_set_size - rank * (total_data_set_size/world_size);
+    if (rank = world_size - 1)
+        expected_chunk_size = total_data_set_size - rank * (total_data_set_size / world_size);
 
-    cout<<" rank "<<rank<<" expected chunk size"<<expected_chunk_size<<" output size "<<output.size()<<endl;
+    cout << " rank " << rank << " expected chunk size" << expected_chunk_size << " output size " << output.size()
+         << endl;
 
-    if(rank==0 and output.size()>expected_chunk_size)
-        return slice(output,0,expected_chunk_size-1);
-    else if(output.size()>expected_chunk_size)
-        return slice(output,(output.size()-expected_chunk_size),output.size()-1);
+    if (rank == 0 and output.size() > expected_chunk_size)
+        return slice(output, 0, expected_chunk_size - 1);
+    else if (output.size() > expected_chunk_size)
+        return slice(output, (output.size() - expected_chunk_size), output.size() - 1);
 
 
-    if(rank ==  0){
-        cout << " first " << output[0][0] << " last size:" << output[0][output[0].size()-1] <<  endl;
+    if (rank == 0) {
+        cout << " first " << output[0][0] << " last size:" << output[0][output[0].size() - 1] << endl;
     }
 //    if (rank == 0) {
     cout << " rank " << rank << "Output size:" << output.size() << ":" << v.size() << endl;

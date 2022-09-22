@@ -255,10 +255,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
+        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< perpsize<<endl;
         if (index >= perpsize)
             break;
-
-        cout<<"rank "<<rank<<" index "<<index<<" perpsize "<< perpsize<<endl;
 
         char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;

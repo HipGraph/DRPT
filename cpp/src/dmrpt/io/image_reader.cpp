@@ -252,7 +252,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
     int index = 0;
-    long current_chunk = chunk_lo;
+    int current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
         if (index >= perpsize)

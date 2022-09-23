@@ -438,15 +438,15 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     while (count < total_arr_size) {
 
         char c = chunk[count];
-        cout<<"val "<<c;
         std::string s(1, c);
         if (count > 0 and count % dimension == 0) {
             output.push_back(v);
             v.clear();
+            cout<<endl;
         }
 
         VALUE_TYPE val = atoi(s.c_str());
-//        cout<<"val "<<val;
+        cout<<val <' '
         v.push_back(val);
         count++;
     }

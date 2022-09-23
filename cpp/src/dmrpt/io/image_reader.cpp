@@ -253,11 +253,14 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         if (index > globalend)
             break;
 
+
         char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
 
         //read corresponding part
         MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
+
+        cout<<" rank "<<rank<<" reading completed for index"<<index<<endl;
 
         memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
         if (index + chunk_lo > globalend)
@@ -265,7 +268,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         index = index + current_chunk;
 
-//        free(chunk_lo_arr);
+        free(chunk_lo_arr);
     }
 
     MPI_File_close(&in);

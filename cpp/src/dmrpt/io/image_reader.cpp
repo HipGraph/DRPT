@@ -402,7 +402,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long index = global_start;
     long current_chunk = chunk_lo;
 
-    while (index >= process_bytes) {
+    while (index < process_bytes) {
 
         cout << " rank " << rank << " globalstart " << global_start << " index " << index <<
              " perp_size " << process_bytes << " global_end " << global_end << endl;

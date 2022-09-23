@@ -397,7 +397,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     int number_of_chunks = ceil((process_bytes) / chunk_lo) + 1;
 
-    cout<<" perpsize "<<process_bytes<<" number of chunks"<<number_of_chunks<<endl;
+    cout << " perpsize " << process_bytes << " number of chunks" << number_of_chunks << endl;
 
     long index = 0;
     long current_chunk = chunk_lo;
@@ -423,16 +423,19 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     chunk[perpsize] = '\0';
 
-    int count=0;
+    int count = 0;
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;
-    while(count<process_bytes){
-       const char *c = chunk[count];
-      if(count >0  and count % dimension ==0 ){
-          output.push_back(v);
-          v.clear();
-      }
-      v.push_back(atoi(c));
+    while (count < process_bytes) {
+
+        char c = chunk[count];
+        std::string s(1, c)
+
+        if (count > 0 and count % dimension == 0) {
+            output.push_back(v);
+            v.clear();
+        }
+        v.push_back(atoi(s.c_str()));
         count++;
     }
     output.push_back(v);

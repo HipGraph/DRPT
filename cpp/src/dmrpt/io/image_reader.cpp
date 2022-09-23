@@ -446,7 +446,6 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         }
 
           int x = (int)(c);
-          cout<<x <<' ';
           v.push_back((float) x);
          count++;
     }

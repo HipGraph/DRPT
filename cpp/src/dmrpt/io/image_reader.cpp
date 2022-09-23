@@ -429,22 +429,28 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;
 
-    long total_arr_size = (process_bytes)*sizeof (char );
+    long total_arr_size = (process_bytes)*sizeof(char);
+
+    cout<<" rank "<<rank<<" total size "<<total_arr_size<<endl;
+
 
     while (count < total_arr_size) {
 
         char c = chunk[count];
-        std::string s(1, c);
 
+        std::string s(1, c);
         if (count > 0 and count % dimension == 0) {
             output.push_back(v);
             v.clear();
         }
-        v.push_back(atoi(s.c_str()));
+
+        VALUE_TYPE val = atoi(s.c_str());
+        cout<<"val "<<val;
+        v.push_back(val);
         count++;
     }
-    output.push_back(v);
 
+    output.push_back(v);
 
     cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;
     return output;

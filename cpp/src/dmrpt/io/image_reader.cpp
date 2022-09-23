@@ -425,7 +425,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
 
     cout << " rank " << rank << "Mpi read completed "  << endl;
-    int count = 0;
+    long count = 0;
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;
 
@@ -434,15 +434,18 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout<<" rank "<<rank<<" total size "<<(total_arr_size/dimension)<<endl;
 
+    long co =  total_arr_size/dimension;
+    long co_in = 0;
 
-    while (count < total_arr_size) {
+    while (co_in<co) {
 
         char c = chunk[count];
         std::string s(1, c);
         if (count > 0 and count % dimension == 0) {
-            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
+//            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
             output.push_back(v);
             v.clear();
+            co_in++;
         }
 
           int x = (int)(c);

@@ -399,18 +399,15 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     cout << " perpsize " << process_bytes << " number of chunks" << number_of_chunks << endl;
 
-    long index = 0;
+    long index = global_start;
     long current_chunk = chunk_lo;
 
-    for (long i = 0; i < number_of_chunks; i++) {
-
-        if (index >= process_bytes)
-            break;
+    while (index >= process_bytes) {
 
         cout << " rank " << rank << " globalstart " << global_start << " index " << index <<
              " perp_size " << process_bytes << " global_end " << global_end << endl;
 
-        MPI_Offset globalstart_lo = globalstart + i * current_chunk;
+        MPI_Offset globalstart_lo = index;
 
         MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 

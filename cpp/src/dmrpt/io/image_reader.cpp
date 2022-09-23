@@ -432,8 +432,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
           output.push_back(v);
           v.clear();
       }
-      v.push_back(atoi(c))
-        count++
+      v.push_back(atoi(c));
+        count++;
     }
     output.push_back(v);
 

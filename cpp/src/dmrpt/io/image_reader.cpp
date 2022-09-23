@@ -323,20 +323,21 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     cout << " rank " << rank << " expected chunk size" << expected_chunk_size << " output size " << output.size()
          << endl;
 
+    vector<vector<VALUE_TYPE>> final_vec;
     if (rank == 0 and output.size() > expected_chunk_size)
-        return slice(output, 0, expected_chunk_size - 1);
+        final_vec = slice(output, 0, expected_chunk_size - 1);
     else if (output.size() > expected_chunk_size)
-        return slice(output, (output.size() - expected_chunk_size), output.size() - 1);
+        final_vec = slice(output, (output.size() - expected_chunk_size), output.size() - 1);
 
 
-    for(int i=0;i<output.size();i++){
-        if(output[i].size()!= 960){
-            cout<<" rank "<<rank<<" index"<<i<<" dime"<<output[i].size()<<endl;
+    for(int i=0;i<final_vec.size();i++){
+        if(final_vec[i].size()!= 960){
+            cout<<" rank "<<rank<<" index"<<i<<" dime"<<final_vec[i].size()<<endl;
         }
     }
 
 
-    cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;
+    cout << " rank " << rank << "Output size:" << final_vec.size() << ":" << final_vec[0].size() << endl;
 
     cout << endl;
     return output;

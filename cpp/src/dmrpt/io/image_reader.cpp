@@ -390,26 +390,25 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if (rank == world_size - 1)
         global_end = filesize - 1;
 
-    perpsize = globalend - globalstart + 1;
 
-    char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+    char *chunk = (char *) malloc((process_bytes + 1) * sizeof(char));
 
     long chunk_lo = 1073741824;
 
-    int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
+    int number_of_chunks = ceil((process_bytes) / chunk_lo) + 1;
 
-    cout<<" perpsize "<<perpsize<<" number of chunks"<<number_of_chunks<<endl;
+    cout<<" perpsize "<<process_bytes<<" number of chunks"<<number_of_chunks<<endl;
 
     long index = 0;
     long current_chunk = chunk_lo;
 
     for (int i = 0; i < number_of_chunks; i++) {
 
-        if (index >= perpsize)
+        if (index >= process_bytes)
             break;
 
         cout << " rank " << rank << " globalstart " << global_start << " index " << index <<
-             " perp_size " << perpsize << " global_end " << global_end << endl;
+             " perp_size " << process_bytes << " global_end " << global_end << endl;
 
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
 
@@ -417,8 +416,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         index = index + current_chunk;
 
-        if (index + chunk_lo >= perpsize)
-            current_chunk = perpsize - index;
+        if (index + chunk_lo >= process_bytes)
+            current_chunk = process_bytes - index;
 
     }
 

@@ -352,7 +352,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
 vector <vector<float>>
 dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size,
-                                  int data_node_byte, int dimension) {
+                                  int data_node_byte, int offset, int dimension) {
     vector <vector<VALUE_TYPE>> final_vec;
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
@@ -367,11 +367,65 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     //read relevant chunk
     int error = MPI_File_get_size(in, &filesize);
     if (error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
-    filesize--;
+//    filesize--;
 
-    cout << "file size" << filesize << endl;
+    filesize = filesize - offset;
+    long total_data_nodes = filesize / data_node_byte;
+
+    long process_data_nodes = total_data_nodes / world_size;
+
+    if (rank == world_size - 1)
+        process_data_nodes = total_data_nodes - rank * process_data_nodes;
+
+    long process_bytes = process_data_nodes * data_node_byte;
+
+
+    long global_start = rank * process_bytes;
+
+    if (rank == 0)
+        global_start = 8;
+
+    long global_end = (rank + 1) * process_bytes - 1;
+
+
+    if (rank == world_size - 1)
+        global_end = filesize - 1;
+
+    long perpsize = globalend - globalstart + 1;
+
+    char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+
+    long chunk_lo = 1073741824;
+
+    int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
+
+
+    long index = 0;
+    long current_chunk = chunk_lo;
+
+    for (int i = 0; i < number_of_chunks; i++) {
+
+        if (index >= perpsize)
+            break;
+
+        cout << " rank " << rank << " globalstart " << global_start << " index " << index <<
+             " perp_size " << perpsize << " global_end " << global_end << endl;
+
+        MPI_Offset globalstart_lo = globalstart + i * current_chunk;
+
+        MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
+
+        index = index + current_chunk;
+
+        if (index + chunk_lo >= perpsize)
+            current_chunk = perpsize - index;
+
+    }
+
+    cout << " rank " << rank << "  read compledted " << endl;
 
     return final_vec;
 }
+
 
 

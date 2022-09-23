@@ -395,12 +395,13 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     long chunk_lo = 1073741824;
 
-    long number_of_chunks = (process_bytes/ chunk_lo) + 1;
 
-    cout << " perpsize " << process_bytes << " number of chunks" << number_of_chunks << endl;
+
 
     long index = global_start;
     long current_chunk = chunk_lo;
+
+    cout << " perpsize " << process_bytes<<" global start"<<global_start<<" index "<<index<<endl;
 
     while (index < process_bytes) {
 

@@ -254,21 +254,21 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
             break;
 
 
-        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
+//        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
 
         //read corresponding part
-        MPI_File_read_at_all(in, globalstart_lo, chunk_lo_arr, current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
+        MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
         cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<globalend<<endl;
 
-        memcpy(&chunk[index], chunk_lo_arr, current_chunk);
+//        memcpy(&chunk[index], chunk_lo_arr, current_chunk);
         if (index + chunk_lo > globalend)
             current_chunk = globalend - index;
 
         index = index + current_chunk;
         cout<<" rank "<<rank<<" trying to free"<<endl;
-        free(chunk_lo_arr);
+//        free(chunk_lo_arr);
         cout<<" rank "<<rank<<" free completed"<<endl;
     }
 

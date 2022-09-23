@@ -383,7 +383,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long global_start = rank * process_bytes;
 
     if (rank == 0)
-        global_start = 8;
+        global_start = offset;
 
     long global_end = (rank + 1) * process_bytes - 1;
 

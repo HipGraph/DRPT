@@ -267,8 +267,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
             current_chunk = globalend - index;
 
         index = index + current_chunk;
-
+        cout<<" rank "<<rank<<" trying to free"<<endl;
         free(chunk_lo_arr);
+        cout<<" rank "<<rank<<" free completed"<<endl;
     }
 
     MPI_File_close(&in);

@@ -330,9 +330,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         final_vec = slice(output, 0, expected_chunk_size - 1);
     } else if (output.size() > expected_chunk_size) {
         int total_length = output.size() - expected_chunk_size;
-        int first_index = total_length/2;
-        int last_index = output.size() - (total_length-first_index);
-        final_vec = slice(output, first_index, last_index-1);
+        int first_index = total_length / 2;
+        int last_index = output.size() - (total_length - first_index);
+        final_vec = slice(output, first_index, last_index - 1);
     }
 
 
@@ -346,6 +346,31 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     cout << " rank " << rank << "Output size:" << final_vec.size() << ":" << final_vec[0].size() << endl;
 
     cout << endl;
+    return final_vec;
+}
+
+
+vector <vector<float>>
+dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size,
+                                  int data_node_byte, int dimension) {
+    vector <vector<VALUE_TYPE>> final_vec;
+    MPI_Offset globalstart, globalend, filesize;
+    MPI_File in;
+    const char *cstr = path.c_str();
+    int ierr = MPI_File_open(MPI_COMM_WORLD, cstr, MPI_MODE_RDONLY, MPI_INFO_NULL, &in);
+    if (ierr) {
+        cout << " can't open file " << endl;
+    }
+
+    long perpsize;//perprocess size
+//    char *chunk;
+    //read relevant chunk
+    int error = MPI_File_get_size(in, &filesize);
+    if (error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
+    filesize--;
+
+    cout << "file size" << filesize << endl;
+
     return final_vec;
 }
 

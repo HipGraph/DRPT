@@ -427,7 +427,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;
     while(count<process_bytes){
-        char c = chunk[count];
+       const char *c = chunk[count];
       if(count >0  and count % dimension ==0 ){
           output.push_back(v);
           v.clear();

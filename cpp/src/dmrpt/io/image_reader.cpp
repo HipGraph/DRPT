@@ -256,7 +256,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
 //        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
-
+        cout<<" rank "<<rank<<" start reading  for index"<<index<<" global end "<<globalend<<endl;
         //read corresponding part
         MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 

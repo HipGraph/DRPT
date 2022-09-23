@@ -446,7 +446,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         }
 
         VALUE_TYPE val = atoi(s.c_str());
-        cout<<val <' '
+        cout<<val <' ';
         v.push_back(val);
         count++;
     }

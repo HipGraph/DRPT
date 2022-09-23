@@ -432,7 +432,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     long total_arr_size = (process_bytes)*sizeof(char);
 
 
-    cout<<" rank "<<rank<<" total size "<<chunk<<endl;
+    cout<<" rank "<<rank<<" total size "<<(total_arr_size/dimension)<<endl;
 
 
     while (count < total_arr_size) {
@@ -440,6 +440,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         char c = chunk[count];
         std::string s(1, c);
         if (count > 0 and count % dimension == 0) {
+            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
             output.push_back(v);
             v.clear();
         }

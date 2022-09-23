@@ -201,7 +201,7 @@ dmrpt::ImageReader::read_File(string path, int no_of_data_points, int dimension,
 
 vector <vector<VALUE_TYPE>>
 dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int overlap, int total_data_set_size,
-                                  char delim) {
+                                  char delim, int dimension) {
     MPI_Offset globalstart, globalend, filesize;
     MPI_File in;
     const char *cstr = path.c_str();
@@ -243,7 +243,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
 
 
-     char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+    char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
     long index = 0;
     long current_chunk = chunk_lo;
@@ -309,7 +309,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         while (std::getline(linestream, data, ' ')) {
             v.push_back(atoi(data.c_str()));
         }
-        output.push_back(v);
+        if (v.size() == dimension) {
+            output.push_back(v);
+        }
         v.clear();
 
     }
@@ -323,16 +325,16 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     cout << " rank " << rank << " expected chunk size" << expected_chunk_size << " output size " << output.size()
          << endl;
 
-    vector<vector<VALUE_TYPE>> final_vec;
+    vector <vector<VALUE_TYPE>> final_vec;
     if (rank == 0 and output.size() > expected_chunk_size)
         final_vec = slice(output, 0, expected_chunk_size - 1);
     else if (output.size() > expected_chunk_size)
         final_vec = slice(output, (output.size() - expected_chunk_size), output.size() - 1);
 
 
-    for(int i=0;i<final_vec.size();i++){
-        if(final_vec[i].size()!= 960){
-            cout<<" rank "<<rank<<" index"<<i<<" dime"<<final_vec[i].size()<<endl;
+    for (int i = 0; i < final_vec.size(); i++) {
+        if (final_vec[i].size() != 960) {
+            cout << " rank " << rank << " index" << i << " dime" << final_vec[i].size() << endl;
         }
     }
 

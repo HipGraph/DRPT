@@ -414,6 +414,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         index = index + current_chunk;
 
+        cout<<"rank "<<rank<<" next index "<<index<<endl;
+
         if (index + chunk_lo >= process_bytes)
             current_chunk = process_bytes - index;
 

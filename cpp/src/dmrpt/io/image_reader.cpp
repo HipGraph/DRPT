@@ -391,7 +391,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if (rank == world_size - 1)
         global_end = filesize - 1;
 
-    long perpsize = globalend - globalstart + 1;
+    perpsize = globalend - globalstart + 1;
 
     char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 

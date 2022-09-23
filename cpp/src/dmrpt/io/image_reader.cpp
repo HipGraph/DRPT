@@ -211,7 +211,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     }
 
     long perpsize;//perprocess size
-    char *chunk;
+//    char *chunk;
     //read relevant chunk
     int error = MPI_File_get_size(in, &filesize);
     if (error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
@@ -243,7 +243,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
 
 
-    chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+    const char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
     long index = 0;
     long current_chunk = chunk_lo;
@@ -254,7 +254,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
             break;
 
 
-        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
+        const char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
 
         //read corresponding part
@@ -262,7 +262,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<globalend<<endl;
 
-//        memcpy(&chunk[index], &chunk_lo_arr[0], current_chunk);
+        memcpy(chunk[index], chunk_lo_arr, current_chunk);
         if (index + chunk_lo > globalend)
             current_chunk = globalend - index;
 

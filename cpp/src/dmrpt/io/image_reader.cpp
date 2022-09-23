@@ -423,6 +423,8 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     chunk[perpsize] = '\0';
 
+
+    cout << " rank " << rank << "Mpi read completed "  << endl;
     int count = 0;
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;

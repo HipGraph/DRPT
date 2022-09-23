@@ -429,7 +429,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     while (count < process_bytes) {
 
         char c = chunk[count];
-        std::string s(1, c)
+        std::string s(1, c);
 
         if (count > 0 and count % dimension == 0) {
             output.push_back(v);

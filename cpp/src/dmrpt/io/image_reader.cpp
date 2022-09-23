@@ -421,9 +421,25 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     }
 
-    cout << " rank " << rank << "  read compledted " << endl;
+    chunk[perpsize] = '\0';
 
-    return final_vec;
+    int count=0;
+    vector<VALUE_TYPE> v;
+    vector <vector<VALUE_TYPE>> output;
+    while(count<process_bytes){
+        char c = chunk[count];
+      if(count >0  and count % dimension ==0 ){
+          output.push_back(v);
+          v.clear();
+      }
+      v.push_back(atoi(c))
+        count++
+    }
+    output.push_back(v);
+
+
+    cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;
+    return output;
 }
 
 

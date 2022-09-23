@@ -428,7 +428,10 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int count = 0;
     vector<VALUE_TYPE> v;
     vector <vector<VALUE_TYPE>> output;
-    while (count < process_bytes) {
+
+    long total_arr_size = (process_bytes)*sizeof (char );
+
+    while (count < total_arr_size) {
 
         char c = chunk[count];
         std::string s(1, c);

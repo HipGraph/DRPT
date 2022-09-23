@@ -260,13 +260,14 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         //read corresponding part
         MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
-        cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<globalend<<endl;
 
+        cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<globalend<<endl;
+        index = index + current_chunk;
 //        memcpy(&chunk[index], chunk_lo_arr, current_chunk);
         if (index + chunk_lo > globalend)
             current_chunk = globalend - index;
 
-        index = index + current_chunk;
+
         cout<<" rank "<<rank<<" trying to free"<<endl;
 //        free(chunk_lo_arr);
         cout<<" rank "<<rank<<" free completed"<<endl;

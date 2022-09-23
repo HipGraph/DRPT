@@ -256,21 +256,21 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
 //        char *chunk_lo_arr = (char *) malloc((current_chunk) * sizeof(char));
         MPI_Offset globalstart_lo = globalstart + i * current_chunk;
-        cout<<" rank "<<rank<<" start reading  for index"<<index<<" global end "<<perpsize<<"current chunk"<<current_chunk<<endl;
+//        cout<<" rank "<<rank<<" start reading  for index"<<index<<" global end "<<perpsize<<"current chunk"<<current_chunk<<endl;
         //read corresponding part
         MPI_File_read_at_all(in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
 
-        cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<perpsize<<endl;
+//        cout<<" rank "<<rank<<" reading completed for index"<<index<<" global end "<<perpsize<<endl;
         index = index + current_chunk;
 //        memcpy(&chunk[index], chunk_lo_arr, current_chunk);
         if (index + chunk_lo >= perpsize)
             current_chunk = perpsize - index;
 
 
-        cout<<" rank "<<rank<<" trying to free"<<endl;
+//        cout<<" rank "<<rank<<" trying to free"<<endl;
 //        free(chunk_lo_arr);
-        cout<<" rank "<<rank<<" free completed"<<endl;
+//        cout<<" rank "<<rank<<" free completed"<<endl;
     }
 
     MPI_File_close(&in);
@@ -327,6 +327,13 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         return slice(output, 0, expected_chunk_size - 1);
     else if (output.size() > expected_chunk_size)
         return slice(output, (output.size() - expected_chunk_size), output.size() - 1);
+
+
+    for(int i=0;i<output.size();i++){
+        if(output[i].size()!= 960){
+            cout<<" rank "<<rank<<" index"<<i<<" dime"<<output[i].size()<<endl;
+        }
+    }
 
 
     cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;

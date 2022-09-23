@@ -243,7 +243,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     int number_of_chunks = ceil((perpsize) / chunk_lo) + 1;
 
 
-     char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
+   const  char *chunk = (char *) malloc((perpsize + 1) * sizeof(char));
 
     long index = 0;
     long current_chunk = chunk_lo;

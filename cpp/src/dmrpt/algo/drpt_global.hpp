@@ -44,7 +44,7 @@ namespace dmrpt {
         vector <vector<vector < DataPoint>>>
         trees_leaf_first_indices;
 
-        vector<vector<VALUE_TYPE>> &data_points;
+        vector<vector<VALUE_TYPE>> data_points;
 
 
         vector<vector<int>>  index_to_tree_leaf_mapper;

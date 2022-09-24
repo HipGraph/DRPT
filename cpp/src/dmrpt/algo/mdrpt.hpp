@@ -43,10 +43,10 @@ namespace dmrpt {
 
 
     public:
-        MDRPT(int ntrees, int algo,  vector <vector<VALUE_TYPE>> &original_data, int tree_depth, double tree_depth_ratio,
+        MDRPT(int ntrees, int algo,  int tree_depth, double tree_depth_ratio,
               int total_data_set_size, int rank, int world_size, string input_path, string output_path);
 
-        void grow_trees(float density,bool use_locality_optimization);
+        void grow_trees(vector <vector<VALUE_TYPE>> &original_data,float density,bool use_locality_optimization);
 
         std::map<int, vector<DataPoint>> gather_nns(int nn);
 

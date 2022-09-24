@@ -157,14 +157,14 @@ int main(int argc, char *argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
 
     int chunk_size = data_set_size / size;
-    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
+    MDRPT mdrpt = MDRPT(ntrees, algo, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
                         output_path);
 
     auto start_index_buildling = high_resolution_clock::now();
 
     cout << " start growing trees " << rank << endl;
 
-    mdrpt.grow_trees(density,use_locality_optimization);
+    mdrpt.grow_trees(imagedatas,density,use_locality_optimization);
     cout << " completed growing trees " << rank << endl;
     auto stop_index_building = high_resolution_clock::now();
 

@@ -23,10 +23,10 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, int algo,   vector <vector<VALUE_TYPE>> &original_data, int tree_depth,
+dmrpt::MDRPT::MDRPT(int ntrees, int algo, int tree_depth,
                     double tree_depth_ratio,
                     int total_data_set_size,
-                    int rank, int world_size, string input_path, string output_path): original_data(original_data) {
+                    int rank, int world_size, string input_path, string output_path){
     this->data_dimension = original_data[0].size();
     this->tree_depth = tree_depth;
 //    this->original_data = original_data;
@@ -54,7 +54,7 @@ template<typename T> bool allEqual(std::vector < T >const &v) {
       return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
 }
 
-void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
+void dmrpt::MDRPT::grow_trees(vector <vector<VALUE_TYPE>> &original_data, float density, bool use_locality_optimization) {
 
     char results[500];
 //    char hostname[HOST_NAME_MAX];
@@ -69,6 +69,7 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     dmrpt::MathOp mathOp;
     VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
+    this->original_data = original_data;
     int rows = this->original_data[0].size();
     int cols = this->original_data.size();
 

@@ -171,7 +171,7 @@ if (j !=
 previouse_leaf and neighbour_vec[0]
 .priority > can_leaf.
 priority
-        andneighbour_vec[0]
+        and neighbour_vec[0]
 .leaf_index == can_leaf.leaf_index) {
 candidate = false;
 break;

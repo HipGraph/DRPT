@@ -20,7 +20,7 @@ namespace dmrpt {
         double tree_depth_ratio;
         int data_dimension;
         dmrpt::StorageFormat storage_format;
-        vector <vector<VALUE_TYPE>> *original_data;
+        vector <vector<VALUE_TYPE>> &original_data;
         int starting_data_index;
         int donate_per;
         int rank;

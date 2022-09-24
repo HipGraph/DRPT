@@ -164,6 +164,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
 //#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 sum += data[j + data_count_prev];
+                cout<<" rank "<<rank<<" j  "<<j<<sum<<endl;
             }
             data_count_prev += local_rows[i];
             cout<<" rank "<<rank<<" mean sum  "<<sum<<endl;

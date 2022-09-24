@@ -25,9 +25,9 @@ using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT(int ntrees, int algo, int tree_depth,
                     double tree_depth_ratio,
-                    int total_data_set_size,
+                    int total_data_set_size,int dimension,
                     int rank, int world_size, string input_path, string output_path){
-    this->data_dimension = original_data[0].size();
+    this->data_dimension = dimension;
     this->tree_depth = tree_depth;
 //    this->original_data = original_data;
     this->total_data_set_size = total_data_set_size;

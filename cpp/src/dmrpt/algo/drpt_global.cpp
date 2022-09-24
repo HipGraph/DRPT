@@ -393,7 +393,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_da
     free(process_counts);
     free(total_counts);
     free(disps);
-    free(data);
+//    free(data);
     free(result);
 
     double *execution_times = new double[2];

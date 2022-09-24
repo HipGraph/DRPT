@@ -27,8 +27,9 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 
 }
 
-dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,int dimension,
-                              int tree_depth,int ntrees,int starting_index, int total_data_set_size,
+dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
+                              int dimension,
+                              int tree_depth, int ntrees, int starting_index, int total_data_set_size,
                               int rank, int world_size, string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
@@ -53,18 +54,38 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->output_path = output_path;
 }
 
-template<typename T> vector <T> slice(vector < T > const &v, int m, int n ) {
-     auto first = v.cbegin() + m;
-     auto last = v.cbegin() + n + 1;
-     std::vector <T> vec(first, last);
-      return vec;
+template<typename T> vector <T> slice(vector < T >
+const &v,
+int m,
+int n
+) {
+auto first = v.cbegin() + m;
+auto last = v.cbegin() + n + 1;
+std::vector <T> vec(first, last);
+return
+vec;
 }
 
-template<typename T> bool allEqual(std::vector < T > const &v) {
-    return std::adjacent_find(v.begin(), v.end(), std::not_equal_to<T>()) == v.end();
+template<typename T> bool allEqual(std::vector < T >
+const &v) {
+return
+std::adjacent_find(v
+.
+
+begin(), v
+
+.
+
+end(), std::not_equal_to<T>()
+
+) == v.
+
+end();
+
 }
 
-template<class T, class X> void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
+template<class T, class X>
+void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     std::unordered_map <T, size_t> count;
 
     for (T i: v) {
@@ -106,46 +127,68 @@ template<class T, class X> void sortByFreq(std::vector<T> &v, std::vector<X> &ve
 }
 
 
-int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>>> &candidate_mapping,
-                          vector <vector<int >> &final_tree_leaf_mapping, int current_tree, int selecting_tree,
-                          int selecting_leaf, int previouse_leaf,int total_leaf_size) {
-    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+int select_next_candidate(vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
+                          vector < vector < int >> &final_tree_leaf_mapping, int
+current_tree,
+int selecting_tree,
+int selecting_leaf,
+int previouse_leaf,
+int total_leaf_size
+) {
+vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
-    for (int i = 0;i < vec.size();i++) {
-        dmrpt::PriorityMap can_leaf = vec[i];
-        int id = can_leaf.leaf_index;
-        bool candidate = true;
+for (
+int i = 0;
+i<vec.
+
+size();
+
+i++) {
+dmrpt::PriorityMap can_leaf = vec[i];
+int id = can_leaf.leaf_index;
+bool candidate = true;
 
 // checking already taken
-        for (int j = selecting_leaf - 1;j >= 0; j--) {
-            if (final_tree_leaf_mapping[j][selecting_tree] == id) {
-                candidate = false;
-                break;
-            }
-        }
+for (
+int j = selecting_leaf - 1;
+j >= 0; j--) {
+if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+candidate = false;
+break;
+}
+}
 
-        if (!candidate) {
-           continue;
-        }
+if (!candidate) {
+continue;
+}
 
-        for (int j = 0;j < total_leaf_size;j++) {
-            vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-            if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and neighbour_vec[0].leaf_index == can_leaf.leaf_index) {
-                candidate= false;
-                break;
-            }
-        }
+for (
+int j = 0;
+j<total_leaf_size;
+j++) {
+vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+if (j !=
+previouse_leaf andneighbour_vec[0]
+.priority > can_leaf.
+priority andneighbour_vec[0]
+.leaf_index == can_leaf.leaf_index) {
+candidate = false;
+break;
+}
+}
 
-        if (candidate) {
-            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-            return can_leaf.leaf_index;
-        }
-    }
-    return -1;
+if (candidate) {
+final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
+leaf_index;
+return can_leaf.
+leaf_index;
+}
+}
+return -1;
 }
 
 
-void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
+void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_points) {
 
 
 //    char results[500];
@@ -165,22 +208,23 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-
-    for (int k = 0; k < this->ntrees; k++) {
-        auto initialization_time_index = high_resolution_clock::now();
-
-        this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
-        this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
-        this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
-        this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-        this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-        this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
-
-        for (int i = 0; i < this->tree_depth; i++) {
-            this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
-
+    cout<<" rank "<<rank<<" start intital tree growing"<<endl;
 #pragma  omp parallel for
-            for (int j = 0; j < this->intial_no_of_data_points; j++) {
+    for (int j = 0; j < this->intial_no_of_data_points; j++) {
+        for (int k = 0; k < this->ntrees; k++) {
+            auto initialization_time_index = high_resolution_clock::now();
+
+            this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
+            this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
+            this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
+            this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+            this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+            this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
+
+            for (int i = 0; i < this->tree_depth; i++) {
+                this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
+
+//                for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 DataPoint dataPoint;
                 dataPoint.value = this->projected_matrix[index];
@@ -188,8 +232,14 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
                 this->index_to_tree_leaf_mapper[j] = vector<int>(this->ntrees);
+//                }
             }
         }
+    }
+
+    cout<<" rank "<<rank<<" completed intital tree growing"<<endl;
+
+    for (int k = 0; k < this->ntrees; k++) {
 
         vector <vector<DataPoint>> child_data_tracker(total_split_size);
         vector<int> total_size_vector(total_split_size);
@@ -205,7 +255,7 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points
 
 
         for (int i = 0; i < this->tree_depth - 1; i++) {
-            cout <<" rank "<<rank<< " working on tree depth" << i << endl;
+            cout << " rank " << rank << " working on tree depth" << i << endl;
             auto start_level_time_index = high_resolution_clock::now();
             this->grow_global_subtree(child_data_tracker, total_size_vector, i, k);
             auto stop_level_time_index = high_resolution_clock::now();
@@ -223,7 +273,6 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points
 //        }
 //        fout << " init time " << exeuction_times_global[this->tree_depth] / this->world_size << " " << endl;
     }
-
 }
 
 
@@ -254,7 +303,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_da
 
 
 //    VALUE_TYPE *data = new VALUE_TYPE[this->intial_no_of_data_points];
-      vector<VALUE_TYPE> data(this->intial_no_of_data_points);
+    vector<VALUE_TYPE> data(this->intial_no_of_data_points);
     int total_data_count_prev = 0;
     vector<int> local_data_row_count(current_nodes);
     vector<int> total_data_row_count(current_nodes);
@@ -263,13 +312,14 @@ void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_da
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         local_data_row_count[i] = data_vector.size();
         total_data_row_count[i] = total_size_vector[split_starting_index + i];
-        cout<<" rank "<<rank<<" level "<<depth<<" child "<<i<<" data_vec_size "<<local_data_row_count[i]<<"total data count "<<total_data_row_count[i]<<endl;
+        cout << " rank " << rank << " level " << depth << " child " << i << " data_vec_size " << local_data_row_count[i]
+             << "total data count " << total_data_row_count[i] << endl;
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
 //            cout<<" pricessing "<<j<<endl;
             data[j + total_data_count_prev] = data_vector[j].value;
         }
-        cout<<" rank "<<rank<<" level "<<depth<<" child"<<i<<" preprocess completed "<<endl;
+        cout << " rank " << rank << " level " << depth << " child" << i << " preprocess completed " << endl;
         total_data_count_prev += data_vector.size();
     }
 

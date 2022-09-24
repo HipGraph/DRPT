@@ -127,64 +127,64 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 }
 
 
-int select_next_candidate(vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
-                          vector < vector < int >> &final_tree_leaf_mapping, int
-current_tree,
-int selecting_tree,
-int selecting_leaf,
-int previouse_leaf,
-int total_leaf_size
+int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>>> &candidate_mapping,
+                          vector <vector<int >> &final_tree_leaf_mapping, int
+                          current_tree,
+                          int selecting_tree,
+                          int selecting_leaf,
+                          int previouse_leaf,
+                          int total_leaf_size
 ) {
-vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+    vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
-for (
-int i = 0;
-i<vec.
+    for (
+            int i = 0;
+            i < vec.
 
-size();
+                    size();
 
-i++) {
-dmrpt::PriorityMap can_leaf = vec[i];
-int id = can_leaf.leaf_index;
-bool candidate = true;
+            i++) {
+        dmrpt::PriorityMap can_leaf = vec[i];
+        int id = can_leaf.leaf_index;
+        bool candidate = true;
 
 // checking already taken
-for (
-int j = selecting_leaf - 1;
-j >= 0; j--) {
-if (final_tree_leaf_mapping[j][selecting_tree] == id) {
-candidate = false;
-break;
-}
-}
+        for (
+                int j = selecting_leaf - 1;
+                j >= 0; j--) {
+            if (final_tree_leaf_mapping[j][selecting_tree] == id) {
+                candidate = false;
+                break;
+            }
+        }
 
-if (!candidate) {
-continue;
-}
+        if (!candidate) {
+            continue;
+        }
 
-for (
-int j = 0;
-j<total_leaf_size;
-j++) {
-vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
-if (j !=
-previouse_leaf andneighbour_vec[0]
-.priority > can_leaf.
-priority andneighbour_vec[0]
-.leaf_index == can_leaf.leaf_index) {
-candidate = false;
-break;
-}
-}
+        for (
+                int j = 0;
+                j < total_leaf_size;
+                j++) {
+            vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+            if (j != previouse_leaf and neighbour_vec[0]
+                                                .priority > can_leaf.
+                    priority
+                andneighbour_vec[0]
+                        .leaf_index == can_leaf.leaf_index) {
+                candidate = false;
+                break;
+            }
+        }
 
-if (candidate) {
-final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
-leaf_index;
-return can_leaf.
-leaf_index;
-}
-}
-return -1;
+        if (candidate) {
+            final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.
+                    leaf_index;
+            return can_leaf.
+                    leaf_index;
+        }
+    }
+    return -1;
 }
 
 
@@ -208,11 +208,12 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_point
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-    cout<<" rank "<<rank<<" start intital tree growing"<<endl;
+    cout << " rank " << rank << " start intital tree growing" << endl;
+    auto initialization_time_index = high_resolution_clock::now();
 #pragma  omp parallel for
     for (int j = 0; j < this->intial_no_of_data_points; j++) {
         for (int k = 0; k < this->ntrees; k++) {
-            auto initialization_time_index = high_resolution_clock::now();
+
 
             this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
             this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
@@ -237,7 +238,10 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_point
         }
     }
 
-    cout<<" rank "<<rank<<" completed intital tree growing"<<endl;
+    cout << " rank " << rank << " completed intital tree growing" << endl;
+
+    auto stop_initialization_time_index = high_resolution_clock::now();
+    auto time_index = duration_cast<microseconds>(stop_initialization_time_index - initialization_time_index);
 
     for (int k = 0; k < this->ntrees; k++) {
 
@@ -245,9 +249,6 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_point
         vector<int> total_size_vector(total_split_size);
         child_data_tracker[0] = this->trees_data[k][0];
         total_size_vector[0] = this->total_data_set_size;
-
-        auto stop_initialization_time_index = high_resolution_clock::now();
-        auto time_index = duration_cast<microseconds>(stop_initialization_time_index - initialization_time_index);
 
 
         double *execution_times = new double[this->tree_depth + 1];
@@ -276,7 +277,8 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_point
 }
 
 
-void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
+void
+dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
                                        int depth, int tree) {
 
 //    char results[500];

@@ -323,7 +323,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         for (int j = 0; j < data_vector.size(); j++) {
             data[j + total_data_count_prev] = data_vector[j].value;
         }
-        cout << " rank " << rank << " level " << depth << " child" << i << " preprocess completed " << endl;
+//        cout << " rank " << rank << " level " << depth << " child" << i << " preprocess completed " << endl;
         total_data_count_prev += data_vector.size();
     }
 

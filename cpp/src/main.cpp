@@ -143,81 +143,81 @@ int main(int argc, char *argv[]) {
 
     cout<<" size "<< imagedatas.size()<<" *"<<imagedatas[0].size()<<endl;
 
-//
-//    auto stop_io_index = high_resolution_clock::now();
-//    auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
-//
-//    cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
-//
-//    MathOp mathOp;
-//
-//    int rows = imagedatas[0].size();
-//    int cols = imagedatas.size();
-//
-//    MPI_Barrier(MPI_COMM_WORLD);
-//
-//    int chunk_size = data_set_size / size;
-//    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
-//                        output_path);
-//
-//    auto start_index_buildling = high_resolution_clock::now();
-//
-//    cout << " start growing trees " << rank << endl;
-//
-//    mdrpt.grow_trees(density,use_locality_optimization);
-//    cout << " completed growing trees " << rank << endl;
-//    auto stop_index_building = high_resolution_clock::now();
-//
-//    auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
-//
-//    int co = 0;
-//
-//    auto start_query = high_resolution_clock::now();
-//
-//
-//    map<int, vector<DataPoint>> data_points = mdrpt.gather_nns(nn);
-//
-//    auto stop_query = high_resolution_clock::now();
-//    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
-//
-//    cout << "Time taken for total query "
-//         << duration_query.count() << " microseconds" << endl;
-//
-//    if (fout.is_open()) {
-//        if (data_points.size() > 0) {
-//
-//            cout << " rank " << rank << data_points.size() << endl;
-//
-//            for (int k = 0; k < data_points.size(); k++) {
-//                if (data_points[k].size() > 0) {
-//                    vector <DataPoint> vec = data_points[k];
-//                    if (vec.size() > 0) {
-//                        for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
-//                            if (vec[l].src_index != vec[l].index) {
-//                                fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    double *execution_times = new double[3];
-//
-//    double *execution_times_global = new double[3];
-//    execution_times[0] = io_time.count()/1000;
-//    execution_times[1] = duration_index_building.count()/1000;
-//    execution_times[2] = duration_query.count()/1000;
-//
-//    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-//
-//    fout << rank << ' ' << (execution_times_global[0] / size) << ' ' << (execution_times_global[1] / size) << ' '
-//         << (execution_times_global[2] / size)
-//         << endl;
-//
-//    delete[] execution_times;
-//    delete[] execution_times_global;
+
+    auto stop_io_index = high_resolution_clock::now();
+    auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
+
+    cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
+
+    MathOp mathOp;
+
+    int rows = imagedatas[0].size();
+    int cols = imagedatas.size();
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    int chunk_size = data_set_size / size;
+    MDRPT mdrpt = MDRPT(ntrees, algo, imagedatas, tree_depth, tree_depth_ratio, data_set_size, rank, size, input_path,
+                        output_path);
+
+    auto start_index_buildling = high_resolution_clock::now();
+
+    cout << " start growing trees " << rank << endl;
+
+    mdrpt.grow_trees(density,use_locality_optimization);
+    cout << " completed growing trees " << rank << endl;
+    auto stop_index_building = high_resolution_clock::now();
+
+    auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
+
+    int co = 0;
+
+    auto start_query = high_resolution_clock::now();
+
+
+    map<int, vector<DataPoint>> data_points = mdrpt.gather_nns(nn);
+
+    auto stop_query = high_resolution_clock::now();
+    auto duration_query = duration_cast<microseconds>(stop_query - start_query);
+
+    cout << "Time taken for total query "
+         << duration_query.count() << " microseconds" << endl;
+
+    if (fout.is_open()) {
+        if (data_points.size() > 0) {
+
+            cout << " rank " << rank << data_points.size() << endl;
+
+            for (int k = 0; k < data_points.size(); k++) {
+                if (data_points[k].size() > 0) {
+                    vector <DataPoint> vec = data_points[k];
+                    if (vec.size() > 0) {
+                        for (int l = 0; l < (vec.size() >= 10 ? 10 : vec.size()); l++) {
+                            if (vec[l].src_index != vec[l].index) {
+                                fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    double *execution_times = new double[3];
+
+    double *execution_times_global = new double[3];
+    execution_times[0] = io_time.count()/1000;
+    execution_times[1] = duration_index_building.count()/1000;
+    execution_times[2] = duration_query.count()/1000;
+
+    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    fout << rank << ' ' << (execution_times_global[0] / size) << ' ' << (execution_times_global[1] / size) << ' '
+         << (execution_times_global[2] / size)
+         << endl;
+
+    delete[] execution_times;
+    delete[] execution_times_global;
 
     MPI_Finalize();
 }

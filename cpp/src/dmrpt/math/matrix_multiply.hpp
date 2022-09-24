@@ -21,9 +21,9 @@ namespace dmrpt{
         VALUE_TYPE* build_sparse_local_random_matrix(int rows, int cols, float density, int seed);
         VALUE_TYPE* build_sparse_projection_matrix(int rank, int world_size, int total_dimension,int levels, float density, int seed);
         VALUE_TYPE* convert_to_row_major_format(vector<vector<VALUE_TYPE>> data);
-        VALUE_TYPE* distributed_mean(VALUE_TYPE *data,  vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
-        VALUE_TYPE* distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int cols,vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
-        VALUE_TYPE* distributed_median(VALUE_TYPE *data, vector<int> local_rows, int cols, vector<int> total_elements_per_col,int no_of_bins, dmrpt::StorageFormat format,int rank);
+        VALUE_TYPE* distributed_mean(vector<VALUE_TYPE> &data,  vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
+        VALUE_TYPE* distributed_variance(vector<VALUE_TYPE> &data, vector<int> local_rows, int cols,vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
+        VALUE_TYPE* distributed_median(vector<VALUE_TYPE> &data, vector<int> local_rows, int cols, vector<int> total_elements_per_col,int no_of_bins, dmrpt::StorageFormat format,int rank);
         VALUE_TYPE calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query);
         VALUE_TYPE calculate_approx_distance(vector<VALUE_TYPE> &data, vector<VALUE_TYPE> &query,int start_index, int end_index);
 

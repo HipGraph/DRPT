@@ -321,11 +321,15 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
 
         vector <vector<DataPoint>> vec(data_points.size());
 
+#pragma omp parallel for
+        for (int k = 0; k < data_points.size(); k++) {
+           vec[k]=vector<VALUE_TYPE>(data_points.size());
+        }
+
+
 #pragma omp parallel for collapse(2)
         for (int k = 0; k < data_points.size(); k++) {
-            vec[k] = vector<DataPoint>(data_points.size());
             for (int j = 0; j < data_points.size(); j++) {
-
                 VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
                                                                 data_points[j].image_data);
 
@@ -337,7 +341,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
                 dataPoint.index = data_points[j].index;
                 dataPoint.distance = distance;
                 vec[k][j] = dataPoint;
-
             }
         }
 
@@ -460,7 +463,7 @@ dmrpt::MDRPT::gather_nns(int nn) {
 
 
 std::map<int, vector < dmrpt::DataPoint>>
-dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>
+dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>>
 &local_nns,
 int nn
 ) {

@@ -352,7 +352,7 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> &data, vector<VA
 //    VALUE_TYPE data_arr[data.size()];
     VALUE_TYPE query_arr[query.size()];
 //    std::copy(data.begin(), data.end(), data_arr);
-    VALUE_TYPE * data_arr = &v[0];
+    VALUE_TYPE * data_arr = &data[0];
     std::copy(query.begin(), query.end(), query_arr);
 
     cblas_saxpy(data.size(), -1, data_arr, 1, query_arr, 1);

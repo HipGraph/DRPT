@@ -24,7 +24,7 @@ namespace dmrpt{
         VALUE_TYPE* distributed_mean(vector<VALUE_TYPE> &data,  vector<int> local_rows, int local_cols, vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
         VALUE_TYPE* distributed_variance(vector<VALUE_TYPE> &data, vector<int> local_rows, int cols,vector<int> total_elements_per_col, dmrpt::StorageFormat format,int rank);
         VALUE_TYPE* distributed_median(vector<VALUE_TYPE> &data, vector<int> local_rows, int cols, vector<int> total_elements_per_col,int no_of_bins, dmrpt::StorageFormat format,int rank);
-        VALUE_TYPE calculate_distance(vector<VALUE_TYPE> data, vector<VALUE_TYPE> query);
+        VALUE_TYPE calculate_distance(vector<VALUE_TYPE> &data, vector<VALUE_TYPE> &query);
         VALUE_TYPE calculate_approx_distance(vector<VALUE_TYPE> &data, vector<VALUE_TYPE> &query,int start_index, int end_index);
 
     };

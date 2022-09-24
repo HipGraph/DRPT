@@ -369,7 +369,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     if (error != MPI_SUCCESS) cout << " cannot get file size " << endl;;
 //    filesize--;
 
+
     filesize = filesize - offset;
+    filesize = filesize/100;
     long total_data_nodes = filesize / data_node_byte;
 
     long process_data_nodes = total_data_nodes / world_size;

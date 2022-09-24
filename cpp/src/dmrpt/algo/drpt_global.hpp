@@ -44,7 +44,7 @@ namespace dmrpt {
         vector <vector<vector < DataPoint>>>
         trees_leaf_first_indices;
 
-        vector<vector<VALUE_TYPE>> data_points;
+        vector<vector<VALUE_TYPE>> &data_points;
 
 
         vector<vector<int>>  index_to_tree_leaf_mapper;
@@ -62,7 +62,7 @@ namespace dmrpt {
         DRPTGlobal();
 
         DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
-                   vector <vector<VALUE_TYPE>> original_data, int ntrees,
+                   vector <vector<VALUE_TYPE>> &original_data, int ntrees,
                    int starting_index, int total_data_set_size,
                    int rank, int world_size, string output_path);
 

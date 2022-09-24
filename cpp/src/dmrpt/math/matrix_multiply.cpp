@@ -120,7 +120,7 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix(int rank, int world_si
 
 }
 
-VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE>> data) {
+VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE>> &data) {
     if (data.empty()) {
         return (VALUE_TYPE *) malloc(0);
     }

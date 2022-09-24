@@ -442,7 +442,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 #pragma omp parallel for
     for (int i = 0; i < co; i++) {
         vector<VALUE_TYPE> v(dimension);
-        for (j = 0; j < dimension; j++) {
+        for (int j = 0; j < dimension; j++) {
             int index = j + i * dimension;
             char c = chunk[count];
             int x = (int) (c);

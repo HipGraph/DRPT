@@ -446,7 +446,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
         vector<VALUE_TYPE> v(dimension);
         for (int j = 0; j < dimension; j++) {
             int index = j + i * dimension;
-            char c = chunk[count];
+            char c = chunk[index];
             int x = (int) (c);
             v[j] = (VALUE_TYPE) x;
             cout<<v[j]<<endl;

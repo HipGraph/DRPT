@@ -148,7 +148,7 @@ VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format(vector <vector<VALUE_TYPE
     return arr;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                             vector<int> total_elements_per_col,
                                             dmrpt::StorageFormat format, int rank) {
 
@@ -177,7 +177,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(VALUE_TYPE *data, vector<int> local_
     return gsums;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+VALUE_TYPE *dmrpt::MathOp::distributed_variance(vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                                 vector<int> total_elements_per_col,
                                                 dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
@@ -210,7 +210,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(VALUE_TYPE *data, vector<int> lo
 
 
 VALUE_TYPE *
-dmrpt::MathOp::distributed_median(VALUE_TYPE *data, vector<int> local_rows, int local_cols,
+dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                   vector<int> total_elements_per_col, int no_of_bins,
                                   dmrpt::StorageFormat format, int rank) {
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);

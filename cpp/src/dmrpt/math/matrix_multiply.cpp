@@ -161,7 +161,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
         int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-//#pragma omp parallel for reduction(+:sum)
+#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 cout<<" rank "<<rank<<" data  "<<data[j + data_count_prev]<<endl;
                 sum += data[j + data_count_prev];
@@ -197,7 +197,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(vector<VALUE_TYPE> &data, vector
         int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-//#pragma omp parallel for reduction(+:sum)
+#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 VALUE_TYPE diff = (data[j + data_count_prev] - means[i]);
                 sum +=  (diff * diff);
@@ -290,7 +290,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         }
 
 cout<<" rank "<<rank<<" local raw computation started "<<endl;
-//#pragma omp parallel for
+#pragma omp parallel for
         for (int k = 0; k < local_rows[i]; k++) {
             int flag = 1;
             for (int j = 1; j < 2 * no_of_bins + 2; j++) {

@@ -161,7 +161,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
         int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-#pragma omp parallel for reduction(+:sum)
+//#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 sum += data[j + data_count_prev];
             }
@@ -194,7 +194,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(vector<VALUE_TYPE> &data, vector
         int data_count_prev = 0;
         for (int i = 0; i < local_cols; i++) {
             VALUE_TYPE sum = 0.0;
-#pragma omp parallel for reduction(+:sum)
+//#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 VALUE_TYPE diff = (data[j + data_count_prev] - means[i]);
                 sum +=  (diff * diff);

@@ -395,14 +395,14 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     long chunk_lo = 1073741824;
 
-    if(chunk_lo>=process_bytes){
+    if (chunk_lo >= process_bytes) {
         chunk_lo = process_bytes;
     }
 
     long index = 0;
     long current_chunk = chunk_lo;
 
-    cout << " perpsize " << process_bytes<<" global start"<<global_start<<" index "<<index<<endl;
+    cout << " perpsize " << process_bytes << " global start" << global_start << " index " << index << endl;
 
     while (index < process_bytes) {
 
@@ -415,7 +415,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
         index = index + current_chunk;
 
-        cout<<"rank "<<rank<<" next index "<<index<<endl;
+        cout << "rank " << rank << " next index " << index << endl;
 
         if (index + chunk_lo >= process_bytes)
             current_chunk = process_bytes - index;
@@ -425,31 +425,46 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
     chunk[perpsize] = '\0';
 
 
-    cout << " rank " << rank << "Mpi read completed "  << endl;
+    cout << " rank " << rank << "Mpi read completed " << endl;
     long count = 0;
-    vector<VALUE_TYPE> v;
-    vector <vector<VALUE_TYPE>> output;
-
-    long total_arr_size = (process_bytes)*sizeof(char);
 
 
-    cout<<" rank "<<rank<<" total size "<<(total_arr_size/dimension)<<endl;
+    long total_arr_size = (process_bytes) * sizeof(char);
 
-    long co =  total_arr_size/dimension;
+
+    cout << " rank " << rank << " total size " << (total_arr_size / dimension) << endl;
+
+    long co = total_arr_size / dimension;
     long co_in = 0;
+    vector <vector<VALUE_TYPE>> output(co);
 
-    while (co_in<co) {
-        char c = chunk[count];
-        if (count > 0 and count % dimension == 0) {
-//            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
-            output.push_back(v);
-            v.clear();
-            co_in++;
+
+#pragma omp parallel for
+    for (int i = 0; i < co; i++) {
+        vector<VALUE_TYPE> v(dimension);
+        for (j = 0; j < dimension; j++) {
+            int index = j + i * dimension;
+            char c = chunk[count];
+            int x = (int) (c);
+            v[j] = (VALUE_TYPE) x;
         }
-          int x = (int)(c);
-          v.push_back((float) x);
-         count++;
+        output[i] = v;
+
     }
+
+//
+//    while (co_in < co) {
+//        char c = chunk[count];
+//        if (count > 0 and count % dimension == 0) {
+////            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
+//            output.push_back(v);
+//            v.clear();
+//            co_in++;
+//        }
+//        int x =
+//        v.push_back((float) x);
+//        count++;
+//    }
 
     cout << " rank " << rank << "Output size:" << output.size() << ":" << output[0].size() << endl;
     return output;

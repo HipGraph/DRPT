@@ -27,7 +27,7 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 
 }
 
-dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
+dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,int dimension,
                               int tree_depth,int ntrees,int starting_index, int total_data_set_size,
                               int rank, int world_size, string output_path) {
     this->tree_depth = tree_depth;
@@ -35,7 +35,7 @@ dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projecti
     this->projected_matrix = projected_matrix;
     this->projection_matrix = projection_matrix;
     this->total_data_set_size = total_data_set_size;
-    this->data_dimension = original_data[0].size();
+    this->data_dimension = dimension;
 
     this->ntrees = ntrees;
 

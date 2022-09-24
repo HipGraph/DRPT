@@ -110,7 +110,7 @@ void dmrpt::MDRPT::grow_trees(vector <vector<VALUE_TYPE>> &original_data, float 
     int starting_index = (this->total_data_set_size / world_size) * this->rank;
 
 
-    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, global_tree_depth,  this->ntrees,
+    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, this->data_dimension,global_tree_depth,  this->ntrees,
                                           starting_index,
                                           this->total_data_set_size, this->rank, this->world_size, this->output_path);
 

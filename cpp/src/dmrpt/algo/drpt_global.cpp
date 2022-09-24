@@ -255,7 +255,8 @@ void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_da
     MathOp mathOp;
 
 
-    VALUE_TYPE *data = new VALUE_TYPE[this->intial_no_of_data_points];
+//    VALUE_TYPE *data = new VALUE_TYPE[this->intial_no_of_data_points];
+      vector<VALUE_TYPE> data(this->intial_no_of_data_points);
     int total_data_count_prev = 0;
     vector<int> local_data_row_count(current_nodes);
     vector<int> total_data_row_count(current_nodes);
@@ -267,6 +268,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_da
         cout<<" rank "<<rank<<" level "<<depth<<" child "<<i<<" data_vec_size "<<local_data_row_count[i]<<"total data count "<<total_data_row_count[i]<<endl;
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
+            cout<<" pricessing "<<j<<endl;
             data[j + total_data_count_prev] = data_vector[j].value;
         }
         total_data_count_prev += data_vector.size();

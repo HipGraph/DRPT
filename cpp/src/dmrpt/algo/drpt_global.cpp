@@ -28,10 +28,8 @@ dmrpt::DRPTGlobal::DRPTGlobal() {
 }
 
 dmrpt::DRPTGlobal::DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
-                              int tree_depth,
-                              vector <vector<VALUE_TYPE>> &original_data, int ntrees,
-                              int starting_index, int total_data_set_size, int rank, int world_size,
-                              string output_path):data_points(original_data) {
+                              int tree_depth,int ntrees,int starting_index, int total_data_set_size,
+                              int rank, int world_size, string output_path) {
     this->tree_depth = tree_depth;
     this->intial_no_of_data_points = no_of_data_points;
     this->projected_matrix = projected_matrix;
@@ -147,7 +145,7 @@ int select_next_candidate(vector <vector<vector < vector < dmrpt::PriorityMap >>
 }
 
 
-void dmrpt::DRPTGlobal::grow_global_tree() {
+void dmrpt::DRPTGlobal::grow_global_tree(vector<vector<VALUE_TYPE>> &data_points) {
 
 
 //    char results[500];
@@ -163,7 +161,7 @@ void dmrpt::DRPTGlobal::grow_global_tree() {
     if (this->ntrees <= 0) {
         throw std::out_of_range(" no of trees should be greater than zero");
     }
-
+    this->data_points = data_points;
     int total_split_size = 1 << (this->tree_depth + 1);
     int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 

@@ -61,12 +61,11 @@ namespace dmrpt {
 
         DRPTGlobal();
 
-        DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
-                   vector <vector<VALUE_TYPE>> &original_data, int ntrees,
+        DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth, int ntrees,
                    int starting_index, int total_data_set_size,
                    int rank, int world_size, string output_path);
 
-        void grow_global_tree();
+        void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points);
 
         void
         grow_global_subtree(vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,int depth,int tree);

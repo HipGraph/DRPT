@@ -109,13 +109,13 @@ void dmrpt::MDRPT::grow_trees(float density, bool use_locality_optimization) {
     int starting_index = (this->total_data_set_size / world_size) * this->rank;
 
 
-    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, global_tree_depth, this->original_data, this->ntrees,
+    this->drpt_global = dmrpt::DRPTGlobal(P, B, cols, global_tree_depth,  this->ntrees,
                                           starting_index,
                                           this->total_data_set_size, this->rank, this->world_size, this->output_path);
 
 
     cout << " rank " << rank << " starting growing trees" << endl;
-    this->drpt_global.grow_global_tree();
+    this->drpt_global.grow_global_tree(this->original_data);
     auto stop_grow_index = high_resolution_clock::now();
     auto index_time = duration_cast<microseconds>(stop_grow_index - start_grow_index);
 

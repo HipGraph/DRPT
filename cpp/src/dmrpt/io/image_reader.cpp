@@ -452,7 +452,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
             cout<<v[j]<<endl;
         }
         output[i] = v;
-        cout<<endl
+        cout<<endl;
 
     }
 

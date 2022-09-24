@@ -449,7 +449,7 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
             char c = chunk[count];
             int x = (int) (c);
             v[j] = (VALUE_TYPE) x;
-            cout<<v[j]<<endl
+            cout<<v[j]<<endl;
         }
         output[i] = v;
         cout<<endl

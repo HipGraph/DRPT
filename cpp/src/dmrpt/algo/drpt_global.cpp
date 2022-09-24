@@ -210,30 +210,33 @@ void dmrpt::DRPTGlobal::grow_global_tree(vector <vector<VALUE_TYPE>> &data_point
 
     cout << " rank " << rank << " start intital tree growing" << endl;
     auto initialization_time_index = high_resolution_clock::now();
+
+    this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
+
+
+    for (int k = 0; k < this->ntrees; k++) {
+        this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
+        this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
+        this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
+        this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+        this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+#pragma  omp parallel for
+        for (int i = 0; i < this->tree_depth; i++) {
+            this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
+        }
+    }
+
 #pragma  omp parallel for
     for (int j = 0; j < this->intial_no_of_data_points; j++) {
+        this->index_to_tree_leaf_mapper[j] = vector<int>(this->ntrees);
         for (int k = 0; k < this->ntrees; k++) {
-
-
-            this->trees_splits[k] = vector<VALUE_TYPE>(total_split_size);
-            this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
-            this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
-            this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-            this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-            this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
-
             for (int i = 0; i < this->tree_depth; i++) {
-                this->trees_data[k][i] = vector<DataPoint>(this->intial_no_of_data_points);
-
-//                for (int j = 0; j < this->intial_no_of_data_points; j++) {
                 int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;
                 DataPoint dataPoint;
                 dataPoint.value = this->projected_matrix[index];
                 dataPoint.index = j + this->starting_data_index;
                 dataPoint.image_data = this->data_points[j];
                 this->trees_data[k][i][j] = dataPoint;
-                this->index_to_tree_leaf_mapper[j] = vector<int>(this->ntrees);
-//                }
             }
         }
     }

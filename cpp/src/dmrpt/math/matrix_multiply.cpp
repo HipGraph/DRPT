@@ -169,7 +169,10 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
             sums[i] = sum;
         }
     }
+    cout<<" rank "<<rank<<" distributed  mean all reduce starting "<<endl;
     MPI_Allreduce(sums, gsums, local_cols, MPI_VALUE_TYPE, MPI_SUM, MPI_COMM_WORLD);
+
+    cout<<" rank "<<rank<<" distributed  mean all  reduce completed "<<endl;
 
     for (int i = 0; i < local_cols; i++) {
         gsums[i] = gsums[i] / total_elements_per_col[i];
@@ -215,9 +218,12 @@ VALUE_TYPE *
 dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                   vector<int> total_elements_per_col, int no_of_bins,
                                   dmrpt::StorageFormat format, int rank) {
+    cout<<" rank "<<rank<<" distributed median started "<<endl;
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
+    cout<<" rank "<<rank<<" distributed mean completed "<<endl;
     VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements_per_col, format,
                                                       rank);
+    cout<<" rank "<<rank<<" distributed variance completed "<<endl;
     VALUE_TYPE *medians = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
 
     int std1 = 4, std2 = 2, std3 = 1;

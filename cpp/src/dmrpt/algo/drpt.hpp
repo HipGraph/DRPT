@@ -9,72 +9,67 @@
 #include <string>
 #include <omp.h>
 
+namespace dmrpt
+{
+struct DataPoint {
+  int src_index;
+  int index;
+  VALUE_TYPE distance;
+  VALUE_TYPE value;
+  vector<VALUE_TYPE> image_data;
+};
 
-namespace dmrpt {
-    struct DataPoint {
-        int src_index;
-        int index;
-        VALUE_TYPE distance;
-        VALUE_TYPE value;
-        vector<VALUE_TYPE> image_data;
-    };
+class DRPT {
 
+ private:
+  int tree_depth;
+  VALUE_TYPE *projected_matrix;
+  VALUE_TYPE *projection_matrix;
+  int no_of_data_points;
+  int ntrees;
+  int starting_data_index;
+  int rank;
+  int world_size;
 
-    class DRPT {
+  //single tree
+  dmrpt::StorageFormat storageFormat;
+  vector <vector<VALUE_TYPE>> data;
+  vector<VALUE_TYPE> splits;
+  vector<int> indices;
+  vector <std::vector<int>> leaf_first_indices_all;
+  vector<int> leaf_first_indices;
 
-    private:
-        int tree_depth;
-        VALUE_TYPE *projected_matrix;
-        VALUE_TYPE *projection_matrix;
-        int no_of_data_points;
-        int ntrees;
-        int starting_data_index;
-        int rank;
-        int world_size;
+  //multiple trees
+  vector <vector<vector < VALUE_TYPE>>>
+  trees_data;
+  vector <vector<VALUE_TYPE>> trees_splits;
+  vector <vector<int>> trees_indices;
+  vector <vector<vector < int>>>
+  trees_leaf_first_indices_all;
+  vector <vector<int>> trees_leaf_first_indices;
+  vector <vector<VALUE_TYPE>> original_data;
 
-        //single tree
-        dmrpt::StorageFormat storageFormat;
-        vector <vector<VALUE_TYPE>> data;
-        vector<VALUE_TYPE> splits;
-        vector<int> indices;
-        vector <std::vector<int>> leaf_first_indices_all;
-        vector<int> leaf_first_indices;
+ public:
+  DRPT ();
 
-        //multiple trees
-        vector <vector<vector < VALUE_TYPE>>>
-        trees_data;
-        vector <vector<VALUE_TYPE>> trees_splits;
-        vector <vector<int>> trees_indices;
-        vector <vector<vector < int>>>
-        trees_leaf_first_indices_all;
-        vector <vector<int>> trees_leaf_first_indices;
-        vector <vector<VALUE_TYPE>> original_data;
+  DRPT (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
+        vector <vector<VALUE_TYPE>> original_data, int ntrees,
+        int starting_index, int rank, int world_size);
 
+  void grow_local_tree ();
 
-    public:
-        DRPT();
+  void grow_local_subtree (std::vector<int>::iterator begin, std::vector<int>::iterator end,
+                           int depth, int i, int tree);
 
-        DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
-             vector <vector<VALUE_TYPE>> original_data, int ntrees,
-             int starting_index, int rank, int world_size);
+  vector <vector<int>> get_all_leaf_node_indices (int tree);
 
-        void grow_local_tree();
+  void count_leaf_sizes (int datasize, int level, int depth, std::vector<int> &out_leaf_sizes);
 
-        void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
-                                int depth, int i, int tree);
+  void count_first_leaf_indices (std::vector<int> &indices, int datasize, int depth);
 
-        vector <vector<int>> get_all_leaf_node_indices(int tree);
+  void count_first_leaf_indices_all (std::vector <std::vector<int>> &indices, int datasize, int depth_max);
 
-
-        void count_leaf_sizes(int datasize, int level, int depth, std::vector<int> &out_leaf_sizes);
-
-        void count_first_leaf_indices(std::vector<int> &indices, int datasize, int depth);
-
-        void count_first_leaf_indices_all(std::vector <std::vector<int>> &indices, int datasize, int depth_max);
-
-
-    };
+};
 }
-
 
 #endif //DISTRIBUTED_MRPT_MRPT_H

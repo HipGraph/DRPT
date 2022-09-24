@@ -199,7 +199,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance(vector<VALUE_TYPE> &data, vector
 //#pragma omp parallel for reduction(+:sum)
             for (int j = 0; j < local_rows[i]; j++) {
                 VALUE_TYPE diff = (data[j + data_count_prev] - means[i]);
-                sum +=  (diff * diff);
+                sum += (diff * diff);
             }
             data_count_prev += local_rows[i];
             var[i] = sum;
@@ -352,7 +352,7 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance(vector<VALUE_TYPE> &data, vector<VA
 //    VALUE_TYPE data_arr[data.size()];
     VALUE_TYPE query_arr[query.size()];
 //    std::copy(data.begin(), data.end(), data_arr);
-    VALUE_TYPE * data_arr = &data[0];
+    VALUE_TYPE *data_arr = &data[0];
     std::copy(query.begin(), query.end(), query_arr);
 
     cblas_saxpy(data.size(), -1, data_arr, 1, query_arr, 1);

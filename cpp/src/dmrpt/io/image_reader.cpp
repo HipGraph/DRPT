@@ -395,8 +395,9 @@ dmrpt::ImageReader::mpi_file_read(string path, int rank, int world_size, int ove
 
     long chunk_lo = 1073741824;
 
-
-
+    if(chunk_lo>=process_bytes){
+        chunk_lo = process_bytes;
+    }
 
     long index = 0;
     long current_chunk = chunk_lo;

@@ -166,6 +166,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
                 sum += data[j + data_count_prev];
             }
             data_count_prev += local_rows[i];
+            cout<<" rank "<<rank<<" mean sum  "<<sum<<endl;
             sums[i] = sum;
         }
     }

@@ -74,7 +74,7 @@ void dmrpt::MDRPT::grow_trees(vector <vector<VALUE_TYPE>> &original_data, float 
     VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
-    int local_tree_depth = this->tree_depth - global_tree_depth;
+    int local_tree_depth = this->tree_depth - global_tree_depth + 2; //we reduce 2 from global height
     auto stop_conversion_index = high_resolution_clock::now();
 
     auto conversion_time = duration_cast<microseconds>(stop_conversion_index - start_conversion_index);

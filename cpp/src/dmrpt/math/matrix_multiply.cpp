@@ -289,7 +289,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         }
 
 cout<<" rank "<<rank<<" local raw computation started "<<endl;
-#pragma omp parallel for
+//#pragma omp parallel for
         for (int k = 0; k < local_rows[i]; k++) {
             int flag = 1;
             for (int j = 1; j < 2 * no_of_bins + 2; j++) {

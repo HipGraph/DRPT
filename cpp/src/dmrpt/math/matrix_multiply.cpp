@@ -278,7 +278,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
             distribution[rstart3 - j + dist_length * i] = mu - rate;
         }
 
-
+cout<<" rank "<<rank<<" local raw computation started "<<endl;
 #pragma omp parallel for
         for (int k = 0; k < local_rows[i]; k++) {
             int flag = 1;
@@ -294,6 +294,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
             }
         }
 
+        cout<<" rank "<<rank<<" local raw computation ended "<<endl;
         data_count_prev += local_rows[i];
 
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
@@ -302,8 +303,11 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         }
 
     }
+    cout<<" rank "<<rank<<" mpi all reduced started  "<<endl;
 
     MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    cout<<" rank "<<rank<<" mpi all reduced ended  "<<endl;
 
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE cfreq = 0;

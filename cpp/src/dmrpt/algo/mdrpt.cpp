@@ -65,13 +65,13 @@ void dmrpt::MDRPT::grow_trees(vector <vector<VALUE_TYPE>> &original_data, float 
 
     ofstream fout(results, std::ios_base::app);
 
-    auto start_conversion_index = high_resolution_clock::now();
-    dmrpt::MathOp mathOp;
-    VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
-
     this->original_data = original_data;
     int rows = this->original_data[0].size();
     int cols = this->original_data.size();
+
+    auto start_conversion_index = high_resolution_clock::now();
+    dmrpt::MathOp mathOp;
+    VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format(this->original_data);
 
     int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
     int local_tree_depth = this->tree_depth - global_tree_depth;

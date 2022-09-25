@@ -491,10 +491,11 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
 
 #pragma omp parallel for
-  for (auto &i = local_nns.begin(); i != local_nns.end(); i++)
+  for (auto i = local_nns.begin(); i != local_nns.end(); i++)
     {
-      sending_indices[i] = (i->first);
-      sending_max_dist_thresholds[i] = (i->second)[nn - 1].distance;
+      int index = std::distance( local_nns.begin(), i);
+      sending_indices[index] = (i->first);
+      sending_max_dist_thresholds[index] = (i->second)[nn - 1].distance;
     }
 
   int *receiving_indices = new int[total_receving] ();

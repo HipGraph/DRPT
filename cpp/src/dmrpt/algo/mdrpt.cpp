@@ -517,7 +517,7 @@ cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
 
   std::map<int, vector<VALUE_TYPE>> collected_dist_th_map; // key->indices value->ranks and threshold
   vector<int> collected_dist_th_map_keys;
-  vector<vector<>>
+
 
 //  cout << "rank " << rank << " no parallelism at this point " <<
 //       endl;
@@ -553,6 +553,13 @@ cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
             for(auto itr : collected_dist_th_map_local) {
                 int key = itr.first;
                 vector<VALUE_TYPE> second = itr.second;
+                if(collected_dist_th_map.find (key) != collected_dist_th_map.end()) {
+                    auto it = collected_dist_th_map_local.find (key);
+                    (it->second)[i] = second[i];
+                }else{
+                   collected_dist_th_map.insert (pair < int, vector < VALUE_TYPE >>(key, second));
+
+                }
 
             }
       }

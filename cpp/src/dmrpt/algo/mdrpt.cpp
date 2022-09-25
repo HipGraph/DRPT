@@ -510,8 +510,28 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
                  receiving_max_dist_thresholds,
                  receiving_indices_count, disps_receiving_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
-
 cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
+
+   struct {
+       float val;
+       int   rank;
+    } in[total_receving], out[total_receving];
+
+
+#pragma omp parallel for
+   for(int i=0;i<total_receving;i++) {
+         in[i].rank=rank;
+         if(local_nns[receiving_indices[i]]!= local_nns.end()){
+           VALUE_TYPE val =  local_nns[receiving_indices[i]][nn - 1].distance;
+           in[i].val = val;
+         }else {
+           in[i].val = std::numeric_limits<float>::max;
+         }
+     }
+
+     MPI_Reduce( in, out, total_receving, MPI_FLOAT_INT, MPI_MINLOC, rank, MPI_COMM_WORLD);
+
+  cout<<" rank "<<rank<<"  MPI minloc completed all to all completed"<<endl;
 
 //we already gathered all the indices from all nodes and their respective max distance thresholds
 
@@ -962,6 +982,9 @@ dmrpt::MDRPT::gather_nns (int nn)
 
   return final_map;
 }
+
+
+
 
 
 

@@ -616,7 +616,7 @@ dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, 
 //
 //    }
 //}
-   cout << " rank " << rank << " thrid key traversal completed" << endl;
+
    std::map<int, vector<DataPoint>> final_nn_sending_map;
 
    std::map<int, vector<DataPoint>> final_nn_map;
@@ -674,7 +674,7 @@ dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, 
           }
       }
     }
-
+cout << " rank " << rank << " allocation completed" << endl;
 //  for (int i = 0; i < this->world_size; i++)
 //    {
 //      int count = 0;

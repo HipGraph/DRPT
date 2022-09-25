@@ -457,7 +457,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
             VALUE_TYPE dist_th = receiving_max_dist_thresholds[j];
             if (collected_dist_th_map.find(index)== collected_dist_th_map.end()) {
 
-#pragma omp ciritical
+#pragma omp critical
 {
                 vector<VALUE_TYPE> distanceThresholdVec(this->world_size, std::numeric_limits<VALUE_TYPE>::max());
                 distanceThresholdVec[i] =dist_th;

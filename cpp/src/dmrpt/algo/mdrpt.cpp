@@ -154,11 +154,10 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   auto start_collect = high_resolution_clock::now ();
 
   vector < vector < vector < DataPoint>>> leaf_nodes_of_trees (ntrees);
-  int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+//  int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
   for (int i = 0; i < ntrees; i++)
     {
-      this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_child_size);
       leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization);
     }
   auto stop_collect = high_resolution_clock::now ();
@@ -246,6 +245,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   for (int i = 0; i < ntrees; i++)
     {
       vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
+      this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_leaf_size);
 
       VALUE_TYPE *C = mathOp.build_sparse_projection_matrix (this->rank, this->world_size, this->data_dimension,
                                                              local_tree_depth, density, receive_ntrees[i]);

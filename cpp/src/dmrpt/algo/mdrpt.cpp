@@ -332,7 +332,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 //    delete[] receive;
 }
 
-void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns, int tree, int nn)
+void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns, vector<int> &keys, int tree, int nn)
 {
 
   dmrpt::MathOp mathOp;
@@ -443,6 +443,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
                 if (local_nns.find (idx) == local_nns.end ())
                   {
                     local_nns.insert (pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
+                    keys.push_back (idx);
                   }
               }
             }
@@ -450,7 +451,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
     }
 }
 
-std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, int nn)
+std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, vector<int> &keys, int nn)
   {
 
   char results[500];
@@ -491,11 +492,10 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
 
 #pragma omp parallel for
-  for (std::map<int,vector<DataPoint>>::iterator i = local_nns.begin(); i != local_nns.end(); i++)
+  for (int i=0;i<keys.size();i++)
     {
-      int index = std::distance( local_nns.begin(), i);
-      sending_indices[index] = (i->first);
-      sending_max_dist_thresholds[index] = (i->second)[nn - 1].distance;
+      sending_indices[i] = keys[i];
+      sending_max_dist_thresholds[i] = local_nns[keys[i]][nn - 1].distance;
     }
 
   int *receiving_indices = new int[total_receving] ();
@@ -511,7 +511,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 //we already gathered all the indices from all nodes and their respective max distance thresholds
 
   std::map<int, vector<VALUE_TYPE>> collected_dist_th_map; // key->indices value->ranks and threshold
-
+   vector<int> collected_dist_th_map_keys;
 
 //  cout << "rank " << rank << " no parallelism at this point " <<
 //       endl;
@@ -534,6 +534,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
                 collected_dist_th_map.
                     insert (pair < int, vector < VALUE_TYPE >>
                                                             (index, distanceThresholdVec));
+                collected_dist_th_map_keys.push_back (index);
               }
             }
           else
@@ -551,10 +552,11 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
    vector <vector<int>> final_indices_allocation_local (this->world_size);
 
 #pragma omp for  nowait
-    for (auto it = collected_dist_th_map.begin(); it != collected_dist_th_map.end(); it++)
+    for (int h=0;h<collected_dist_th_map_keys.size();h++)
        {
-          int min_rank = std::min_element ((it->second).begin (), (it->second).end ()) - (it->second).begin ();
-          final_indices_allocation_local[min_rank]. push_back (it->first);
+          vector<VALUE_TYPE> vals = collected_dist_th_map[collected_dist_th_map_keys[h]]
+          int min_rank = std::min_element (vals.begin (), vals.end ()) - vals.begin ();
+          final_indices_allocation_local[min_rank]. push_back (collected_dist_th_map_keys[h]);
        }
 
 #pragma omp critical
@@ -906,9 +908,11 @@ dmrpt::MDRPT::gather_nns (int nn)
 
   std::map<int, vector<DataPoint>> local_nn_map;
 
+  vector<int> keys;
+
   for (int i = 0; i < ntrees; i++)
     {
-      this->calculate_nns (local_nn_map, i, 2 * nn);
+      this->calculate_nns (local_nn_map,keys, i, 2 * nn);
     }
 
   cout << " rank " << rank << " distance calculation completed " << endl;

@@ -37,9 +37,9 @@ namespace dmrpt {
 
     private:
         std::map<int, vector<dmrpt::DataPoint>>
-        communicate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, int nn);
+        communicate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns,vector<int> &keys, int nn);
 
-        void calculate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, int tree, int nn);
+        void calculate_nns(std::map<int, vector<dmrpt::DataPoint> > &local_nns, vector<int> &keys, int tree, int nn);
 
 
     public:

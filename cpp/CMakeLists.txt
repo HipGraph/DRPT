@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(OpenCV_DIR /Users/isururanawaka/Documents/Master_IU_ISE_Courses/Summer_2022/opencv/install/lib/cmake/opencv4)
 
 
-
 # LocationByValue MPI
 message("Finding MPI")
 find_package(MPI REQUIRED)
@@ -41,7 +40,7 @@ find_package(OpenBLAS REQUIRED)
 message(STATUS "OpenBLAS include dir: ${OpenBLAS_CXX_INCLUDE_PATH}")
 message(STATUS "OpenBLAS libs: ${OpenBLAS_CXX_LIBRARIES}")
 
-include_directories( ${OpenBLAS_CXX_INCLUDE_PATH})
+include_directories(${OpenBLAS_CXX_INCLUDE_PATH})
 
 message("Finding OpenMP")
 find_package(OpenMP REQUIRED)
@@ -70,5 +69,5 @@ add_subdirectory(src/dmrpt)
 #target_link_libraries(distributed_mrpt stdc++fs)
 target_link_libraries(distributed_mrpt dmrpt)
 #target_link_libraries(distributed_mrpt ${MPI_CXX_LIBRARIES})
-target_link_libraries(distributed_mrpt   MPI::MPI_CXX)
-target_link_libraries(distributed_mrpt  OpenMP::OpenMP_CXX)
+target_link_libraries(distributed_mrpt MPI::MPI_CXX)
+target_link_libraries(distributed_mrpt OpenMP::OpenMP_CXX)

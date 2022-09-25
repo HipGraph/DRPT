@@ -18,7 +18,7 @@ static const char mpiver_str[] = { 'I', 'N',
                                    ']', '\0' };
 #endif
 
-int main(int argc, char* argv[])
+int main (int argc, char *argv[])
 {
 #if defined(MPI_VERSION) && defined(MPI_SUBVERSION)
 #  ifdef __cplusplus
@@ -31,8 +31,8 @@ int main(int argc, char* argv[])
   MPI::MPI_Init(&argc, &argv);
   MPI::MPI_Finalize();
 #else
-  MPI_Init(&argc, &argv);
-  MPI_Finalize();
+  MPI_Init (&argc, &argv);
+  MPI_Finalize ();
 #endif
   return 0;
 }

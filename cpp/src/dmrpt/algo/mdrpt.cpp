@@ -521,7 +521,7 @@ cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
 #pragma omp parallel for
    for(int i=0;i<total_receving;i++) {
          in[i].rank=rank;
-         if(local_nns[receiving_indices[i]]!= local_nns.end()){
+         if(local_nns.find(receiving_indices[i]) != local_nns.end()){
            VALUE_TYPE val =  local_nns[receiving_indices[i]][nn - 1].distance;
            in[i].val = val;
          }else {

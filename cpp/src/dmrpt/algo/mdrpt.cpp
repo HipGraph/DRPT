@@ -510,10 +510,14 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
                  receiving_max_dist_thresholds,
                  receiving_indices_count, disps_receiving_indices, MPI_VALUE_TYPE, MPI_COMM_WORLD);
 
+
+cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
+
 //we already gathered all the indices from all nodes and their respective max distance thresholds
 
   std::map<int, vector<VALUE_TYPE>> collected_dist_th_map; // key->indices value->ranks and threshold
   vector<int> collected_dist_th_map_keys;
+  vector<vector<>>
 
 //  cout << "rank " << rank << " no parallelism at this point " <<
 //       endl;
@@ -522,30 +526,38 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
       int amount = receiving_indices_count[i];
       int offset = disps_receiving_indices[i];
 
-#pragma omp parallel for
+#pragma omp parallel
+     {
+       std::map<int, vector<VALUE_TYPE>> collected_dist_th_map_local;
+
+#pragma omp for nowait
       for (int j = offset;j < (offset + amount); j++){
           int index = receiving_indices[j];
           VALUE_TYPE dist_th = receiving_max_dist_thresholds[j];
-          if (collected_dist_th_map.find (index)== collected_dist_th_map.end ()){
+          if (collected_dist_th_map_local.find (index)== collected_dist_th_map_local.end ()){
 
-#pragma omp critical
-              {
                 vector<VALUE_TYPE> distanceThresholdVec (this->world_size, std::numeric_limits<VALUE_TYPE>::max ());
-                distanceThresholdVec[i] =
-                    dist_th;
-                collected_dist_th_map.
-                    insert (pair < int, vector < VALUE_TYPE >>
-                                                            (index, distanceThresholdVec));
-                collected_dist_th_map_keys.push_back (index);
+                distanceThresholdVec[i] = dist_th;
+                collected_dist_th_map_local.insert (pair < int, vector < VALUE_TYPE >>(index, distanceThresholdVec));
               }
-            }
+
           else
             {
-              auto it = collected_dist_th_map.find (index);
+              auto it = collected_dist_th_map_local.find (index);
               (it->second)[i] = dist_th;
             }
         }
-    }
+
+#pragma omp critical
+    {
+            for(auto itr : collected_dist_th_map_local) {
+                int key = itr.first;
+                vector<VALUE_TYPE> second = itr.second;
+
+            }
+      }
+   }
+  }
 
 cout<<" rank "<<rank<<" second key traversal completed"<<endl;
 vector <vector<int>> final_indices_allocation (this->world_size);
@@ -573,7 +585,7 @@ vector <vector<int>> final_indices_allocation (this->world_size);
 
     }
 }
-cout<<" rank "<<rank<<" thrid key traversal completed"<<endl;
+  cout<<" rank "<<rank<<" thrid key traversal completed"<<endl;
   std::map<int, vector<DataPoint>> final_nn_sending_map;
 
   int *sending_selected_indices_count = new int[this->world_size] ();

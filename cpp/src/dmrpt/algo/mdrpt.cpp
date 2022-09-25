@@ -554,7 +554,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 #pragma omp for  nowait
     for (int h=0;h<collected_dist_th_map_keys.size();h++)
        {
-          vector<VALUE_TYPE> vals = collected_dist_th_map[collected_dist_th_map_keys[h]]
+          vector<VALUE_TYPE> vals = collected_dist_th_map[collected_dist_th_map_keys[h]];
           int min_rank = std::min_element (vals.begin (), vals.end ()) - vals.begin ();
           final_indices_allocation_local[min_rank]. push_back (collected_dist_th_map_keys[h]);
        }
@@ -922,7 +922,7 @@ dmrpt::MDRPT::gather_nns (int nn)
 
   auto start_query = high_resolution_clock::now ();
 
-  std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns (local_nn_map, nn);
+  std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns (local_nn_map,keys, nn);
 
   auto stop_query = high_resolution_clock::now ();
   auto query_time = duration_cast<microseconds> (stop_query - start_query);

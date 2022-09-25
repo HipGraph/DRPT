@@ -493,7 +493,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 #pragma omp parallel for
   for (int i=0;i<local_nns.size();i++)
     {
-      const auto x = local_nns.begin();
+      const auto &x = local_nns.begin();
       std::advance(x, i);
       sending_indices[i] = x.first;
       sending_max_dist_thresholds[i] = x.second[nn - 1].distance;
@@ -554,7 +554,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 #pragma omp for  nowait
     for (int i=0;i<collected_dist_th_map.size();i++)
        {
-          const auto it = collected_dist_th_map.begin();
+          const auto &it = collected_dist_th_map.begin();
           std::advance(it, i);
           int min_rank = std::min_element ((it.second).begin (), (it.second).end ()) - (it.second).begin ();
           final_indices_allocation_local[min_rank]. push_back (it.first);

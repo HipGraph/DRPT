@@ -319,6 +319,8 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
 
         vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
 
+        cout<<" rank "<<rank<<" leaf index "<<i<<" data points size "<<data_points.size()<<endl;
+
         vector <vector<DataPoint>> vec(data_points.size());
 
 #pragma omp parallel for

@@ -491,12 +491,10 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
 
 #pragma omp parallel for
-  for (int i=0;i<local_nns.size();i++)
+  for (auto it = local_nns.begin(); it != local_nns.end(); it++)
     {
-      const auto &x = local_nns.begin();
-      std::advance(x, i);
-      sending_indices[i] = x.first;
-      sending_max_dist_thresholds[i] = x.second[nn - 1].distance;
+      sending_indices[it] = it->first;
+      sending_max_dist_thresholds[it] = it->second[nn - 1].distance;
     }
 
   int *receiving_indices = new int[total_receving] ();
@@ -552,12 +550,10 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
    vector <vector<int>> final_indices_allocation_local (this->world_size);
 
 #pragma omp for  nowait
-    for (int i=0;i<collected_dist_th_map.size();i++)
+    for (auto it = collected_dist_th_map.begin(); it != collected_dist_th_map.end(); it++)
        {
-          const auto &it = collected_dist_th_map.begin();
-          std::advance(it, i);
-          int min_rank = std::min_element ((it.second).begin (), (it.second).end ()) - (it.second).begin ();
-          final_indices_allocation_local[min_rank]. push_back (it.first);
+          int min_rank = std::min_element ((it->second).begin (), (it->second).end ()) - (it->second).begin ();
+          final_indices_allocation_local[min_rank]. push_back (it->first);
        }
 
 #pragma omp critical

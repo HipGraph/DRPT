@@ -447,6 +447,9 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
 
     std::map<int, vector<VALUE_TYPE>> collected_dist_th_map; // key->indices value->ranks and threshold
 
+
+    cout<<"rank "<<rank <<" no parallelism at this point "<<endl;
+
     for (int i = 0;i < this->world_size;i++) {
         int amount = receiving_indices_count[i];
         int offset = disps_receiving_indices[i];
@@ -512,9 +515,11 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
                                  });
                     if (target.size() > 0) {
               #pragma omp critical
+                       {
                         final_nn_sending_map.insert(pair < int, vector < DataPoint >> (index, target));
                         sending_selected_indices_nn_count[i] += target.size();
                         sending_selected_indices_count[i] += 1;
+                        }
                     }
 //                    local_nns.erase(local_nns.find(index));
                 }
@@ -601,7 +606,6 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int,
         int co = receiving_selected_indices_count[i];
         int offset = disps_receiving_selected_indices[i];
 //        int per_pro_co = 0;
-#pragma omp parallel for
         for (int k = offset;k < (co + offset); k++) {
            receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
         }

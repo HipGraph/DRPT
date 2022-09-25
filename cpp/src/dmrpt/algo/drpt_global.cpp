@@ -298,8 +298,8 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
         local_data_row_count[i] = data_vector.size();
         total_data_row_count[i] = total_size_vector[split_starting_index + i];
-        cout << " rank " << rank << " level " << depth << " child " << i << " data_vec_size " << local_data_row_count[i]
-             << "total data count " << total_data_row_count[i] << endl;
+//        cout << " rank " << rank << " level " << depth << " child " << i << " data_vec_size " << local_data_row_count[i]
+//             << "total data count " << total_data_row_count[i] << endl;
 #pragma omp parallel for
         for (int j = 0; j < data_vector.size(); j++) {
             data[j + total_data_count_prev] = data_vector[j].value;
@@ -326,7 +326,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
         int selected_leaf_right = selected_leaf_left + 1;
 
         VALUE_TYPE median = result[i];
-        cout << " rank " << rank << " calculated median " << median << " for i" << i << endl;
+//        cout << " rank " << rank << " calculated median " << median << " for i" << i << endl;
 
         this->trees_splits[tree][split_starting_index + i] = median;
 
@@ -378,7 +378,7 @@ dmrpt::DRPTGlobal::grow_global_subtree(vector <vector<DataPoint>> &child_data_tr
             this->trees_leaf_first_indices[tree][selected_leaf_right] = right_childs_global;
 
         }
-        cout << " rank " << rank << " node completed  depth " << depth << " for i" << i << endl;
+//        cout << " rank " << rank << " node completed  depth " << depth << " for i" << i << endl;
 
     }
 

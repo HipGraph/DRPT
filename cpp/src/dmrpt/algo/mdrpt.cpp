@@ -250,19 +250,19 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
       VALUE_TYPE *C = mathOp.build_sparse_projection_matrix (this->rank, this->world_size, this->data_dimension,
                                                              local_tree_depth, density, receive_ntrees[i]);
 
-//        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
+        cout << " tree " << i << " projection matrix completed and leafs size " << leafs.size() << endl;
 
       int data_nodes_count_per_process = 0;
 
       for (int j = 0; j < leafs.size (); j++)
         {
-//            cout<< " creating leaf " <<j<<endl;
+            cout<< " creating leaf " <<j<<endl;
           vector <vector<VALUE_TYPE>> local_data (leafs[j].size ());
           for (int k = 0; k < leafs[j].size (); k++)
             {
               local_data[k] = leafs[j][k].image_data;
             }
-//            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
+            cout<< " data filling complete for  leaf " <<j <<" size "<<local_data.size()<<endl;
           VALUE_TYPE *local_data_arr = mathOp.convert_to_row_major_format (local_data);
 //            cout<< " row major version completed " <<j<<endl;
 
@@ -274,7 +274,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
                                     local_tree_depth, local_data, 1, starting_index, this->rank, this->world_size);
 
           drpt1.grow_local_tree ();
-//            cout<<" creating drpt "<< j <<" tree growing completed"<<endl;
+            cout<<"rank "<<rank<<" creating drpt "<< j <<" tree growing completed"<<endl;
 
           vector <vector<int>> final_clustered_data = drpt1.get_all_leaf_node_indices (0);
 //            cout << " final_clustered_data size for leaf " << j << final_clustered_data.size() << endl;

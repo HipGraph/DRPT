@@ -373,7 +373,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
           vec[k] = vector<DataPoint> (data_points.size ());
         }
 
-      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal started " << endl;
+//      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal started " << endl;
 
 #pragma omp parallel for collapse(2)
       for (int k = 0; k < data_points.size (); k++)
@@ -394,7 +394,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
             }
         }
 
-      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal completed " << endl;
+//      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal completed " << endl;
 
 #pragma omp parallel for
       for (int k = 0; k < data_points.size (); k++)
@@ -498,6 +498,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
       sending_max_dist_thresholds[i] = local_nns[keys[i]][nn - 1].distance;
     }
 
+   cout<<" rank "<<rank<<" first key traversal completed"<<endl;
+
   int *receiving_indices = new int[total_receving] ();
   VALUE_TYPE *receiving_max_dist_thresholds = new VALUE_TYPE[total_receving] ();
 
@@ -511,7 +513,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 //we already gathered all the indices from all nodes and their respective max distance thresholds
 
   std::map<int, vector<VALUE_TYPE>> collected_dist_th_map; // key->indices value->ranks and threshold
-   vector<int> collected_dist_th_map_keys;
+  vector<int> collected_dist_th_map_keys;
 
 //  cout << "rank " << rank << " no parallelism at this point " <<
 //       endl;
@@ -545,7 +547,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
         }
     }
 
-  vector <vector<int>> final_indices_allocation (this->world_size);
+cout<<" rank "<<rank<<" second key traversal completed"<<endl;
+vector <vector<int>> final_indices_allocation (this->world_size);
 
 #pragma omp parallel
 {
@@ -555,7 +558,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
     for (int h=0;h<collected_dist_th_map_keys.size();h++)
        {
           vector<VALUE_TYPE> vals = collected_dist_th_map[collected_dist_th_map_keys[h]];
-          int min_rank = std::min_element (vals.begin (), vals.end ()) - vals.begin ();
+          int min_rank = std::min_element (vals.begin (), vals.end ()) - vals.begin();
           final_indices_allocation_local[min_rank]. push_back (collected_dist_th_map_keys[h]);
        }
 
@@ -570,7 +573,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
     }
 }
-
+cout<<" rank "<<rank<<" thrid key traversal completed"<<endl;
   std::map<int, vector<DataPoint>> final_nn_sending_map;
 
   int *sending_selected_indices_count = new int[this->world_size] ();

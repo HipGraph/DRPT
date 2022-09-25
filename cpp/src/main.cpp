@@ -191,7 +191,7 @@ int main (int argc, char *argv[])
 
   cout << " start growing trees " << rank << endl;
 
-  mdrpt.grow_trees (imagedatas, density, use_locality_optimization);
+  mdrpt.grow_trees (imagedatas, density, use_locality_optimization,nn);
   cout << " completed growing trees " << rank << endl;
   auto stop_index_building = high_resolution_clock::now ();
 

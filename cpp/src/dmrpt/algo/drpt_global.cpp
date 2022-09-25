@@ -557,6 +557,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points(int tree, bool use_data_locality_
         end_count = total_leaf_size;
     }
 
+
     vector<int> process_read_offsets(this->world_size);
     vector<int> process_read_offsets_value(this->world_size);
     vector <vector<DataPoint>> all_leaf_nodes(leafs_per_node);

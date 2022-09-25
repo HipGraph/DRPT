@@ -525,7 +525,7 @@ cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
            VALUE_TYPE val =  local_nns[receiving_indices[i]][nn - 1].distance;
            in[i].val = val;
          }else {
-           in[i].val = std::numeric_limits<float>::max;
+           in[i].val = std::numeric_limits<float>::max();
          }
      }
 

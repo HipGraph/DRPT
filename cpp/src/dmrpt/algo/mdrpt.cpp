@@ -529,7 +529,7 @@ cout<<" rank "<<rank<<" first MPI all to all completed"<<endl;
          }
      }
 
-     MPI_Reduce( in, out, total_receiving, MPI_FLOAT_INT, MPI_MINLOC, rank, MPI_COMM_WORLD);
+     MPI_Reduce( in, out, total_receving, MPI_FLOAT_INT, MPI_MINLOC, rank, MPI_COMM_WORLD);
 
   cout<<" rank "<<rank<<"  MPI minloc completed all to all completed"<<endl;
 

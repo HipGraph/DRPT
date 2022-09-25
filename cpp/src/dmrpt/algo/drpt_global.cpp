@@ -127,7 +127,7 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 }
 
 
-int select_next_candidate(vector<vector < vector < vector < dmrpt::PriorityMap>>> &candidate_mapping,
+int select_next_candidate(vector<vector < vector < vector < dmrpt::PriorityMap>>>> &candidate_mapping,
                           vector <vector<int >> &final_tree_leaf_mapping, int current_tree,
                           int selecting_tree, int selecting_leaf,
                           int previouse_leaf,

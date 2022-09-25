@@ -373,6 +373,8 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
           vec[k] = vector<DataPoint> (data_points.size ());
         }
 
+        cout<<" rank "<<rank <<" tree "<<tree<<" i "<<  my_start_count <<"distance cal started "<<endl;
+
 #pragma omp parallel for collapse(2)
       for (int k = 0; k < data_points.size (); k++)
         {
@@ -391,6 +393,8 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
               vec[k][j] = dataPoint;
             }
         }
+
+   cout<<" rank "<<rank <<" tree "<<tree<<" i "<<  my_start_count <<"distance cal completed "<<endl;
 
 #pragma omp parallel for
       for (int k = 0; k < data_points.size (); k++)
@@ -978,7 +982,7 @@ std::map<int, vector < dmrpt::DataPoint>>
 dmrpt::MDRPT::gather_nns (int nn)
 {
 
-  cout << "gathering started " << endl;
+  cout <<" rank "<<rank<< "gathering started " << endl;
   char results[500];
 
 //    char hostname[HOST_NAME_MAX];

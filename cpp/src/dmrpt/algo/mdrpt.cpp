@@ -375,7 +375,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
 
 //      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal started " << endl;
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
       for (int k = 0; k < data_points.size (); k++)
         {
           for (int j = 0; j < data_points.size (); j++)

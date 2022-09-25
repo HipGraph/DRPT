@@ -758,7 +758,8 @@ dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, 
 
 
 
-
+  int inc=0;
+  int selected_nn =0;
   for (int i = 0; i < this->world_size; i++)
     {
       total_receiving_count += receiving_selected_indices_count[i];

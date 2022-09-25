@@ -376,11 +376,12 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns, 
                 (it->second) = dst;
 
             } else {
-#pragma omp critical {
+#pragma omp critical
+                {
                 if (local_nns.find(idx) == local_nns.end()) {
                     local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
                 }
-            }
+               }
         }
         }
     }

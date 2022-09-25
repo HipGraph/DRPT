@@ -166,7 +166,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 
   cout << " rank " << rank << " similar datapoint collection completed" << endl;
 
-  int my_minimum_count = INT64_MAX;
+  int my_minimum_count = INT32_MAX;
   for (int i = 0; i < ntrees; i++)
     {
       for (int j = 0; j < leaf_nodes_of_trees[i].size (); j++)
@@ -183,7 +183,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   MPI_Allgather (minimum_arry, 1, MPI_INT,
                  minimum_arry_recev, 1, MPI_INT, MPI_COMM_WORLD);
 
-  int global_minimum = INFINITY;
+  int global_minimum = INT32_MAX;
 
   for (int i = 0; i < this->world_size; i++)
     {

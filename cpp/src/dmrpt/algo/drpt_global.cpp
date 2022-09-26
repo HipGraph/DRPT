@@ -722,7 +722,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
             for (int m = 0; m < this->ntrees; m++) {
                 candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
 
-             #pragma omp parallel for
                 for (int n = 0; n < total_leaf_size; n++) {
                     PriorityMap priorityMap;
                     priorityMap.priority = 0;

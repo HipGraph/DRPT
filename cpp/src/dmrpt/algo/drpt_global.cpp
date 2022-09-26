@@ -714,15 +714,18 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
     auto start_tree_leaf_corr_low = high_resolution_clock::now();
 
     for (int j = 0; j < this->ntrees; j++) {
+
+    #pragma omp parallel for
         for (int k = 0; k < total_leaf_size; k++) {
             final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
             for (int m = 0; m < this->ntrees; m++) {
+                candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
 
                 for (int n = 0; n < total_leaf_size; n++) {
                     PriorityMap priorityMap;
                     priorityMap.priority = 0;
                     priorityMap.leaf_index = n;
-                    candidate_mapping[j][k][m].push_back(priorityMap);
+                    candidate_mapping[j][k][m][n]=priorityMap;
                 }
 
                 vector<int> vec;
@@ -753,6 +756,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
 
 
     for (int i = 0; i < this->ntrees; i++) {
+#pragma  omp parallel for
         for (int k = 0; k < total_leaf_size; k++) {
             int leaf_index = final_tree_leaf_mapping[k][i];
             this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];

@@ -109,7 +109,7 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
     for (T i: v) {
         float priority = (float) count[i] / world_size;
 
-        PriorityMap priorityMap;
+        dmrpt::PriorityMap priorityMap;
         priorityMap.priority = priority;
         priorityMap.leaf_index = i;
         vec[i]=priorityMap;

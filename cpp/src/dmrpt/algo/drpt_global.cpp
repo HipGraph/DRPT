@@ -683,8 +683,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
     }
 
 
-    int count = 0;
+
     for (int tree = 0; tree < this->ntrees; tree++) {
+#pragma omp parallel for
         for (int leaf = 0; leaf < total_leaf_size; leaf++) {
             for (int c = 0; c < this->ntrees; c++) {
                 vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
@@ -694,8 +695,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
                 int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
                                                      correlation_matrix[tree][leaf][c].end()) -
                                     correlation_matrix[tree][leaf][c].begin();
+                int count = c + leaf*this->ntrees + tree*total_leaf_size;
                 my_sending_leafs[count] = selected_leaf;
-                count++;
             }
         }
     }
@@ -705,8 +706,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
     auto tree_leaf_corr_time_high = duration_cast<microseconds>(stop_tree_leaf_corr_high - start_tree_leaf_corr_high);
 
 
-    MPI_Alltoallv(my_sending_leafs, send_count, disps_send, MPI_INT, total_receiving_leafs,
+    cout<<" rank "<<rank<<" mpi gathering started"<<endl;
+    MPI_Allgatherv(my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
+    cout<<" rank "<<rank<<" mpi gathering stopped"<<endl;
 
     auto start_tree_leaf_corr_low = high_resolution_clock::now();
 

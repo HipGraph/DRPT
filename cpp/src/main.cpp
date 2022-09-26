@@ -127,7 +127,7 @@ int main (int argc, char *argv[])
 
   if (tree_depth == 0)
     {
-      tree_depth = static_cast<int>(log2 ((data_set_size / size)));
+      tree_depth = static_cast<int>(log2 ((data_set_size / size)) - 3);
       cout << " tree depth " << tree_depth << endl;
     }
 

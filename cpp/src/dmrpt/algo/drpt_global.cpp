@@ -739,6 +739,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
         }
     }
 
+  cout<<" rank "<<rank<<" major concerned  ok "<<endl;
     auto stop_tree_leaf_corr_low = high_resolution_clock::now();
 
     auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now();

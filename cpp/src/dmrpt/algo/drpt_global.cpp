@@ -108,21 +108,27 @@ void sortByFreq(std::vector<T> &v, std::vector<X> &vec, int world_size) {
 
     for (T i: v) {
         float priority = (float) count[i] / world_size;
-        std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
-                                                                    vec.end(),
-                                                                    [i](dmrpt::PriorityMap const &n) {
-                                                                        return n.leaf_index == i;
-                                                                    });
-        int index = it - vec.begin();
 
-        if (it != vec.end()) {
-            it->priority = priority;
-            vec[index] = (*it);
-        }
-        sort(vec.begin(), vec.end(),
-             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
-                 return lhs.priority > rhs.priority;
-             });
+        PriorityMap priorityMap;
+        priorityMap.priority = priority;
+        priorityMap.leaf_index = i;
+        vec[i]=priorityMap;
+
+//        std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
+//                                                                    vec.end(),
+//                                                                    [i](dmrpt::PriorityMap const &n) {
+//                                                                        return n.leaf_index == i;
+//                                                                    });
+//        int index = it - vec.begin();
+//
+//        if (it != vec.end()) {
+//            it->priority = priority;
+//            vec[index] = (*it);
+//        }
+//        sort(vec.begin(), vec.end(),
+//             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+//                 return lhs.priority > rhs.priority;
+//             });
     }
 }
 
@@ -667,16 +673,15 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
             correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
             candidate_mapping[tree][leaf] = vector < vector < dmrpt::PriorityMap >> (this->ntrees);
             vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
-
             for (int j = 0; j < this->ntrees; j++) {
                 correlation_matrix[tree][leaf][j] = vector<float>(total_leaf_size, 0);
             }
-
 #pragma omp parallel for
             for (int c = 0; c < data_points.size(); c++) {
                 int selec_index = data_points[c].index - this->starting_data_index;
                 vector<int> vec = this->index_to_tree_leaf_mapper[selec_index];
                 for (int j = 0; j < vec.size(); j++) {
+                    #pragma omp atomic
                     correlation_matrix[tree][leaf][j][vec[j]] += 1;
                 }
             }
@@ -696,7 +701,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
                 int selected_leaf = std::max_element(correlation_matrix[tree][leaf][c].begin(),
                                                      correlation_matrix[tree][leaf][c].end()) -
                                     correlation_matrix[tree][leaf][c].begin();
-                int count = c + leaf*this->ntrees + tree*total_leaf_size;
+                int count = c + leaf*this->ntrees + tree*total_leaf_size*this->ntrees;
                 my_sending_leafs[count] = selected_leaf;
             }
         }
@@ -722,12 +727,12 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
             for (int m = 0; m < this->ntrees; m++) {
                 candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
 
-                for (int n = 0; n < total_leaf_size; n++) {
-                    PriorityMap priorityMap;
-                    priorityMap.priority = 0;
-                    priorityMap.leaf_index = n;
-                    candidate_mapping[j][k][m][n]=priorityMap;
-                }
+//                for (int n = 0; n < total_leaf_size; n++) {
+//                    PriorityMap priorityMap;
+//                    priorityMap.priority = 0;
+//                    priorityMap.leaf_index = n;
+//                    candidate_mapping[j][k][m][n]=priorityMap;
+//                }
 
                 vector<int> vec;
                 for (int p = 0; p < this->world_size; p++) {

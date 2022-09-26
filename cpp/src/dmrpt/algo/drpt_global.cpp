@@ -134,6 +134,7 @@ int select_next_candidate(vector<vector < vector < vector < dmrpt::PriorityMap>>
                           int total_leaf_size) {
     vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
+#pragma  omp parallel for
     for (int i = 0;i < vec.size();i++) {
         dmrpt::PriorityMap can_leaf = vec[i];
         int id = can_leaf.leaf_index;
@@ -744,6 +745,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation(string outpath) {
 
     auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now();
 
+#pragma  omp parallel for
     for (int k = 0; k < total_leaf_size; k++) {
         int prev_leaf = k;
         for (int m = 0; m < this->ntrees; m++) {

@@ -180,10 +180,10 @@ j<total_leaf_size;
 j++) {
 vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
 if (j !=
-previouse_leaf andneighbour_vec[0]
+previouse_leaf and neighbour_vec[0]
 .priority > can_leaf.
 priority
-    andneighbour_vec[0]
+    and neighbour_vec[0]
 .leaf_index == can_leaf.leaf_index) {
 candidate = false;
 break;
@@ -788,7 +788,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
   auto start_tree_leaf_corr_low = high_resolution_clock::now ();
 
-  for (int j = 0; j < this->ntrees; i++)
+  for (int j = 0; j < this->ntrees; j++)
     {
       for (int k = 0; k < total_leaf_size; k++)
         {
@@ -804,7 +804,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
     {
 
-      int m = k % this - ntrees;
+      int m = l % this - ntrees;
       int temp_val = (l - m) / this->ntrees;
       int j = temp_val / total_leaf_size;
       int k = temp_val % total_leaf_size;
@@ -816,7 +816,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
           int value = total_receiving_leafs[id];
           vec.push_back (value);
         }
-      sortByFreq (vec, candidate_mapping[j][leaf][m], this->world_size);
+      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
   cout << " rank " << rank << " major concerned  ok " <<

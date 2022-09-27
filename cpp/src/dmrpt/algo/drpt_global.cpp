@@ -804,7 +804,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
     {
 
-      int m = l % this - ntrees;
+      int m = l % this->ntrees;
       int temp_val = (l - m) / this->ntrees;
       int j = temp_val / total_leaf_size;
       int k = temp_val % total_leaf_size;

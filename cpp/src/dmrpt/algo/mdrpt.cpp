@@ -367,91 +367,95 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
   for (int i = my_start_count; i < end_count; i++)
     {
 
-      vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
+      if (!this->trees_leaf_all[tree][i].empty ())
+        {
+          vector <DataPoint> data_points = this->trees_leaf_all[tree][i];
 
 //      cout << " rank " << rank << " leaf index " << i << " data points size " << data_points.size () << endl;
 
-      vector <vector<DataPoint>> vec (data_points.size ());
+
+          vector <vector<DataPoint>> vec (data_points.size ());
 
 #pragma omp parallel for
-      for (int k = 0; k < data_points.size (); k++)
-        {
-          vec[k] = vector<DataPoint> (data_points.size ());
-        }
+          for (int k = 0; k < data_points.size (); k++)
+            {
+              vec[k] = vector<DataPoint> (data_points.size ());
+            }
 
 //      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal started " << endl;
 
 #pragma omp parallel for
-      for (int k = 0; k < data_points.size (); k++)
-        {
-          for (int j = 0; j < data_points.size (); j++)
+          for (int k = 0; k < data_points.size (); k++)
             {
-              VALUE_TYPE distance = mathOp.calculate_distance (data_points[k].image_data,
-                                                               data_points[j].image_data);
+              for (int j = 0; j < data_points.size (); j++)
+                {
+                  VALUE_TYPE distance = mathOp.calculate_distance (data_points[k].image_data,
+                                                                   data_points[j].image_data);
 
 //                VALUE_TYPE distance = mathOp.calculate_approx_distance(data_points[k].image_data,
 //                                                                data_points[j].image_data,0,data_points[j].image_data.size());
 
-              DataPoint dataPoint;
-              dataPoint.src_index = data_points[k].index;
-              dataPoint.index = data_points[j].index;
-              dataPoint.distance = distance;
-              vec[k][j] = dataPoint;
+                  DataPoint dataPoint;
+                  dataPoint.src_index = data_points[k].index;
+                  dataPoint.index = data_points[j].index;
+                  dataPoint.distance = distance;
+                  vec[k][j] = dataPoint;
+                }
             }
-        }
 
 //      cout << " rank " << rank << " tree " << tree << " i " << my_start_count << "distance cal completed " << endl;
 
 #pragma omp parallel for
-      for (int k = 0; k < data_points.size (); k++)
-        {
-          sort (vec[k].begin (), vec[k].end (),
-                [] (const DataPoint &lhs, const DataPoint &rhs)
+          for (int k = 0; k < data_points.size (); k++)
+            {
+              sort (vec[k].begin (), vec[k].end (),
+                    [] (const DataPoint &lhs, const DataPoint &rhs)
+                    {
+                      return lhs.distance < rhs.distance;
+                    });
+
+              vector <DataPoint> sub_vec;
+              if (vec.size () > nn)
                 {
-                  return lhs.distance < rhs.distance;
-                });
+                  sub_vec = slice (vec[k], 0, nn - 1);
+                }
+              else
+                {
+                  sub_vec = vec[k];
+                }
 
-          vector <DataPoint> sub_vec;
-          if (vec.size () > nn)
-            {
-              sub_vec = slice (vec[k], 0, nn - 1);
-            }
-          else
-            {
-              sub_vec = vec[k];
-            }
+              int idx = sub_vec[0].src_index;
 
-          int idx = sub_vec[0].src_index;
+              if (local_nns.find (idx) != local_nns.end ())
+                {
+                  std::vector <DataPoint> dst;
+                  auto it = local_nns.find (idx);
+                  vector <DataPoint> ex_vec = it->second;
+                  std::merge (ex_vec.begin (), ex_vec.end (), sub_vec.begin (),
+                              sub_vec.end (), std::back_inserter (dst), [] (const DataPoint &lhs, const DataPoint &rhs)
+                              {
+                                return lhs.distance < rhs.distance;
+                              });
+                  dst.erase (unique (dst.begin (), dst.end (),
+                                     [] (const DataPoint &lhs,
+                                         const DataPoint &rhs)
+                                     {
+                                       return lhs.index == rhs.index;
+                                     }), dst.end ());
+                  (it->second) = dst;
 
-          if (local_nns.find (idx) != local_nns.end ())
-            {
-              std::vector <DataPoint> dst;
-              auto it = local_nns.find (idx);
-              vector <DataPoint> ex_vec = it->second;
-              std::merge (ex_vec.begin (), ex_vec.end (), sub_vec.begin (),
-                          sub_vec.end (), std::back_inserter (dst), [] (const DataPoint &lhs, const DataPoint &rhs)
-                          {
-                            return lhs.distance < rhs.distance;
-                          });
-              dst.erase (unique (dst.begin (), dst.end (),
-                                 [] (const DataPoint &lhs,
-                                     const DataPoint &rhs)
-                                 {
-                                   return lhs.index == rhs.index;
-                                 }), dst.end ());
-              (it->second) = dst;
-
-            }
-          else
-            {
+                }
+              else
+                {
 #pragma omp critical
-              {
-                if (local_nns.find (idx) == local_nns.end ())
                   {
-                    local_nns.insert (pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
-                    keys.push_back (idx);
+                    if (local_nns.find (idx) == local_nns.end ())
+                      {
+                        local_nns.insert (pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
+                        keys.push_back (idx);
+                      }
                   }
-              }
+                }
             }
         }
     }

@@ -480,6 +480,9 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
   vector<set<int>> index_distribution_filtered(this->world_size);
 
+
+  cout<<" rank "<<rank<<" my final keys size" <<keys.size()<<endl;
+
 #pragma omp parallel for
   for(int i=0;i<this->world_size;i++){
           for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
@@ -699,9 +702,6 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
 
 
-
-
-
   int inc = 0;
   int selected_nn = 0;
   for (int i = 0; i < this->world_size; i++)
@@ -738,13 +738,11 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
   MPI_Alltoallv (sending_selected_nn_count_for_each_index, sending_selected_indices_count,
                  disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
-                 receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
-  );
+                 receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
 
   MPI_Alltoallv (sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
                  receiving_selected_indices,
-                 receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
-  );
+                 receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD);
 
   int total_receiving_nn_count = 0;
 
@@ -815,9 +813,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
         {
           vector <DataPoint> dst;
           vector <DataPoint> ex_vec = its->second;
-          sort (vec.begin (),
-                vec.end (),
-                [] (
+          sort (vec.begin (),vec.end (),[] (
                     const DataPoint &lhs,
                     const DataPoint &rhs
                 )
@@ -827,17 +823,14 @@ cout << " rank " << rank << " structure creation completed" << endl;
                 });
           std::merge (ex_vec.begin (), ex_vec.end (), vec.begin (),
                       vec.end (), std::back_inserter (dst),
-
                       [] (
                           const DataPoint &lhs,
                           const DataPoint &rhs
-                      )
-                      {
+                      ){
                         return lhs.distance < rhs.distance;
                       });
           dst.erase (unique (dst.begin (), dst.end (), [] (const DataPoint &lhs,
-                                                           const DataPoint &rhs)
-                     {
+                                                           const DataPoint &rhs){
                        return lhs.index == rhs.index;
                      }),
                      dst.end ()

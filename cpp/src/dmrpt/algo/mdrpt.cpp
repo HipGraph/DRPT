@@ -40,7 +40,7 @@ dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
   this->output_path = output_path;
   this->tree_depth_ratio = tree_depth_ratio;
   this->trees_leaf_all = vector < vector < vector < DataPoint > >>(ntrees);
-  this->index_distribution = vector<set<int>> (ntrees);
+  this->index_distribution = vector<set<int>> (world_size);
 }
 
 template<typename T> vector <T> slice (vector < T >

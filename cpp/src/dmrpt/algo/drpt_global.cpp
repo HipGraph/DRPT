@@ -854,6 +854,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         }
     }
 
+  cout << " rank " << rank << " select next candidate ok " <<
+       endl;
+
   auto stop_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
   for (int i = 0; i < this->ntrees; i++)

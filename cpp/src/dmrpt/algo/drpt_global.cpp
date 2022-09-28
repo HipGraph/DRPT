@@ -859,7 +859,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
   auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
-//#pragma  omp parallel for
+#pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
     {
       int prev_leaf = k;

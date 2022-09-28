@@ -583,7 +583,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
                       minium_distance = out_index_dis[k].distance;
                       selected_rank = j;
                     }
-                  break;
+//                  break;
                 }
             }
         }

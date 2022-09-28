@@ -480,28 +480,28 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
   vector<set<int>> index_distribution_filtered(this->world_size);
 
+#pragma omp parallel for
+  for(int i=0;i<this->world_size;i++){
+          for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
+               if(local_nns.find ((*it)) != local_nns.end()) {
+                      index_distribution_filtered[i].insert(*it);
+                 }
+          }
+       this->index_distribution[i] = index_distribution_filtered[i];
+  }
+
+
+
   for (int i = 0; i < this->world_size; i++)
     {
-
-      cout<<" rank "<<rank<<" consider rank "<<i <<" index distribution  "<<this->index_distribution[i].size()<<endl;
-
-      for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
-
-        if(local_nns.find ((*it)) != local_nns.end()) {
-             index_distribution_filtered[i].insert(*it);
-        }
-      }
-
-      if (index_distribution_filtered[i].empty()){
+      if (this->index_distribution[i].empty()){
              sending_indices_count[i] = 0;
         } else {
-             sending_indices_count[i] = index_distribution_filtered[i].size();
+             sending_indices_count[i] = this->index_distribution[i].size();
       }
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
-      this->index_distribution[i] = index_distribution_filtered[i];
 
-    cout<<" rank "<<rank<<" consider rank "<<i <<" index distribution  filtered "<<this->index_distribution[i].size()<<endl;
     }
 
   MPI_Alltoall (sending_indices_count, 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);

@@ -620,7 +620,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
                    if (final_nn_sending_map.find (selected_index) == final_nn_sending_map.end ())
                       {
                         final_nn_sending_map.insert (pair < int, vector < DataPoint >>
-                                                                                    (index, target));
+                                                                                    (selected_index, target));
                         sending_selected_indices_nn_count[i] += target.size ();
                         sending_selected_indices_count[i] += 1;
                       }

@@ -684,12 +684,12 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
           vector<index_distance_pair> final_indices = final_indices_allocation[i];
           for (int j = 0; j < final_indices.size (); j++)
             {
-              if (final_nn_sending_map.find (final_indices[j]) != final_nn_sending_map.end ())
+              if (final_nn_sending_map.find (final_indices[j].index) != final_nn_sending_map.end ())
                 {
-                  vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j]];
+                  vector <dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j].index];
                   if (nn_sending.size () > 0)
                     {
-                      sending_selected_indices[inc] = final_indices[j];
+                      sending_selected_indices[inc] = final_indices[j].index;
                       for (int k = 0; k < nn_sending.size (); k++)
                         {
                             sending_selected_nn[selected_nn].index = nn_sending[k].index;

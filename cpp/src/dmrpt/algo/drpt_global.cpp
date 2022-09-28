@@ -147,7 +147,8 @@ int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, 
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 if(vec.size() ==0){
-  cout<<" rank "<<  rank << " vector zero "<<" tree "<<current_tree<<" leaf "<<previouse_leaf<<" selecting_tree "<<endl;
+  cout<<" rank "<<  rank << " vector zero "<<" tree "<<current_tree<<" current leaf "<<selecting_leaf<<" selecting_tree "
+  <<selecting_tree<<" prev leaf "previouse_leaf<<endl;
 }
 
    for ( int i = 0; i<vec.size (); i++) {

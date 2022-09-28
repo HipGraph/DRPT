@@ -491,6 +491,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
   MPI_Alltoall (sending_indices_count, 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
 
+  cout << " rank " << rank << " first  MPIAll to all completed" << endl;
+
   int total_receving = 0;
 
   int *disps_receiving_indices = new int[this->world_size] ();

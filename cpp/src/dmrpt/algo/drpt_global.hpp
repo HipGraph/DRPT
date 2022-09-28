@@ -10,6 +10,7 @@
 #include <omp.h>
 #include <map>
 #include <unordered_map>
+#include <set>
 
 namespace dmrpt
 {

@@ -572,7 +572,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
           int amount = receiving_indices_count[j];
           int offset = disps_receiving_indices[j];
 
-          for (int k = offset; k < amount; k++)
+          for (int k = offset; k <( offset+ amount); k++)
             {
               if (search_index == out_index_dis[k].index)
                 {

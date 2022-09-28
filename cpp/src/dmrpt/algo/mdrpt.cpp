@@ -517,6 +517,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
         {
           in_index_dis[co_process].index = process_se_indexes[j];
           in_index_dis[co_process].distance = local_nns[process_se_indexes[j]][nn - 1].distance;
+          co_process++;
         }
     }
 

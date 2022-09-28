@@ -484,7 +484,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
       for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
 
         if(local_nns.find ((*it)) != local_nns.end()) {
-             index_distribution_filtered[i].insert(*it)
+             index_distribution_filtered[i].insert(*it);
         }
       }
 

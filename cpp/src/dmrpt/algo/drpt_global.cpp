@@ -67,26 +67,26 @@ return
 vec;
 }
 
-template<typename T> bool allEqual (std::vector < T >
-const &v) {
-return
-std::adjacent_find(v
-.
-
-begin (), v
-
-.
-
-end (), std::not_equal_to<T> ()
-
-) == v.
-
-end ();
-
-}
+//template<typename T> bool allEqual (std::vector < T >
+//const &v) {
+//return
+//std::adjacent_find(v
+//.
+//
+//begin (), v
+//
+//.
+//
+//end (), std::not_equal_to<T> ()
+//
+//) == v.
+//
+//end ();
+//
+//}
 
 template<class T, class X>
-void sortByFreq (std::vector<T> &v, std::vector<X> &vec, int world_size)
+void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
 {
   std::unordered_map <T, size_t> count;
 
@@ -180,10 +180,10 @@ j<total_leaf_size;
 j++) {
 vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
 if (j !=
-previouse_leaf and neighbour_vec[0]
+previouse_leaf andneighbour_vec[0]
 .priority > can_leaf.
 priority
-    and neighbour_vec[0]
+    andneighbour_vec[0]
 .leaf_index == can_leaf.leaf_index) {
 candidate = false;
 break;
@@ -495,7 +495,7 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
 }
 
 vector <vector<dmrpt::DataPoint>>
-dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality_optimization)
+dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality_optimization, vector <vector<int>> &index_distribution)
 {
 
   dmrpt::MathOp mathOp;
@@ -588,14 +588,26 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
   VALUE_TYPE *send_values = new VALUE_TYPE[my_total * this->data_dimension];
 
   int co = 0;
+  int current_process = 0;
   for (int i = 0; i < total_leaf_size; i++)
     {
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
+      if (i > 0 && i % leafs_per_node == 0)
+        {
+          current_process++;
+        }
+
       for (int j = 0; j < all_points.size (); j++)
         {
           send_indices[co] = all_points[j].index;
+
+          if (current_process != this->rank)
+            {
+              index_distribution[current_process].push_back (all_points[j].index);
+            }
+
 #pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
             {
@@ -654,6 +666,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
             {
               DataPoint dataPoint;
               dataPoint.index = receive_indices[k];
+
+              if (j != this->rank) {
+                index_distribution[j].push_back (dataPoint.index);
+
+              }
 
               dataPoint.image_data = vector<VALUE_TYPE> (this->data_dimension);
 
@@ -826,17 +843,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
   auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
 #pragma  omp parallel for
-  for (
-      int k = 0;
-      k < total_leaf_size;
-      k++)
+  for (int k = 0; k < total_leaf_size; k++)
     {
       int prev_leaf = k;
-      for (
-          int m = 0;
-          m < this->
-              ntrees;
-          m++)
+      for (int m = 0; m < this->ntrees; m++)
         {
           int current_tree = m == 0 ? 0 : m - 1;
           prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
@@ -846,17 +856,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
   auto stop_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
-  for (
-      int i = 0;
-      i < this->
-          ntrees;
-      i++)
+  for (int i = 0; i < this->ntrees; i++)
     {
 #pragma  omp parallel for
-      for (
-          int k = 0;
-          k < total_leaf_size;
-          k++)
+      for (int k = 0; k < total_leaf_size; k++)
         {
           int leaf_index = final_tree_leaf_mapping[k][i];
           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];

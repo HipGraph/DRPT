@@ -66,7 +66,7 @@ class DRPTGlobal {
 
   void calculate_tree_leaf_correlation (string outpath);
 
-  vector <vector<DataPoint>> collect_similar_data_points (int tree, bool use_data_locality_optimization);
+  vector <vector<DataPoint>> collect_similar_data_points (int tree, bool use_data_locality_optimization, vector<vector<int>> &index_distribution);
 
 };
 }

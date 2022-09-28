@@ -32,8 +32,9 @@ namespace dmrpt {
         int algo;
         string input_path;
         string output_path;
-        vector <vector<vector < DataPoint>>>
-        trees_leaf_all;
+        vector <vector<vector < DataPoint>>>trees_leaf_all;
+        vector<vector<int>> index_distribution;
+
 
     private:
         std::map<int, vector<dmrpt::DataPoint>>

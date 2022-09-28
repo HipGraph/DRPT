@@ -484,6 +484,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
   int *disps_sending_indices = new int[this->world_size] ();
   for (int i = 0; i < this->world_size; i++)
     {
+
+      cout<<" rank "<<rank<<" consider rank "<<i <<" index distribution  "<<this->index_distribution[i].size()<<endl;
       if (this->index_distribution[i].empty()){
              sending_indices_count[i] = 0;
         } else {

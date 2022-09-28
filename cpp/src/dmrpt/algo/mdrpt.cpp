@@ -589,6 +589,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
         distance_pair.index=search_index;
         distance_pair.distance = minium_distance;
         final_indices_allocation_local[selected_rank].push_back (distance_pair);
+
     }
 
 #pragma omp critical
@@ -599,6 +600,9 @@ cout << " rank " << rank << " structure creation completed" << endl;
     }
   }
 }
+
+
+ cout<<" final indices size for my rank "<<rank<<" size "<<final_indices_allocation[this->rank].size()<<endl;
 
 
   cout << " rank " << rank << "  MPI minloc completed all to all completed" << endl;

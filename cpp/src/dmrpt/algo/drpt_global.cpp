@@ -789,17 +789,17 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
   auto start_tree_leaf_corr_low = high_resolution_clock::now ();
 
-//  for (int j = 0; j < this->ntrees; j++)
-//    {
-//      for (int k = 0; k < total_leaf_size; k++)
-//        {
-//          final_tree_leaf_mapping[k] = vector<int> (this->ntrees, -1);
-//          for (int m = 0; m < this->ntrees; m++)
-//            {
-//              candidate_mapping[j][k][m] = vector<PriorityMap> (total_leaf_size);
-//            }
-//        }
-//    }
+  for (int j = 0; j < this->ntrees; j++)
+    {
+      for (int k = 0; k < total_leaf_size; k++)
+        {
+          final_tree_leaf_mapping[k] = vector<int> (this->ntrees, -1);
+          for (int m = 0; m < this->ntrees; m++)
+            {
+              candidate_mapping[j][k][m] = vector<PriorityMap> (total_leaf_size);
+            }
+        }
+    }
 
 //#pragma omp parallel for
 //  for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
@@ -820,12 +820,12 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 //      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
 //    }
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(3)
   for (int j = 0; j < this->ntrees; j++) {
       for (int k = 0; k < total_leaf_size; k++) {
-          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
+//          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
           for (int m = 0; m < this->ntrees; m++) {
-              candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
+//              candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
 
 //                for (int n = 0; n < total_leaf_size; n++) {
 //                    PriorityMap priorityMap;
@@ -851,7 +851,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
   auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
-#pragma  omp parallel for
+//#pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
     {
       int prev_leaf = k;

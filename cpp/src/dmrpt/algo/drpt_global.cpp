@@ -143,11 +143,11 @@ void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
 
 int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
                            vector < vector < int >> &final_tree_leaf_mapping, int current_tree,
-int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size ) {
+int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, int rank ) {
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
 
 if(vec.size() ==0){
-  cout<<" rank "<<rank<< " vector zero "<<" tree "<<current_tree<<" leaf "<<previouse_leaf<<" selecting_tree "<<endl;
+  cout<<" rank "<<  rank << " vector zero "<<" tree "<<current_tree<<" leaf "<<previouse_leaf<<" selecting_tree "<<endl;
 }
 
    for ( int i = 0; i<vec.size (); i++) {
@@ -833,7 +833,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         {
           int current_tree = m == 0 ? 0 : m - 1;
           prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
-                                             total_leaf_size);
+                                             total_leaf_size, this->rank);
           if(prev_leaf == -1){
             cout<<" going to major diaster"<<endl;
           }

@@ -180,10 +180,10 @@ j<total_leaf_size;
 j++) {
 vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
 if (j !=
-previouse_leaf andneighbour_vec[0]
+previouse_leaf and neighbour_vec[0]
 .priority > can_leaf.
 priority
-    andneighbour_vec[0]
+    and neighbour_vec[0]
 .leaf_index == can_leaf.leaf_index) {
 candidate = false;
 break;

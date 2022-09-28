@@ -477,6 +477,14 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
     {
 
       cout<<" rank "<<rank<<" consider rank "<<i <<" index distribution  "<<this->index_distribution[i].size()<<endl;
+
+      for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
+
+        if(local_nns.find ((*it)) == local_nns.end()) {
+             this->index_distribution[i].erase (it);
+        }
+      }
+
       if (this->index_distribution[i].empty()){
              sending_indices_count[i] = 0;
         } else {

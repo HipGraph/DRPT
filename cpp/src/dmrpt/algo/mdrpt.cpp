@@ -519,6 +519,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
   for (int i = 0; i < this->world_size; i++)
     {
       total_receving += receiving_indices_count[i];
+     cout << " rank " << rank << " receiving from rank "<< i <<" "<< receiving_indices_count[i] << endl;
       disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
     }
 

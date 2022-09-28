@@ -170,7 +170,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   for(int i=0;i<this->world_size;i++){
      if(!index_distribution[i].empty())
        {
-         index_distribution[i].erase (unique (index_distribution[i].begin (), index_distribution[i].end ()));
+         index_distribution[i].erase (unique (index_distribution[i].begin (), index_distribution[i].end ()),index_distribution[i].end());
        }
     }
 

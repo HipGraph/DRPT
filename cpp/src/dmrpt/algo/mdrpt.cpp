@@ -506,6 +506,8 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
   int *sending_indices = new int[send_count] ();
   VALUE_TYPE *sending_max_dist_thresholds = new VALUE_TYPE[send_count] ();
 
+cout << " rank " << rank << " structure creation completed "<<send_count<<" receive count "<<total_receving << endl;
+
   struct index_distance_pair {
     float distance;
     int index;
@@ -532,7 +534,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
                  out_index_dis,
                  receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
 
-  cout << " rank " << rank << " first MPI all to all completed" << endl;
+  cout << " rank " << rank << " second MPI all to all completed" << endl;
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 

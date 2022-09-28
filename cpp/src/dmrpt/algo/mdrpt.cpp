@@ -484,7 +484,11 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
   int *disps_sending_indices = new int[this->world_size] ();
   for (int i = 0; i < this->world_size; i++)
     {
-      sending_indices_count[i] = this->index_distribution[i].size();
+      if (this->index_distribution[i].empty()){
+             sending_indices_count[i] = 0;
+        } else {
+             sending_indices_count[i] = this->index_distribution[i].size();
+      }
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
     }

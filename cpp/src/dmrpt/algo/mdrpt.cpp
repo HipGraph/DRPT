@@ -338,7 +338,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 //    delete[] receive;
 }
 
-void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns, vector<int> &keys, int tree, int nn)
+void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns, set<int> &keys, int tree, int nn)
 {
 
   dmrpt::MathOp mathOp;
@@ -452,7 +452,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
                     if (local_nns.find (idx) == local_nns.end ())
                       {
                         local_nns.insert (pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
-                        keys.push_back (idx);
+                        keys.insert(idx);
                       }
                   }
                 }
@@ -461,7 +461,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
     }
 }
 
-std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, vector<int> &keys, int nn)
+std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, set<int> &keys, int nn)
 {
 
   char results[500];
@@ -561,11 +561,11 @@ cout << " rank " << rank << " structure creation completed" << endl;
 //   vector <vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
 //
 //#pragma omp for nowait
-  for (int i = 0; i < keys.size (); i++)
+  for (set<int> :: iterator it = keys.begin() ; it!=keys.end() ; it++)
     {
       int selected_rank = this->rank;
-      int search_index = keys[i];
-      float minium_distance = local_nns[keys[i]][nn-1].distance;
+      int search_index = (*it);
+      float minium_distance = local_nns[(*it)][nn-1].distance;
 
       for (int j = 0; j < this->world_size; j++)
         {
@@ -948,7 +948,7 @@ dmrpt::MDRPT::gather_nns (int nn)
 
   std::map<int, vector<DataPoint>> local_nn_map;
 
-  vector<int> keys;
+  set<int> keys;
 
   for (int i = 0; i < ntrees; i++)
     {

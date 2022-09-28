@@ -556,11 +556,11 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 
-#pragma omp parallel
-  {
-   vector <vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
-
-#pragma omp for nowait
+//#pragma omp parallel
+//  {
+//   vector <vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
+//
+//#pragma omp for nowait
   for (int i = 0; i < keys.size (); i++)
     {
       int selected_rank = this->rank;
@@ -588,18 +588,18 @@ cout << " rank " << rank << " structure creation completed" << endl;
         index_distance_pair distance_pair;
         distance_pair.index=search_index;
         distance_pair.distance = minium_distance;
-        final_indices_allocation_local[selected_rank].push_back (distance_pair);
+        final_indices_allocation[selected_rank].push_back (distance_pair);
 
     }
 
-#pragma omp critical
-  {
-    for(int i=0;i<this->world_size;i++){
-     final_indices_allocation[i]. insert (final_indices_allocation[i].end(),
-                                       final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end());
-    }
-  }
-}
+//#pragma omp critical
+//  {
+//    for(int i=0;i<this->world_size;i++){
+//     final_indices_allocation[i]. insert (final_indices_allocation[i].end(),
+//                                       final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end());
+//    }
+//  }
+//}
 
 
  cout<<" final indices size for my rank "<<rank<<" size "<<final_indices_allocation[this->rank].size()<<endl;

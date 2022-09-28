@@ -168,10 +168,12 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 
   cout << " rank " << rank << " running distribution uniqueness" << endl;
   for(int i=0;i<this->world_size;i++){
+      cout << " rank " << rank << "  distribution before size "<<index_distribution[i].size() << endl;
      if(!index_distribution[i].empty())
        {
          index_distribution[i].erase (unique (index_distribution[i].begin (), index_distribution[i].end ()),index_distribution[i].end());
        }
+      cout << " rank " << rank << "  distribution after size "<<index_distribution[i].size() << endl;
     }
 
   cout << " rank " << rank << " exit distribution uniqueness" << endl;

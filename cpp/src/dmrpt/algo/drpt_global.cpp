@@ -820,7 +820,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 //      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
 //    }
 
-#pragma omp parallel for collapse(3)
+#pragma omp parallel for collapse(2)
   for (int j = 0; j < this->ntrees; j++) {
       for (int k = 0; k < total_leaf_size; k++) {
 //          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);

@@ -515,7 +515,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
   for (int i = 0; i < this->world_size; i++)
     {
       set<int> process_se_indexes = this->index_distribution[i];
-      for (set<int> :: iterator it = s.begin() ; it!=s.end() ; it++)
+      for (set<int> :: iterator it = process_se_indexes.begin() ; it!=process_se_indexes.end() ; it++)
         {
           in_index_dis[co_process].index = (*it);
           in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;

@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <cstring>
+#include <set>
 
 using namespace std;
 using namespace std::chrono;
@@ -39,7 +40,7 @@ dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
   this->output_path = output_path;
   this->tree_depth_ratio = tree_depth_ratio;
   this->trees_leaf_all = vector < vector < vector < DataPoint > >>(ntrees);
-  this->index_distribution = vector < vector < int >> (ntrees);
+  this->index_distribution = vector<set<int>> (ntrees);
 }
 
 template<typename T> vector <T> slice (vector < T >
@@ -157,26 +158,14 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   vector < vector < vector < DataPoint>>> leaf_nodes_of_trees (ntrees);
 //  int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-   vector<vector<int>> index_distribution(this->world_size);
 
   for (int i = 0; i < ntrees; i++)
     {
-      leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization,index_distribution);
+      leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization,this->index_distribution);
     }
 
   cout << " rank " << rank << " similar datapoint collection completed" << endl;
 
-  cout << " rank " << rank << " running distribution uniqueness" << endl;
-  for(int i=0;i<this->world_size;i++){
-      cout << " rank " << rank << "  distribution before size "<<index_distribution[i].size() << endl;
-     if(!index_distribution[i].empty())
-       {
-         index_distribution[i].erase (unique (index_distribution[i].begin (), index_distribution[i].end ()),index_distribution[i].end());
-       }
-      cout << " rank " << rank << "  distribution after size "<<index_distribution[i].size() << endl;
-    }
-
-  cout << " rank " << rank << " exit distribution uniqueness" << endl;
   auto stop_collect = high_resolution_clock::now ();
   auto collect_time = duration_cast<microseconds> (stop_collect - start_collect);
 
@@ -525,11 +514,11 @@ cout << " rank " << rank << " structure creation completed" << endl;
   int co_process = 0;
   for (int i = 0; i < this->world_size; i++)
     {
-      vector<int> process_se_indexes = this->index_distribution[i];
-      for (int j = 0; j < process_se_indexes.size (); j++)
+      set<int> process_se_indexes = this->index_distribution[i];
+      for (set<int> :: iterator it = s.begin() ; it!=s.end() ; it++)
         {
-          in_index_dis[co_process].index = process_se_indexes[j];
-          in_index_dis[co_process].distance = local_nns[process_se_indexes[j]][nn - 1].distance;
+          in_index_dis[co_process].index = (*it);
+          in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;
           co_process++;
         }
     }

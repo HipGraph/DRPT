@@ -479,7 +479,7 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
 }
 
 vector <vector<dmrpt::DataPoint>>
-dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality_optimization, vector <vector<int>> &index_distribution)
+dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality_optimization, vector <set<int>> &index_distribution)
 {
 
   dmrpt::MathOp mathOp;
@@ -589,7 +589,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
 
           if (current_process != this->rank)
             {
-              index_distribution[current_process].push_back (all_points[j].index);
+              index_distribution[current_process].insert(all_points[j].index);
             }
 
 #pragma omp parallel for
@@ -652,7 +652,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
               dataPoint.index = receive_indices[k];
 
               if (j != this->rank) {
-                index_distribution[j].push_back (dataPoint.index);
+                index_distribution[j].insert(dataPoint.index);
 
               }
 

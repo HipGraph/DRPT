@@ -10,6 +10,7 @@
 #include <omp.h>
 #include "drpt_global.hpp"
 #include<map>
+#include <set>
 
 namespace dmrpt {
     class MDRPT {
@@ -33,7 +34,7 @@ namespace dmrpt {
         string input_path;
         string output_path;
         vector <vector<vector < DataPoint>>>trees_leaf_all;
-        vector<vector<int>> index_distribution;
+        vector<set<int>> index_distribution;
 
 
     private:

@@ -157,10 +157,17 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   vector < vector < vector < DataPoint>>> leaf_nodes_of_trees (ntrees);
 //  int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
+   vector<vector<int>> index_distribution(this->world_size);
+
   for (int i = 0; i < ntrees; i++)
     {
-      leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization);
+      leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization,index_distribution);
     }
+
+  for(int i=0;i<this->world_size;i++){
+      index_distribution[i].erase (unique (index_distribution[i].begin (), index_distribution[i].end ()));
+    }
+
   auto stop_collect = high_resolution_clock::now ();
   auto collect_time = duration_cast<microseconds> (stop_collect - start_collect);
 

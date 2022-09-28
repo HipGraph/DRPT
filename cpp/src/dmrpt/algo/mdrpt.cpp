@@ -491,6 +491,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
                  }
           }
        this->index_distribution[i] = index_distribution_filtered[i];
+          cout<<"rank "<<rank<<" final count for rnal "<<i <<this->index_distribution[i].size()<<endl;
   }
 
 

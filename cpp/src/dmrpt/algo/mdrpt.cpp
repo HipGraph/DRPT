@@ -473,6 +473,9 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
   int send_count = 0;
   int *disps_sending_indices = new int[this->world_size] ();
+
+  vector<set<int>> index_distribution_filtered(this->world_size);
+
   for (int i = 0; i < this->world_size; i++)
     {
 
@@ -480,18 +483,21 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
       for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
 
-        if(local_nns.find ((*it)) == local_nns.end()) {
-             this->index_distribution[i].erase (it);
+        if(local_nns.find ((*it)) != local_nns.end()) {
+             index_distribution_filtered[i].insert(*it)
         }
       }
 
-      if (this->index_distribution[i].empty()){
+      if (index_distribution_filtered[i].empty()){
              sending_indices_count[i] = 0;
         } else {
-             sending_indices_count[i] = this->index_distribution[i].size();
+             sending_indices_count[i] = index_distribution_filtered[i].size();
       }
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
+      this->index_distribution[i] = index_distribution_filtered[i];
+
+    cout<<" rank "<<rank<<" consider rank "<<i <<" index distribution  filtered "<<this->index_distribution[i].size()<<endl;
     }
 
   MPI_Alltoall (sending_indices_count, 1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);

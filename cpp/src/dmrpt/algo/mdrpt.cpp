@@ -596,7 +596,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
        final_sent_indices_to_rank_map[search_index-this->starting_data_index]=rank_distance;
 
        if(rank==0){
-         cout<<" rank "<<rank<< " i "<< i <<" distance "<<"  selected index "<<search_index<<" minimum rank "<<selected_rank<<endl;
+         cout<<" rank "<<rank<< " i "<< i <<" distance "<<minium_distance<<" minimum rank "<< selected_rank <<endl;
        }
 
  }
@@ -605,10 +605,10 @@ cout << " rank " << rank << " global distance calculation completed" << endl;
 
    index_distance_pair selected_indices_owner_dst[this->original_data.size()];
 
-   int *sending_selected_indices_ow_co = new int[this->world_size];
-   int *disps_sending_selected_indices_ow_co = new int[this->world_size];
+   int *sending_selected_indices_ow_co = new int[this->world_size]();
+   int *disps_sending_selected_indices_ow_co = new int[this->world_size]();
 
-   int *minimal_selected_rank_sending  = new int[total_receving];
+   int *minimal_selected_rank_sending  = new int[total_receving]();
     index_distance_pair minimal_index_distance[total_receving];
 
    for(int i=0;i<total_receving;i++) {
@@ -624,7 +624,7 @@ cout << " rank " << rank << " global distance calculation completed" << endl;
    // we recalculate how much we are receiving for minimal dst distribution
    MPI_Alltoall (receiving_indices_count, 1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
 
-cout << " rank " << rank << " third MPI completed" << endl;
+cout << " rank " << rank << " third MPI completed receiving count from my rank"<<receiving_indices_count_back[this->rank] << endl;
 
    int total_receivce_back=0;
    for(int i=0;i<this->world_size;i++){

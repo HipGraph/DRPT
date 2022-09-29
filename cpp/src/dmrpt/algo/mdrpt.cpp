@@ -630,14 +630,32 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 
-#pragma omp parallel for
-  for(int i=0;i<total_receivce_back;i++){
+
+
+#pragma omp parallel
+{
+  vector <vector<index_distance_pair>> final_indices_allocation_local (this->world_size);
+
+  #pragma omp parallel for
+  for(int i=0;i<total_receivce_back;i++) {
     index_distance_pair distance_pair;
     distance_pair.index=minimal_index_distance_receiv[i].index;
     distance_pair.distance = minimal_index_distance_receiv[i].distance;
-    final_indices_allocation[minimal_selected_rank_reciving[i]].push_back (distance_pair);
+    final_indices_allocation_local[minimal_selected_rank_reciving[i]].push_back (distance_pair);
 
   }
+
+#pragma omp critical
+  {
+    for(int i=0;i<this->world_size;i++){
+
+     final_indices_allocation[i].insert (final_indices_allocation[i].end(),
+                                         final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end())
+    }
+
+  }
+
+}
 
 
 

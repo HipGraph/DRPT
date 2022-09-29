@@ -601,7 +601,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
  }
 
-cout << " rank " << rank << " global distance calculation completed" << endl;
+   cout << " rank " << rank << " global distance calculation completed" << endl;
 
    index_distance_pair selected_indices_owner_dst[this->original_data.size()];
 
@@ -614,7 +614,7 @@ cout << " rank " << rank << " global distance calculation completed" << endl;
    for(int i=0;i<total_receving;i++) {
          minimal_index_distance[i].index =  out_index_dis[i].index;
          minimal_index_distance[i].distance = final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].distance;
-         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].index; //TODO: replace
+         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index]; //TODO: replace
    }
 
 

@@ -638,7 +638,7 @@ cout << " rank " << rank << " third MPI completed" << endl;
      minimal_selected_rank_reciving,
      receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
 
-  cout << " rank " << rank << "  MPI completed" << endl;
+  cout << " rank " << rank << "  MPI completed  total recive back"<<total_receivce_back << endl;
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 

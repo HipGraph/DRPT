@@ -130,6 +130,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   auto start_grow_index = high_resolution_clock::now ();
 
   int starting_index = (this->total_data_set_size / world_size) * this->rank;
+  this->starting_data_index = starting_index;
 
   this->drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
                                          starting_index,

@@ -594,6 +594,10 @@ cout << " rank " << rank << " structure creation completed" << endl;
 //       final_sent_indices_allocation[selected_rank].push_back (rank_distance);
        final_sent_indices_to_rank_map[search_index-this->starting_data_index]=rank_distance;
 
+       if(rank==0){
+         cout<<" rank "<<rank<< " i "<< i <<" distance "<<"  selected index "<<search_index<<" minimum rank "<<selected_rank<<endl;
+       }
+
  }
 
 cout << " rank " << rank << " global distance calculation completed" << endl;

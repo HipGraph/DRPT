@@ -623,8 +623,8 @@ cout << " rank " << rank << " structure creation completed" << endl;
    }
 
 
-   int *receiving_indices_count_back = new int[this->world_size] ();
-   int *disps_receiving_indices_count_back = new int[this->world_size] ();
+   int *receiving_indices_count_back = new int[this->world_size]();
+   int *disps_receiving_indices_count_back = new int[this->world_size]();
 
    // we recalculate how much we are receiving for minimal dst distribution
    MPI_Alltoall (receiving_indices_count, 1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
@@ -644,7 +644,7 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
       minimal_index_distance_receiv,
       receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
 
-  MPI_Alltoallv (minimal_selected_rank_reciving, receiving_indices_count, disps_receiving_indices, MPI_INT,
+  MPI_Alltoallv (minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
      minimal_selected_rank_reciving,
      receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
 

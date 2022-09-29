@@ -556,7 +556,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
 
 
- vector<vector<index_distance_pair>> final_indices_allocation (this->world_size);
+// vector<vector<index_distance_pair>> final_indices_allocation (this->world_size);
 
  vector<vector<index_distance_pair>> final_sent_indices_allocation (this->world_size);
 
@@ -601,13 +601,13 @@ cout << " rank " << rank << " structure creation completed" << endl;
    int *sending_selected_indices_ow_co = new int[this->world_size];
    int *disps_sending_selected_indices_ow_co = new int[this->world_size];
 
-   int *minimal_selected_rank_sending  = new [total_receving];
+   int *minimal_selected_rank_sending  = new int[total_receving];
     index_distance_pair minimal_index_distance[total_receving];
 
    for(int i=0;i<total_receving;i++) {
          minimal_index_distance[i].index =  out_index_dis[i].index;
-         minimal_index_distance[i].distance = final_sent_indices_to_rank_map[minimal_index_distance.index-this->starting_data_index].distance;
-         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[minimal_index_distance.index-this->starting_data_index].index; //TODO: replace
+         minimal_index_distance[i].distance = final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].distance;
+         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].index; //TODO: replace
    }
 
 
@@ -623,7 +623,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
        disps_receiving_indices_count_back[i] = (i > 0) ? (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
    }
 
-   int *minimal_selected_rank_reciving  = new [total_receivce_back];
+   int *minimal_selected_rank_reciving  = new int[total_receivce_back];
    index_distance_pair minimal_index_distance_receiv[total_receivce_back];
 
   MPI_Alltoallv (minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,

@@ -619,6 +619,8 @@ cout << " rank " << rank << " global distance calculation completed" << endl;
    // we recalculate how much we are receiving for minimal dst distribution
    MPI_Alltoall (receiving_indices_count, 1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
 
+cout << " rank " << rank << " third MPI completed" << endl;
+
    int total_receivce_back=0;
    for(int i=0;i<this->world_size;i++){
        total_receivce_back +=receiving_indices_count_back[i];

@@ -614,7 +614,12 @@ cout << " rank " << rank << " structure creation completed" << endl;
    for(int i=0;i<total_receving;i++) {
          minimal_index_distance[i].index =  out_index_dis[i].index;
          minimal_index_distance[i].distance = final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].distance;
-         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index]; //TODO: replace
+         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].index; //TODO: replace
+
+         if(rank == 0){
+           cout<<" original index"<<minimal_index_distance[i].index <<" distance  "<<minimal_index_distance[i].distance<<" selected rank  "<<minimal_selected_rank_sending[i]<<endl;
+         }
+
    }
 
 

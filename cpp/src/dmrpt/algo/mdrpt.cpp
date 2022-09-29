@@ -627,7 +627,7 @@ cout << " rank " << rank << " third MPI completed" << endl;
        disps_receiving_indices_count_back[i] = (i > 0) ? (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
    }
 
-   int *minimal_selected_rank_reciving  = new int[total_receivce_back];
+   int *minimal_selected_rank_reciving  = new int[total_receivce_back]();
    index_distance_pair minimal_index_distance_receiv[total_receivce_back];
 
   MPI_Alltoallv (minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
@@ -638,7 +638,7 @@ cout << " rank " << rank << " third MPI completed" << endl;
      minimal_selected_rank_reciving,
      receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
 
-
+  cout << " rank " << rank << "  MPI completed" << endl;
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 

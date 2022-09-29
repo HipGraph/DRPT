@@ -481,21 +481,6 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
   vector<set<int>> index_distribution_filtered(this->world_size);
 
 
-  cout<<" rank "<<rank<<" my final keys size" <<keys.size()<<endl;
-
-//#pragma omp parallel for
-//  for(int i=0;i<this->world_size;i++){
-//          for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
-//               if(local_nns.find ((*it)) != local_nns.end()) {
-//                      index_distribution_filtered[i].insert(*it);
-//                 }
-//          }
-//       this->index_distribution[i] = index_distribution_filtered[i];
-//          cout<<"rank "<<rank<<" final count for rnal "<<i <<this->index_distribution[i].size()<<endl;
-//  }
-
-
-
   for (int i = 0; i < this->world_size; i++)
     {
 
@@ -565,6 +550,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
   int my_end_index = this->starting_data_index + this->original_data.size();
 
+#pragma omp parallel for
   for(int i=this->starting_data_index;i<my_end_index;i++) {
      int selected_rank = -1;
      int search_index = i;
@@ -594,11 +580,6 @@ cout << " rank " << rank << " structure creation completed" << endl;
        rank_distance.distance = minium_distance;
 //       final_sent_indices_allocation[selected_rank].push_back (rank_distance);
        final_sent_indices_to_rank_map[search_index-this->starting_data_index]=rank_distance;
-
-       if(rank==0){
-         cout<<" rank "<<rank<< " i "<< i <<" distance "<<minium_distance<<" minimum rank "<< selected_rank <<endl;
-       }
-
  }
 
    cout << " rank " << rank << " global distance calculation completed" << endl;
@@ -611,15 +592,12 @@ cout << " rank " << rank << " structure creation completed" << endl;
    int *minimal_selected_rank_sending  = new int[total_receving]();
     index_distance_pair minimal_index_distance[total_receving];
 
+
+#pragma omp parallel for
    for(int i=0;i<total_receving;i++) {
          minimal_index_distance[i].index =  out_index_dis[i].index;
          minimal_index_distance[i].distance = final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].distance;
          minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[out_index_dis[i].index-this->starting_data_index].index; //TODO: replace
-
-         if(rank == 0){
-           cout<<" original index"<<minimal_index_distance[i].index <<" distance  "<<minimal_index_distance[i].distance<<" selected rank  "<<minimal_selected_rank_sending[i]<<endl;
-         }
-
    }
 
 
@@ -652,7 +630,7 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
 
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
 
-
+#pragma omp parallel for
   for(int i=0;i<total_receivce_back;i++){
     index_distance_pair distance_pair;
     distance_pair.index=minimal_index_distance_receiv[i].index;
@@ -661,50 +639,6 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
 
   }
 
-//#pragma omp parallel
-//  {
-//   vector <vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
-//
-//#pragma omp for nowait
-//  for (set<int> :: iterator it = keys.begin() ; it!=keys.end() ; it++)
-//    {
-//      int selected_rank = this->rank;
-//      int search_index = (*it);
-//      float minium_distance = local_nns[(*it)][nn-1].distance;
-//
-//      for (int j = 0; j < this->world_size; j++)
-//        {
-//          int amount = receiving_indices_count_back[j];
-//          int offset = disps_receiving_indices_count_back[j];
-//
-//          for (int k = offset; k <( offset+ amount); k++)
-//            {
-//              if (search_index == minimal_index_distance_receiv[k].index)
-//                {
-//                  if (minium_distance > out_index_dis[k].distance)
-//                    {
-//                      minium_distance = out_index_dis[k].distance;
-//                      selected_rank = j;
-//                    }
-///                 break;
-//                }
-//            }
-//        }
-//        index_distance_pair distance_pair;
-//        distance_pair.index=search_index;
-//        distance_pair.distance = minium_distance;
-//        final_indices_allocation[selected_rank].push_back (distance_pair);
-//
-//    }
-
-//#pragma omp critical
-//  {
-//    for(int i=0;i<this->world_size;i++){
-//     final_indices_allocation[i]. insert (final_indices_allocation[i].end(),
-//                                       final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end());
-//    }
-//  }
-//}
 
 
  cout<<" final indices size for my rank "<<rank<<" size "<<final_indices_allocation[this->rank].size()<<endl;

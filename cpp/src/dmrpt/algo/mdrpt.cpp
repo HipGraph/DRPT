@@ -636,7 +636,7 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
 {
   vector <vector<index_distance_pair>> final_indices_allocation_local (this->world_size);
 
-  #pragma omp parallel for
+  #pragma omp  for nowait
   for(int i=0;i<total_receivce_back;i++) {
     index_distance_pair distance_pair;
     distance_pair.index=minimal_index_distance_receiv[i].index;

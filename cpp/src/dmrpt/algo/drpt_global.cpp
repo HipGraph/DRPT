@@ -488,7 +488,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
 
   int *send_counts = new int[total_leaf_size];
   int *recv_counts = new int[total_leaf_size];
-  
+
 
   int sum_per_node = 0;
   int process = 0;
@@ -580,10 +580,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
         {
           send_indices[co] = all_points[j].index;
 
-          if (current_process != this->rank)
-            {
-              index_distribution[current_process].insert(all_points[j].index);
-            }
+//          if (current_process != this->rank)
+//            {
+//              index_distribution[current_process].insert(all_points[j].index);
+//            }
 
 #pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
@@ -644,10 +644,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
               DataPoint dataPoint;
               dataPoint.index = receive_indices[k];
 
-              if (j != this->rank) {
+//              if (j != this->rank) {
                 index_distribution[j].insert(dataPoint.index);
 
-              }
+//              }
 
               dataPoint.image_data = vector<VALUE_TYPE> (this->data_dimension);
 

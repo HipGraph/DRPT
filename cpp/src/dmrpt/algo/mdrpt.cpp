@@ -461,8 +461,7 @@ void dmrpt::MDRPT::calculate_nns (map<int, vector<dmrpt::DataPoint>> &local_nns,
     }
 }
 
-std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, set<int> &keys, int nn)
-{
+std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int, vector < dmrpt::DataPoint>> &local_nns, set<int> &keys, int nn) {
 
   char results[500];
 //    char hostname[HOST_NAME_MAX];
@@ -483,26 +482,24 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
   cout<<" rank "<<rank<<" my final keys size" <<keys.size()<<endl;
 
-#pragma omp parallel for
-  for(int i=0;i<this->world_size;i++){
-          for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
-               if(local_nns.find ((*it)) != local_nns.end()) {
-                      index_distribution_filtered[i].insert(*it);
-                 }
-          }
-       this->index_distribution[i] = index_distribution_filtered[i];
-          cout<<"rank "<<rank<<" final count for rnal "<<i <<this->index_distribution[i].size()<<endl;
-  }
+//#pragma omp parallel for
+//  for(int i=0;i<this->world_size;i++){
+//          for(set<int> :: iterator it = this->index_distribution[i].begin() ; it!=this->index_distribution[i].end() ; it++){
+//               if(local_nns.find ((*it)) != local_nns.end()) {
+//                      index_distribution_filtered[i].insert(*it);
+//                 }
+//          }
+//       this->index_distribution[i] = index_distribution_filtered[i];
+//          cout<<"rank "<<rank<<" final count for rnal "<<i <<this->index_distribution[i].size()<<endl;
+//  }
 
 
 
   for (int i = 0; i < this->world_size; i++)
     {
-      if (this->index_distribution[i].empty()){
-             sending_indices_count[i] = 0;
-        } else {
-             sending_indices_count[i] = this->index_distribution[i].size();
-      }
+
+      sending_indices_count[i] = this->index_distribution[i].size();
+
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
 
@@ -556,43 +553,135 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
   cout << " rank " << rank << " second MPI all to all completed" << endl;
 
+
+
+
+ vector<vector<index_distance_pair>> final_indices_allocation (this->world_size);
+
+ vector<vector<index_distance_pair>> final_sent_indices_allocation (this->world_size);
+
+ vector<index_distance_pair> final_sent_indices_to_rank_map (this->original_data.size());
+
+  int my_end_index = this->starting_data_index + this->original_data.size();
+
+  for(int i=this->starting_data_index;i<my_end_index;i++) {
+     int selected_rank = -1;
+     int search_index = i;
+     float minium_distance = std::numeric_limits<float>::max();
+
+//     if(local_nns.find (i) != local_nns.end()){
+//       selected_rank = this->rank;
+//        minium_distance = local_nns[i][nn-1].distance;
+//     }
+
+       for (int j = 0; j < this->world_size; j++) {
+              int amount = receiving_indices_count[j];
+              int offset = disps_receiving_indices[j];
+
+              for (int k = offset; k <( offset+ amount); k++) {
+                if (search_index == out_index_dis[k].index) {
+                  if (minium_distance > out_index_dis[k].distance) {
+                    minium_distance = out_index_dis[k].distance;
+                    selected_rank = j;
+                  }
+                  break;
+                }
+              }
+       }
+       index_distance_pair rank_distance;
+       rank_distance.index=selected_rank;  //TODO: replace with rank
+       rank_distance.distance = minium_distance;
+//       final_sent_indices_allocation[selected_rank].push_back (rank_distance);
+       final_sent_indices_to_rank_map[search_index-this->starting_data_index]=rank_distance;
+
+ }
+
+   index_distance_pair selected_indices_owner_dst[this->original_data.size()];
+
+   int *sending_selected_indices_ow_co = new int[this->world_size];
+   int *disps_sending_selected_indices_ow_co = new int[this->world_size];
+
+   int *minimal_selected_rank_sending  = new [total_receving];
+    index_distance_pair minimal_index_distance[total_receving];
+
+   for(int i=0;i<total_receving;i++) {
+         minimal_index_distance[i].index =  out_index_dis[i].index;
+         minimal_index_distance[i].distance = final_sent_indices_to_rank_map[minimal_index_distance.index-this->starting_data_index].distance;
+         minimal_selected_rank_sending[i]=final_sent_indices_to_rank_map[minimal_index_distance.index-this->starting_data_index].index; //TODO: replace
+   }
+
+
+   int *receiving_indices_count_back = new int[this->world_size] ();
+   int *disps_receiving_indices_count_back = new int[this->world_size] ();
+
+   // we recalculate how much we are receiving for minimal dst distribution
+   MPI_Alltoall (receiving_indices_count, 1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
+
+   int total_receivce_back=0;
+   for(int i=0;i<this->world_size;i++){
+       total_receivce_back +=receiving_indices_count_back[i];
+       disps_receiving_indices_count_back[i] = (i > 0) ? (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
+   }
+
+   int *minimal_selected_rank_reciving  = new [total_receivce_back];
+   index_distance_pair minimal_index_distance_receiv[total_receivce_back];
+
+  MPI_Alltoallv (minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
+      minimal_index_distance_receiv,
+      receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
+
+  MPI_Alltoallv (minimal_selected_rank_reciving, receiving_indices_count, disps_receiving_indices, MPI_INT,
+     minimal_selected_rank_reciving,
+     receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
+
+
+
   vector <vector<index_distance_pair>> final_indices_allocation (this->world_size);
+
+
+  for(int i=0;i<total_receivce_back;i++){
+    index_distance_pair distance_pair;
+    distance_pair.index=minimal_index_distance_receiv[i].index;
+    distance_pair.distance = minimal_index_distance_receiv[i].distance;
+    final_indices_allocation[minimal_selected_rank_reciving[i]].push_back (distance_pair);
+
+  }
 
 //#pragma omp parallel
 //  {
 //   vector <vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
 //
 //#pragma omp for nowait
-  for (set<int> :: iterator it = keys.begin() ; it!=keys.end() ; it++)
-    {
-      int selected_rank = this->rank;
-      int search_index = (*it);
-      float minium_distance = local_nns[(*it)][nn-1].distance;
-
-      for (int j = 0; j < this->world_size; j++)
-        {
-          int amount = receiving_indices_count[j];
-          int offset = disps_receiving_indices[j];
-
-          for (int k = offset; k <( offset+ amount); k++)
-            {
-              if (search_index == out_index_dis[k].index)
-                {
-                  if (minium_distance > out_index_dis[k].distance)
-                    {
-                      minium_distance = out_index_dis[k].distance;
-                      selected_rank = j;
-                    }
-//                  break;
-                }
-            }
-        }
-        index_distance_pair distance_pair;
-        distance_pair.index=search_index;
-        distance_pair.distance = minium_distance;
-        final_indices_allocation[selected_rank].push_back (distance_pair);
-
-    }
+//  for (set<int> :: iterator it = keys.begin() ; it!=keys.end() ; it++)
+//    {
+//      int selected_rank = this->rank;
+//      int search_index = (*it);
+//      float minium_distance = local_nns[(*it)][nn-1].distance;
+//
+//      for (int j = 0; j < this->world_size; j++)
+//        {
+//          int amount = receiving_indices_count_back[j];
+//          int offset = disps_receiving_indices_count_back[j];
+//
+//          for (int k = offset; k <( offset+ amount); k++)
+//            {
+//              if (search_index == minimal_index_distance_receiv[k].index)
+//                {
+//                  if (minium_distance > out_index_dis[k].distance)
+//                    {
+//                      minium_distance = out_index_dis[k].distance;
+//                      selected_rank = j;
+//                    }
+///                 break;
+//                }
+//            }
+//        }
+//        index_distance_pair distance_pair;
+//        distance_pair.index=search_index;
+//        distance_pair.distance = minium_distance;
+//        final_indices_allocation[selected_rank].push_back (distance_pair);
+//
+//    }
 
 //#pragma omp critical
 //  {

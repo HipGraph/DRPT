@@ -596,6 +596,8 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
  }
 
+cout << " rank " << rank << " global distance calculation completed" << endl;
+
    index_distance_pair selected_indices_owner_dst[this->original_data.size()];
 
    int *sending_selected_indices_ow_co = new int[this->world_size];

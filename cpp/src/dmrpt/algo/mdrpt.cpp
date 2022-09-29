@@ -650,7 +650,7 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
     for(int i=0;i<this->world_size;i++){
 
      final_indices_allocation[i].insert (final_indices_allocation[i].end(),
-                                         final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end())
+                                         final_indices_allocation_local[i].begin(),final_indices_allocation_local[i].end());
     }
 
   }

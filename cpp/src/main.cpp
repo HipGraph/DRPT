@@ -36,6 +36,7 @@ int main (int argc, char *argv[])
   int batch_size = 1000;
   double tree_depth_ratio = 0.5;
   bool use_locality_optimization = true;
+  int local_tree_offset = 3;
 
   for (int p = 0; p < argc; p++)
     {
@@ -83,6 +84,10 @@ int main (int argc, char *argv[])
       else if (strcmp (argv[p], "-locality") == 0)
         {
           use_locality_optimization = atoi (argv[p + 1]) == 1 ? true : false;
+        }
+      else if (strcmp (argv[p], "-local-tree-offset") == 0)
+        {
+          local_tree_offset = atoi (argv[p + 1]) == 1 ? true : false;
         }
 
     }
@@ -184,7 +189,7 @@ int main (int argc, char *argv[])
   MPI_Barrier (MPI_COMM_WORLD);
 
   int chunk_size = data_set_size / size;
-  MDRPT mdrpt = MDRPT (ntrees, algo, tree_depth, tree_depth_ratio, data_set_size, rows, rank, size, input_path,
+  MDRPT mdrpt = MDRPT (ntrees, algo, tree_depth, tree_depth_ratio, local_tree_offset,data_set_size, rows, rank, size, input_path,
                        output_path);
 
   auto start_index_buildling = high_resolution_clock::now ();

@@ -24,7 +24,7 @@ using namespace std;
 using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
-                     double tree_depth_ratio,
+                     double tree_depth_ratio,int local_tree_offset
                      int total_data_set_size, int dimension,
                      int rank, int world_size, string input_path, string output_path)
 {
@@ -41,6 +41,7 @@ dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
   this->tree_depth_ratio = tree_depth_ratio;
   this->trees_leaf_all = vector < vector < vector < DataPoint > >>(ntrees);
   this->index_distribution = vector<set<int>> (world_size);
+  this->local_tree_offset =local_tree_offset;
 }
 
 template<typename T> vector <T> slice (vector < T >
@@ -199,7 +200,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
         }
     }
 
-  local_tree_depth = log2 (global_minimum) - (log2 (nn) + 3);
+  local_tree_depth = log2 (global_minimum) - (log2 (nn) + local_tree_offset);
   this->tree_depth = local_tree_depth + global_tree_depth;
 
   cout << "rank " << rank << " adjusted local tree height " << local_tree_depth << " adjusted global tree depth "

@@ -824,8 +824,6 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
                                                           receiving_selected_nn_indices_count_process[i - 1]) : 0;
     }
 
-//  int *receiving_selected_nn_indices = new int[total_receiving_nn_count] ();
-//  VALUE_TYPE *receiving_selected_nn_dst = new VALUE_TYPE[total_receiving_nn_count] ();
 
    index_distance_pair receving_selected_nn[total_receiving_nn_count];
 
@@ -837,14 +835,6 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
                  receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
                  MPI_COMM_WORLD
   );
-
-////
-//  MPI_Alltoallv (sending_selected_nn_dst, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
-//                 MPI_VALUE_TYPE,
-//                 receiving_selected_nn_dst,
-//                 receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_VALUE_TYPE,
-//                 MPI_COMM_WORLD
-//  );
 
   int nn_index = 0;
   for (int i = 0; i < total_receiving_count; i++)

@@ -199,7 +199,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
         }
     }
 
-  local_tree_depth = log2 (global_minimum) - (log2 (nn) + 1);
+  local_tree_depth = log2 (global_minimum) - (log2 (nn) + 3);
   this->tree_depth = local_tree_depth + global_tree_depth;
 
   cout << "rank " << rank << " adjusted local tree height " << local_tree_depth << " adjusted global tree depth "

@@ -24,7 +24,7 @@ using namespace std;
 using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
-                     double tree_depth_ratio,int local_tree_offset
+                     double tree_depth_ratio,int local_tree_offset,
                      int total_data_set_size, int dimension,
                      int rank, int world_size, string input_path, string output_path)
 {

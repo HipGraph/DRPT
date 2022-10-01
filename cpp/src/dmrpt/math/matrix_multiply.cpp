@@ -336,12 +336,12 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         }
 
         if(selected_index <=0){
-            cout<<"rank "<<rank<< " selected index is invalid"<<selected_index<<endl:
+            cout<<"rank "<<rank<< " selected index is invalid"<<selected_index<<endl;
         }
 
         int count = gfrequency[selected_index];
         if(count <0){
-            cout<<"rank "<<rank<< " selected index is invalid count "<<count<<endl:
+            cout<<"rank "<<rank<< " selected index is invalid count "<<count<<endl;
           }
 
         VALUE_TYPE median = distribution[selected_index - 1] +

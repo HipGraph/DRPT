@@ -445,7 +445,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
   long index = 0;
   long current_chunk = chunk_lo;
 
-  cout << " perpsize " << process_bytes << " global start" << global_start << " index " << index << endl;
+//  cout << " perpsize " << process_bytes << " global start" << global_start << " index " << index << endl;
 
   while (index < process_bytes)
     {
@@ -468,7 +468,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   chunk[perpsize] = '\0';
 
-  cout << " rank " << rank << "Mpi read completed " << endl;
+//  cout << " rank " << rank << "Mpi read completed " << endl;
   long count = 0;
 
   long total_arr_size = (process_bytes) * sizeof (char);
@@ -495,6 +495,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
               cout << " rank " << rank << " out of range" << v[j] << endl;
             }
         }
+        if (v.size() != dimension){
+            cout << " rank " << rank << " out of dimension" << v[j] << endl;
+        }
       output[i] = v;
     }
 
@@ -512,7 +515,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 //        count++;
 //    }
 
-  cout << " rank " << rank << "Output size:" << output.size () << ":" << output[0].size () << endl;
+//  cout << " rank " << rank << "Output size:" << output.size () << ":" << output[0].size () << endl;
   return output;
 }
 

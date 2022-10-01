@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
         }
       else if (strcmp (argv[p], "-local-tree-offset") == 0)
         {
-          local_tree_offset = atoi (argv[p + 1]) == 1 ? true : false;
+          local_tree_offset = atoi (argv[p + 1]);
         }
 
     }

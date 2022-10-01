@@ -189,6 +189,9 @@ int main (int argc, char *argv[])
   MPI_Barrier (MPI_COMM_WORLD);
 
   int chunk_size = data_set_size / size;
+
+  cout<<" total data set size "<<data_set_size<<endl;
+
   MDRPT mdrpt = MDRPT (ntrees, algo, tree_depth, tree_depth_ratio, local_tree_offset,data_set_size, rows, rank, size, input_path,
                        output_path);
 

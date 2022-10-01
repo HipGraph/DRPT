@@ -496,7 +496,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
             }
         }
         if (v.size() != dimension){
-            cout << " rank " << rank << " out of dimension" << v[j] << endl;
+            cout << " rank " << rank << " out of dimension" << v.size() << endl;
         }
       output[i] = v;
     }

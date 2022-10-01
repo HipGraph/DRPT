@@ -251,7 +251,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
       vector<int> total_size_vector (total_split_size);
       child_data_tracker[0] = this->trees_data[k][0];
       total_size_vector[0] = this->total_data_set_size;
-
+      cout<<" total size vector"<<total_size_vector[0]<<endl;
       double *execution_times = new double[this->tree_depth + 1];
       double *exeuction_times_global = new double[this->tree_depth + 1];
 

@@ -310,7 +310,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];
            if (freqarray[k]<0){
-             cout<<"rank "<<rank<< " invalid frequency"<<endl:
+             cout<<"rank "<<rank<< " invalid frequency"<<endl;
            }
             gfrequency[k] = 0;
         }

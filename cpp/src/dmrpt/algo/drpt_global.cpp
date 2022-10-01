@@ -311,10 +311,14 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
   vector<int> local_data_row_count (current_nodes);
   vector<int> total_data_row_count (current_nodes);
 
+  int minimum_vector_size=INT32_MAX;
   for (int i = 0; i < current_nodes; i++)
     {
       vector <DataPoint> data_vector = child_data_tracker[split_starting_index + i];
       local_data_row_count[i] = data_vector.size ();
+      if(minimum_vector_size>data_vector.size ()){
+          minimum_vector_size = data_vector.size ();
+      }
       total_data_row_count[i] = total_size_vector[split_starting_index + i];
 //        cout << " rank " << rank << " level " << depth << " child " << i << " data_vec_size " << local_data_row_count[i]
 //             << "total data count " << total_data_row_count[i] << endl;
@@ -327,7 +331,7 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
       total_data_count_prev += data_vector.size ();
     }
 
-    int no_of_bins = 1 + (3.322 * log2(data_vec_size));
+    int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
   auto start_distribtuion_time_index = high_resolution_clock::now ();
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes, total_data_row_count, no_of_bins,
                                                   dmrpt::StorageFormat::RAW, this->rank);

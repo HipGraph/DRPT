@@ -178,6 +178,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
     {
       for (int j = 0; j < leaf_nodes_of_trees[i].size (); j++)
         {
+          cout<<"  tree "<<i<<" leaf "<<j<<" size "<<leaf_nodes_of_trees[i][j].size ()<<endl;
           if (my_minimum_count > leaf_nodes_of_trees[i][j].size ())
             my_minimum_count = leaf_nodes_of_trees[i][j].size ();
         }

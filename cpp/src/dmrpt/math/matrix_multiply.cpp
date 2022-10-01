@@ -235,7 +235,11 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
     }
 
 
+    long factor_long = no_of_bins * 1.0 / (std1 + std2 + std3);
     int factor = (int) ceil(no_of_bins * 1.0 / (std1 + std2 + std3));
+
+    cout<<" factor  " << factor<<" factor long  "<<factor_long <<endl;
+
 
     int dist_length = 2 * factor * (std1 + std2 + std3) + 2;
 

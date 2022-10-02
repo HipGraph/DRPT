@@ -123,22 +123,6 @@ void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
       priorityMap.leaf_index = v[i];
       vec[v[i]] = priorityMap;
 
-
-//        std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
-//                                                                    vec.end(),
-//                                                                    [i](dmrpt::PriorityMap const &n) {
-//                                                                        return n.leaf_index == i;
-//                                                                    });
-//        int index = it - vec.begin();
-//
-//        if (it != vec.end()) {
-//            it->priority = priority;
-//            vec[index] = (*it);
-//        }
-        sort(vec.begin(), vec.end(),
-             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
-                 return lhs.priority > rhs.priority;
-             });
     }
 }
 
@@ -146,6 +130,10 @@ int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMa
                            vector < vector < int >> &final_tree_leaf_mapping, int current_tree,
 int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, int rank ) {
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+    sort(vec.begin(), vec.end(),
+[](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+      return lhs.priority > rhs.priority;
+   });
 
    for ( int i = 0; i<vec.size (); i++) {
           dmrpt::PriorityMap can_leaf = vec[i];
@@ -805,7 +793,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         }
     }
 
-//#pragma omp parallel for
+#pragma omp parallel for
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
     {
 

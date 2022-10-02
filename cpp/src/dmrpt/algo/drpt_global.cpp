@@ -573,8 +573,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
   for (int i = 0; i < total_leaf_size; i++)
     {
 
-      cout<<" i "<<i<<" original "<<this->trees_leaf_first_indices[tree][i].size()<<" rearranged "
-      << this->trees_leaf_first_indices_rearrange[tree][i].size()<<endl;
+      if(rank==0)
+        {
+          cout << " i " << i << " original " << this->trees_leaf_first_indices[tree][i].size () << " rearranged "
+               << this->trees_leaf_first_indices_rearrange[tree][i].size () << endl;
+        }
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];

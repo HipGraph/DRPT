@@ -90,9 +90,9 @@ void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
 {
   std::unordered_map <T, size_t> count;
 
-  for (T i : v)
+  for (int i=0; i< v.size();i++)
     {
-      count[i]++;
+      count[v[i]]++;
     }
 
   std::sort (v.begin (), v.end (), [&count] (T const &a, T const &b)
@@ -114,14 +114,15 @@ void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
   auto last = std::unique (v.begin (), v.end ());
   v.erase (last, v.end ());
 
-  for (T i : v)
+  for (int i=0; i< v.size();i++)
     {
-      float priority = (float) count[i] / world_size;
+      float priority = (float) count[v[i]] / world_size;
 
       dmrpt::PriorityMap priorityMap;
       priorityMap.priority = priority;
-      priorityMap.leaf_index = i;
-      vec[i] = priorityMap;
+      priorityMap.leaf_index = v[i];
+      vec[v[i]] = priorityMap;
+
 
 //        std::vector<dmrpt::PriorityMap>::iterator it = std::find_if(vec.begin(),
 //                                                                    vec.end(),

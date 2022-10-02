@@ -487,13 +487,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
         {
           int index = j + i * dimension;
           char c = chunk[index];
-          int x = (int) (c);
+          float x = (float) (c);
 
-          v[j] = (VALUE_TYPE) x;
-          if (v[j] > 255 or v[j] < -255)
-            {
-              cout << " rank " << rank << " out of range" << v[j] << endl;
-            }
+          v[j] = (VALUE_TYPE) (x*100);
         }
         if (v.size() != dimension){
             cout << " rank " << rank << " out of dimension" << v.size() << endl;

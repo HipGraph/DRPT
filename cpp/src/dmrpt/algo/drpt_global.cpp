@@ -804,57 +804,57 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         }
     }
 
-#pragma omp parallel for
-  for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
-    {
+//#pragma omp parallel for
+//  for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
+//    {
+//
+//      int m = l % this->ntrees;
+//      int temp_val = (l - m) / this->ntrees;
+//      int j = temp_val / total_leaf_size;
+//      int k = temp_val % total_leaf_size;
+//
+//       for (int n = 0; n < total_leaf_size; n++) {
+//                    PriorityMap priorityMap;
+//                    priorityMap.priority = 0;
+//                    priorityMap.leaf_index = n;
+//                    candidate_mapping[j][k][m][n]=priorityMap;
+//                }
+//
+//      vector<int> vec;
+//      for (int p = 0; p < this->world_size; p++)
+//        {
+//          int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
+//          int value = total_receiving_leafs[id];
+//          vec.push_back (value);
+//        }
+//      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
+//    }
 
-      int m = l % this->ntrees;
-      int temp_val = (l - m) / this->ntrees;
-      int j = temp_val / total_leaf_size;
-      int k = temp_val % total_leaf_size;
 
-       for (int n = 0; n < total_leaf_size; n++) {
+  for (int j = 0; j < this->ntrees; j++) {
+     #pragma omp parallel for
+      for (int k = 0; k < total_leaf_size; k++) {
+          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
+          for (int m = 0; m < this->ntrees; m++) {
+              candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
+
+                for (int n = 0; n < total_leaf_size; n++) {
                     PriorityMap priorityMap;
                     priorityMap.priority = 0;
                     priorityMap.leaf_index = n;
                     candidate_mapping[j][k][m][n]=priorityMap;
                 }
 
-      vector<int> vec;
-      for (int p = 0; p < this->world_size; p++)
-        {
-          int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
-          int value = total_receiving_leafs[id];
-          vec.push_back (value);
+              vector<int> vec;
+              for (int p = 0; p < this->world_size; p++) {
+                  int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
+                  int value = total_receiving_leafs[id];
+                  vec.push_back(value);
+                }
+              sortByFreq(vec, candidate_mapping[j][k][m], this->world_size);
+            }
         }
-      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
-
-
-//  for (int j = 0; j < this->ntrees; j++) {
-//     #pragma omp parallel for
-//      for (int k = 0; k < total_leaf_size; k++) {
-//          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
-//          for (int m = 0; m < this->ntrees; m++) {
-//              candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
-//
-////                for (int n = 0; n < total_leaf_size; n++) {
-////                    PriorityMap priorityMap;
-////                    priorityMap.priority = 0;
-////                    priorityMap.leaf_index = n;
-////                    candidate_mapping[j][k][m][n]=priorityMap;
-////                }
-//
-//              vector<int> vec;
-//              for (int p = 0; p < this->world_size; p++) {
-//                  int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
-//                  int value = total_receiving_leafs[id];
-//                  vec.push_back(value);
-//                }
-//              sortByFreq(vec, candidate_mapping[j][k][m], this->world_size);
-//            }
-//        }
-//    }
 
   cout << " rank " << rank << " major concerned  ok " <<
        endl;

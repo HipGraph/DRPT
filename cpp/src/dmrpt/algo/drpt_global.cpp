@@ -562,11 +562,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
   for (int i = 0; i < total_leaf_size; i++)
     {
 
-      if(rank==0)
-        {
-          cout << " i " << i << " original " << this->trees_leaf_first_indices[tree][i].size () << " rearranged "
-               << this->trees_leaf_first_indices_rearrange[tree][i].size () << endl;
-        }
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
@@ -578,11 +573,6 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
       for (int j = 0; j < all_points.size (); j++)
         {
           send_indices[co] = all_points[j].index;
-
-//          if (current_process != this->rank)
-//            {
-//              index_distribution[current_process].insert(all_points[j].index);
-//            }
 
 #pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
@@ -814,9 +804,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         {
           int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
           int value = total_receiving_leafs[id];
-          if(rank==0){
-            cout<<" leaf "<<l<<" selected leaf "<<value<<endl;
-          }
           vec.push_back (value);
         }
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);

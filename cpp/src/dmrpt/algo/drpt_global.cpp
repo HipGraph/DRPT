@@ -804,7 +804,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         }
     }
 
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
     {
 

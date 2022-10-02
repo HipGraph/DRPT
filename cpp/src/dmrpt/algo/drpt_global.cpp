@@ -135,10 +135,10 @@ void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
 //            it->priority = priority;
 //            vec[index] = (*it);
 //        }
-//        sort(vec.begin(), vec.end(),
-//             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
-//                 return lhs.priority > rhs.priority;
-//             });
+        sort(vec.begin(), vec.end(),
+             [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+                 return lhs.priority > rhs.priority;
+             });
     }
 }
 

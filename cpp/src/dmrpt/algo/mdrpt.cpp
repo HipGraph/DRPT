@@ -488,7 +488,7 @@ std::map<int, vector < dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns (map<int
 
       sending_indices_count[i] = this->index_distribution[i].size();
       if(rank==0){
-          cout<<" rank "<<rank<<" incoming rank  "<< i <<this->index_distribution[i].size()<<endl;
+          cout<<" rank "<<rank<<" incoming rank  "<< i <<" "<<this->index_distribution[i].size()<<endl;
          }
       send_count += sending_indices_count[i];
       disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;

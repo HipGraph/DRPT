@@ -172,7 +172,7 @@ int main (int argc, char *argv[])
 //
   vector <vector<VALUE_TYPE>> imagedatas = imageReader.mpi_file_read (
       input_path, rank, size,
-      400000, data_set_size, 100, 8, dimension);
+      400000, data_set_size, 128, 8, dimension);
 
   cout << " size " << imagedatas.size () << " *" << imagedatas[0].size () << endl;
 

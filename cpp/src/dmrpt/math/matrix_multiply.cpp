@@ -222,10 +222,10 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
                                   dmrpt::StorageFormat format, int rank) {
 //    cout<<" rank "<<rank<<" distributed median started "<<endl;
     VALUE_TYPE *means = this->distributed_mean(data, local_rows, local_cols, total_elements_per_col, format, rank);
-//    cout<<" rank "<<rank<<" distributed mean completed "<<means[0]<<endl;
+    cout<<" rank "<<rank<<" distributed mean completed "<<means[0]<<endl;
     VALUE_TYPE *variance = this->distributed_variance(data, local_rows, local_cols, total_elements_per_col, format,
                                                       rank);
-//    cout<<" rank "<<rank<<" distributed variance completed "<<variance[0]<<endl;
+    cout<<" rank "<<rank<<" distributed variance completed "<<variance[0]<<endl;
     VALUE_TYPE *medians = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * local_cols);
 
     int std1 = 4, std2 = 2, std3 = 1;
@@ -332,7 +332,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         int selected_index = -1;
         for (int k = 1+ i * dist_length; k < dist_length + i * dist_length; k++) {
             cfreq += gfrequency[k];
-//            cout << "rank " << rank << " k " << k <<" gfrequency k "<<gfrequency[k] << endl;
+            cout << "rank " << rank << " k " << k <<" gfrequency k "<<gfrequency[k] << endl;
               cper += (gfrequency[k] * 100) / total_elements_per_col[i];
 //               VALUE_TYPE val = 50*total_elements_per_col[i]/100;
                    if(cper>=50){

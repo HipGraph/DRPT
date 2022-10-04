@@ -565,6 +565,8 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
+
+      cout<<" rank "<<rank<< <<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
       if (i > 0 && i % leafs_per_node == 0)
         {
           current_process++;

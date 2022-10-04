@@ -246,7 +246,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 
       for (int i = 0; i < this->tree_depth - 1; i++)
         {
-          cout << " rank " << rank << " working on tree depth" << i << endl;
+          cout << " rank " << rank << " working on tree"<<k<<"  depth" << i << endl;
           auto start_level_time_index = high_resolution_clock::now ();
           this->grow_global_subtree (child_data_tracker, total_size_vector, i, k);
           auto stop_level_time_index = high_resolution_clock::now ();

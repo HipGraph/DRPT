@@ -339,7 +339,7 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
       int selected_leaf_right = selected_leaf_left + 1;
 
       VALUE_TYPE median = result[i];
-       cout << " rank " << rank << " calculated median  " << median << " for i" << i << endl;
+//       cout << " rank " << rank << " calculated median  " << median << " for i" << i << endl;
 
       this->trees_splits[tree][split_starting_index + i] = median;
 
@@ -566,7 +566,7 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
 
-      cout<<" rank "<<rank <<"tree"<< tree<<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
+//      cout<<" rank "<<rank <<"tree"<< tree<<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
       if (i > 0 && i % leafs_per_node == 0)
         {
           current_process++;

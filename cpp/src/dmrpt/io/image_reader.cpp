@@ -501,8 +501,10 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
               inner_index++;
             }
           float  x = atof (arr_c);
+          if (x > 1e+05)
+             x =0;
 //          float x = (float) (c);
-          v[j] = (VALUE_TYPE) (x);
+          v[j] = x;
         }
       output[i] = v;
     }

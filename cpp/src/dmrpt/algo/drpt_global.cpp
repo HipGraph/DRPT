@@ -322,7 +322,7 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
 
     int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
   auto start_distribtuion_time_index = high_resolution_clock::now ();
-  VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes, total_data_row_count, no_of_bins,
+  VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes, total_data_row_count, 7,
                                                   dmrpt::StorageFormat::RAW, this->rank);
   auto stop_distribtuion_time_index = high_resolution_clock::now ();
   auto distribtuion_time_index = duration_cast<microseconds> (

@@ -492,7 +492,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
       for (int j = 0; j < dimension; j++)
         {
           int inner_index = 0;
-          char arr_c[5];
+          char arr_c[4];
           for(int m=0;m<4;m++)
             {
               int index = j*4 + i * dimension*4 + m;
@@ -501,8 +501,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
               arr_c[m]=c;
               inner_index++;
             }
-          arr_c[4]  = '\0';
-          float  x = atof (arr_c);
+          float  x = bytesToFloat(arr_c[0],arr_c[1],arr_c[2],arr_c[3])
           if (x > 1e+05)
              x =0;
 //          float x = (float) (c);
@@ -527,6 +526,16 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
 //  cout << " rank " << rank << "Output size:" << output.size () << ":" << output[0].size () << endl;
   return output;
+}
+
+float bytesToFloat(uchar b0, uchar b1, uchar b2, uchar b3)
+{
+  uchar byte_array[] = { b3, b2, b1, b0 };
+  float result;
+  std::copy(reinterpret_cast<const char*>(&byte_array[0]),
+            reinterpret_cast<const char*>(&byte_array[4]),
+            reinterpret_cast<char*>(&result));
+  return result;
 }
 
 

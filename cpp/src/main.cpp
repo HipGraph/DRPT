@@ -142,6 +142,8 @@ int main (int argc, char *argv[])
   char stats[500];
   char results[500];
 
+  char data[500];
+
   int host = gethostname (hostname, HOST_NAME_MAX);
 
   string file_path_stat = output_path + "stats.txt.";
@@ -154,6 +156,11 @@ int main (int argc, char *argv[])
 
   ofstream fout (stats, std::ios_base::app);
   ofstream fout1 (results, std::ios_base::app);
+
+
+  string file_path_1 = output_path + "data.txt.";
+  std::strcpy (data, file_path_1.c_str ());
+  std::strcpy (data + strlen (file_path_1.c_str ()), hostname);
 
   auto start_io_index = high_resolution_clock::now ();
 
@@ -177,6 +184,19 @@ int main (int argc, char *argv[])
       400000, data_set_size, 384, 8, dimension);
 
   cout << " size " << imagedatas.size () << " *" << imagedatas[0].size () << endl;
+
+
+
+
+  for(int i=0;i<imagedatas.size();i++){
+    for(int j=0;j<imagedatas[i].size();j++){
+      cout<<' '<<imagedatas[j]
+    }
+    cout<<' '<<endl;
+  }
+
+
+
 
   auto stop_io_index = high_resolution_clock::now ();
   auto io_time = duration_cast<microseconds> (stop_io_index - start_io_index);

@@ -535,15 +535,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
   return output;
 }
 
-float bytesToFloat(uchar b0, uchar b1, uchar b2, uchar b3)
-{
-  uchar byte_array[] = { b3, b2, b1, b0 };
-  float result;
-  std::copy(reinterpret_cast<const char*>(&byte_array[0]),
-            reinterpret_cast<const char*>(&byte_array[4]),
-            reinterpret_cast<char*>(&result));
-  return result;
-}
+
 
 
 

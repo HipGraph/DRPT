@@ -192,7 +192,7 @@ int main (int argc, char *argv[])
 
   for(int i=0;i<imagedatas.size();i++){
     for(int j=0;j<imagedatas[i].size();j++){
-        fout2<<' '<<imagedatas[j]
+        fout2<<' '<<imagedatas[i][j];
     }
       fout2<<' '<<endl;
   }

@@ -134,12 +134,12 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 
   ofstream fout3 (projected, std::ios_base::app);
 
-  for(int i=0;i<cols;i++){
-    for(int j=0;j<global_tree_depth;j++){
-        fout3<<' '<<(*P[i][j]);
-    }
-      fout3<<' '<<endl;
-  }
+//  for(int i=0;i<cols;i++){
+//    for(int j=0;j<global_tree_depth;j++){
+//        fout3<<' '<<(*P[i][j]);
+//    }
+//      fout3<<' '<<endl;
+//  }
 
 
 

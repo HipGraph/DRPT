@@ -331,7 +331,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         VALUE_TYPE cper = 0;
         int selected_index = -1;
         if (rank == 0){
-            cout << "rank " << rank << " k " << k << " dist leanght " << dist_length << endl;
+            cout << "rank " << rank << " dist leanght " << dist_length << endl;
         }
         for (int k =  i * dist_length; k < dist_length + i * dist_length; k++) {
             cfreq += gfrequency[k];

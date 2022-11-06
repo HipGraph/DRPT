@@ -502,7 +502,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
             }
           float  x = atof (arr_c);
 //          float x = (float) (c);
-          v[j] = (VALUE_TYPE) (x*100);
+          v[j] = (VALUE_TYPE) (x);
         }
         if (v.size() != dimension){
             cout << " rank " << rank << " out of dimension" << v.size() << endl;

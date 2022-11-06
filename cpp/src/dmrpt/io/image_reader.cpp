@@ -427,12 +427,14 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   long global_start = rank * process_bytes;
 
-  cout << " rank " << rank << " total data size " << total_data_nodes <<" global start"<<global_start << endl;
+
 
   if (rank == 0)
     global_start = offset;
 
   long global_end = (rank + 1) * process_bytes - 1;
+
+  cout << " rank " << rank << " total data size " << total_data_nodes <<" global start"<<global_start<<" global end"<<global_end << endl;
 
   if (rank == world_size - 1)
     global_end = filesize - 1;

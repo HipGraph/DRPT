@@ -162,6 +162,8 @@ int main (int argc, char *argv[])
   std::strcpy (data, file_path_1.c_str ());
   std::strcpy (data + strlen (file_path_1.c_str ()), hostname);
 
+  ofstream fout2 (data, std::ios_base::app);
+
   auto start_io_index = high_resolution_clock::now ();
 
 //    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
@@ -190,9 +192,9 @@ int main (int argc, char *argv[])
 
   for(int i=0;i<imagedatas.size();i++){
     for(int j=0;j<imagedatas[i].size();j++){
-      cout<<' '<<imagedatas[j]
+        fout2<<' '<<imagedatas[j]
     }
-    cout<<' '<<endl;
+      fout2<<' '<<endl;
   }
 
 

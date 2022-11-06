@@ -172,10 +172,10 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 {
 
 
-//    char results[500];
-//    string file_path_stat = output_path + "stats_divided_debug.txt";
-//    std::strcpy(results, file_path_stat.c_str());
-//    ofstream fout(results, std::ios_base::app);
+    char results[500];
+    string file_path_stat = output_path + "projected.txt";
+    std::strcpy(results, file_path_stat.c_str());
+    ofstream fout(results, std::ios_base::app);
 
 
   if (this->tree_depth <= 0 || this->tree_depth > log2 (this->intial_no_of_data_points))

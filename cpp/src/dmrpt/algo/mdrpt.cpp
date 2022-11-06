@@ -124,6 +124,27 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   VALUE_TYPE *P = mathOp.multiply_mat (imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
                                        1.0);
 
+
+  char projected[500];
+//    char hostname[HOST_NAME_MAX];
+//    int host = gethostname(hostname, HOST_NAME_MAX);
+  string file_path_stat = output_path + "projected.txt.";
+  std::strcpy (projected, file_path_stat.c_str ());
+//    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
+
+  ofstream fout3 (projected, std::ios_base::app);
+
+  for(int i=0;i<cols;i++){
+    for(int j=0;j<global_tree_depth;j++){
+        fout3<<' '<<P[i][j];
+    }
+      fout3<<' '<<endl;
+  }
+
+
+
+
+
   auto stop_matrix_index = high_resolution_clock::now ();
 
   auto matrix_time = duration_cast<microseconds> (stop_matrix_index - start_matrix_index);

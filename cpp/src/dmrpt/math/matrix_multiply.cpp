@@ -245,8 +245,8 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
 
     vector<VALUE_TYPE> distribution(dist_length * local_cols, 0);
 
-    int *gfrequency = (int *) malloc(sizeof(int) * distribution.size());
-    int *freqarray = (int *) malloc(sizeof(int) * distribution.size());
+  double *gfrequency = (double *) malloc(sizeof(double) * distribution.size());
+  double *freqarray = (double *) malloc(sizeof(double) * distribution.size());
 
     int data_count_prev = 0;
     for (int i = 0; i < local_cols; i++) {
@@ -258,7 +258,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
         VALUE_TYPE val = 0.0;
 
 
-        vector<int> frequency(dist_length, 0);
+        vector<double> frequency(dist_length, 0);
 
         int start1 = factor * (std1 + std2 + std3);
         VALUE_TYPE step1 = sigma / (2 * pow(2, std1 * factor) - 2);
@@ -322,7 +322,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
     }
 //    cout<<" rank "<<rank<<" dist lenght  "<<dist_length <<endl;
 
-    MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 //    cout<<" rank "<<rank<<" mpi all reduced ended  "<<endl;
 
@@ -355,7 +355,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
             cout<<"rank "<<rank<< " selected index is invalid"<<selected_index<<endl;
         }
 
-        int count = gfrequency[selected_index];
+        double count = gfrequency[selected_index];
 //        if(count <0){
 //            cout<<"rank "<<rank<< " selected index is invalid count "<<count<<endl;
 //          }

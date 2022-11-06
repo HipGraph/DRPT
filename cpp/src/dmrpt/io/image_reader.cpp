@@ -233,7 +233,7 @@ dmrpt::ImageReader::read_File (string path, int no_of_data_points, int dimension
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, int total_data_set_size,
+dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, long total_data_set_size,
                                    char delim, int dimension)
 {
   MPI_Offset globalstart, globalend, filesize;
@@ -391,7 +391,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 }
 
 vector <vector<float>>
-dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, int total_data_set_size,
+dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, long total_data_set_size,
                                    int data_node_byte, int offset, int dimension)
 {
   vector <vector<VALUE_TYPE>> final_vec;

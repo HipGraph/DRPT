@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
   string input_path = "";
   string output_path = "";
   int algo = 0;
-  int data_set_size = 0;
+  long data_set_size = 0;
   int dimension = 0;
   int ntrees = 10;
   int tree_depth = 0;

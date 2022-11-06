@@ -439,7 +439,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
   if (rank == world_size - 1)
     global_end = filesize - 1;
 
-  char *chunk = (char *) malloc ((process_bytes + 1) * sizeof (char));
+  char *chunk = (char *) malloc ((process_bytes) * sizeof (char));
 
   long chunk_lo = 1073741824;
 
@@ -503,9 +503,6 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
           float  x = atof (arr_c);
 //          float x = (float) (c);
           v[j] = (VALUE_TYPE) (x);
-        }
-        if (v.size() != dimension){
-            cout << " rank " << rank << " out of dimension" << v.size() << endl;
         }
       output[i] = v;
     }

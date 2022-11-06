@@ -178,7 +178,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean(vector<VALUE_TYPE> &data, vector<int
 
     for (int i = 0; i < local_cols; i++) {
       if (rank == 0){
-          cout<<" rank "<<rank<<" gsum "<<(gsums[i]/total_elements_per_col[i])<<endl;
+          cout<<" rank "<<rank<<" gsum "<<gsums[i]<<" total"<<total_elements_per_col[i]<<" division "<<gsums[i]/total_elements_per_col[i] <<endl;
       }
         gsums[i] = gsums[i] / total_elements_per_col[i];
     }

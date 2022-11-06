@@ -170,6 +170,8 @@ int main (int argc, char *argv[])
 //            400000, data_set_size,' ',dimension);
 
 //
+
+  cout << "Rank " << rank << " total data set size " << data_set_size << endl;
   vector <vector<VALUE_TYPE>> imagedatas = imageReader.mpi_file_read (
       input_path, rank, size,
       400000, data_set_size, 384, 8, dimension);

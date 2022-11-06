@@ -416,6 +416,8 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
   filesize = filesize/100 ;
   long total_data_nodes = filesize / data_node_byte;
 
+  cout << " rank " << rank << " total data size " << total_data_nodes << endl;
+
   long process_data_nodes = total_data_nodes / world_size;
 
   if (rank == world_size - 1)

@@ -501,6 +501,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
               inner_index++;
             }
           float  x = atof (arr_c);
+          cout << " rank " << rank << "value x" << x << endl;
 //          float x = (float) (c);
           v[j] = (VALUE_TYPE) (x*100);
         }

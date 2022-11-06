@@ -492,14 +492,16 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
       for (int j = 0; j < dimension; j++)
         {
           int inner_index = 0;
-          char arr_c[4];
+          char arr_c[5];
           for(int m=0;m<4;m++)
             {
               int index = j*4 + i * dimension*4 + m;
               char c = chunk[index];
+
               arr_c[m]=c;
               inner_index++;
             }
+          arr_c[4]  = '\0'
           float  x = atof (arr_c);
           if (x > 1e+05)
              x =0;

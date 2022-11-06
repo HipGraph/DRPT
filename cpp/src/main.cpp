@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
         }
       else if (strcmp (argv[p], "-data-set-size") == 0)
         {
-          data_set_size = atoi (argv[p + 1]);
+          data_set_size = atol (argv[p + 1]);
         }
       else if (strcmp (argv[p], "-dimension") == 0)
         {

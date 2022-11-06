@@ -481,7 +481,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   cout << " rank " << rank << " total size " << (total_arr_size / (dimension*4)) << endl;
 
-  long co = total_arr_size / dimension;
+  long co = total_arr_size / (dimension*4);
   long co_in = 0;
   vector <vector<VALUE_TYPE>> output (co);
 
@@ -495,9 +495,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
           char arr_c[4];
           for(int m=0;m<4;m++)
             {
-              int index = j*4 + i * dimension*4 + inner_index;
+              int index = j*4 + i * dimension*4 + m;
               char c = chunk[index];
-              arr_c[inner_index]=c;
+              arr_c[m]=c;
               inner_index++;
             }
           float  x = atof (arr_c);

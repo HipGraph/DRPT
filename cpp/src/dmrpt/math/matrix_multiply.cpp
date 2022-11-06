@@ -311,8 +311,12 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
 //        cout<<" rank "<<rank<<" local raw computation ended "<<endl;
         data_count_prev += local_rows[i];
 
+        double* local_total = new double[1](0);
+        double* global_total = new double[1](0);
+
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];
+            local_total[0] += freqarray[k];
            if (rank == 0){
              cout<<"rank local "<<rank<< " k"<<k<<" frequency"<<freqarray[k]<<endl;
            }
@@ -322,9 +326,11 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
     }
 //    cout<<" rank "<<rank<<" dist lenght  "<<dist_length <<endl;
 
+
+    MPI_Allreduce(local_total, global_total, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(freqarray, gfrequency, distribution.size(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-//    cout<<" rank "<<rank<<" mpi all reduced ended  "<<endl;
+    cout<<" rank "<<rank<<"  local_total "<<local_total[0]<<" global total "<<global_total[0]<<endl;
 
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE cfreq = 0;

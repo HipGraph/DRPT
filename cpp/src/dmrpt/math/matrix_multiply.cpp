@@ -248,8 +248,8 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
   double *gfrequency = (double *) malloc(sizeof(double) * distribution.size());
   double *freqarray = (double *) malloc(sizeof(double) * distribution.size());
 
-  double* local_total = new double[1](0);
-  double* global_total = new double[1](0);
+  double* local_total = new double[1]();
+  double* global_total = new double[1]();
 
     int data_count_prev = 0;
     for (int i = 0; i < local_cols; i++) {

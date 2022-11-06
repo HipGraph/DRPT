@@ -248,6 +248,9 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
   double *gfrequency = (double *) malloc(sizeof(double) * distribution.size());
   double *freqarray = (double *) malloc(sizeof(double) * distribution.size());
 
+  double* local_total = new double[1](0);
+  double* global_total = new double[1](0);
+
     int data_count_prev = 0;
     for (int i = 0; i < local_cols; i++) {
         VALUE_TYPE mu = means[i];
@@ -311,8 +314,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
 //        cout<<" rank "<<rank<<" local raw computation ended "<<endl;
         data_count_prev += local_rows[i];
 
-        double* local_total = new double[1](0);
-        double* global_total = new double[1](0);
+
 
         for (int k = i * dist_length; k < dist_length + i * dist_length; k++) {
             freqarray[k] = frequency[k - i * dist_length];

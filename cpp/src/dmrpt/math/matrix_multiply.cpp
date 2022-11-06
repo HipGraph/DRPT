@@ -351,7 +351,7 @@ dmrpt::MathOp::distributed_median(vector<VALUE_TYPE> &data, vector<int> local_ro
 //            }
         }
 
-        if(selected_index <=0){
+        if(selected_index <=0 and rank == 0){
             cout<<"rank "<<rank<< " selected index is invalid"<<selected_index<<endl;
         }
 

@@ -494,7 +494,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
           int inner_index = 0;
           char arr_c[4];
           int start_index = j*4 + i * dimension*4;
-          int end_index = j*4 + i * dimension*4 + 3;
+          int end_index = j*4 + i * dimension*4 + 4;
 //          for(int m=0;m<4;m++)
 //            {
 //

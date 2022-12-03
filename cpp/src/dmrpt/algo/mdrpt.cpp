@@ -141,10 +141,6 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 //      fout3<<' '<<endl;
 //  }
 
-
-
-
-
   auto stop_matrix_index = high_resolution_clock::now ();
 
   auto matrix_time = duration_cast<microseconds> (stop_matrix_index - start_matrix_index);

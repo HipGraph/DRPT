@@ -166,13 +166,13 @@ int main (int argc, char *argv[])
 
   auto start_io_index = high_resolution_clock::now ();
 
-    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
-            input_path, data_set_size, dimension,
-            rank, size);
-
-//    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_File(
+//    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_MNIST(
 //            input_path, data_set_size, dimension,
 //            rank, size);
+
+    vector <vector<VALUE_TYPE>> imagedatas = imageReader.read_File(
+            input_path, data_set_size, dimension,
+            rank, size);
 
 //    vector <vector<VALUE_TYPE>> imagedatas = imageReader.mpi_file_read(
 //            input_path, rank, size,

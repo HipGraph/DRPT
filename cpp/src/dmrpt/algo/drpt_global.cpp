@@ -465,12 +465,12 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
   double *execution_times = new double[2];
   execution_times[0] = total_distribution_median_time;
   execution_times[1] = total_time_loop_compute;
-  double *exeuction_times_global = new double[2];
+  double *exeuction_times_global = new double[2]();
 
-    MPI_Allreduce(execution_times, exeuction_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-//
-    cout << " tree" << tree << " median time " << exeuction_times_global[0] / this->world_size << " loop compute time "
-         << exeuction_times_global[1] / this->world_size << endl;
+//    MPI_Allreduce(execution_times, exeuction_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+////
+//    cout << " tree" << tree << " median time " << exeuction_times_global[0] / this->world_size << " loop compute time "
+//         << exeuction_times_global[1] / this->world_size << endl;
 }
 
 vector <vector<dmrpt::DataPoint>>

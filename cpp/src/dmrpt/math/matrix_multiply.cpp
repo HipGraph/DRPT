@@ -77,52 +77,8 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix (int rank, int world_s
 {
 
   VALUE_TYPE *global_project_matrix;
-//    int local_rows;
-//    int length = total_dimension / world_size;
-//    if (rank < world_size - 1) {
-//        local_rows = length;
-//    } else if (rank == world_size - 1) {
-//        local_rows = total_dimension - rank * (length);
-//    }
-  VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix (total_dimension, levels, density, seed);
 
-//    global_project_matrix = (VALUE_TYPE *) malloc(sizeof(VALUE_TYPE) * total_dimension * levels);
-//
-//
-//    int my_start, my_end;
-//    if (rank < world_size - 1) {
-//        my_start = rank * length * levels;
-//        my_end = my_start + length * levels - 1;
-//    } else if (rank == world_size - 1) {
-//        my_start = rank * length * levels;
-//        my_end = total_dimension * levels - 1;
-//    }
-//
-//    for (int i = my_start; i <= my_end; i++) {
-//        global_project_matrix[i] = local_sparse_matrix[i - my_start];
-//    }
-//
-//    int my_total = local_rows * levels;
-//
-//    int *counts = new int[world_size];
-//    int *disps = new int[world_size];
-//
-//    for (int i = 0; i < world_size - 1; i++)
-//        counts[i] = length * levels;
-//    counts[world_size - 1] = total_dimension * levels - length * levels * (world_size - 1);
-//
-//    disps[0] = 0;
-//    for (int i = 1; i < world_size; i++)
-//        disps[i] = disps[i - 1] + counts[i - 1];
-//
-//
-//    MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_VALUE_TYPE,
-//                   global_project_matrix, counts, disps, MPI_VALUE_TYPE, MPI_COMM_WORLD);
-//
-//
-//    delete[] disps;
-//    delete[] counts;
-//    free(local_sparse_matrix);
+  VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix (total_dimension, levels, density, seed);
 
   return local_sparse_matrix;
 
@@ -186,10 +142,10 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<in
 
             }
           data_count_prev += local_rows[i];
-          if (rank==0)
-            {
-              cout << " rank " << rank << " mean sum  " << sum<<" column "<<local_rows[i]<< endl;
-            }
+//          if (rank==0)
+//            {
+//              cout << " rank " << rank << " mean sum  " << sum<<" column "<<local_rows[i]<< endl;
+//            }
           sums[i] = sum;
         }
     }
@@ -200,11 +156,11 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<in
 
   for (int i = 0; i < local_cols; i++)
     {
-      if (rank == 0)
-        {
-          cout << " rank " << rank << " gsum " << gsums[i] << " total" << total_elements_per_col[i] << " division "
-               << gsums[i] / total_elements_per_col[i] << endl;
-        }
+//      if (rank == 0)
+//        {
+//          cout << " rank " << rank << " gsum " << gsums[i] << " total" << total_elements_per_col[i] << " division "
+//               << gsums[i] / total_elements_per_col[i] << endl;
+//        }
       gsums[i] = gsums[i] / total_elements_per_col[i];
     }
   free (sums);
@@ -256,10 +212,10 @@ dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_r
 {
 //    cout<<" rank "<<rank<<" distributed median started "<<endl;
   VALUE_TYPE *means = this->distributed_mean (data, local_rows, local_cols, total_elements_per_col, format, rank);
-  cout << " rank " << rank << " distributed mean completed " << means[0] << endl;
+// cout << " rank " << rank << " distributed mean completed " << means[0] << endl;
   VALUE_TYPE *variance = this->distributed_variance (data, local_rows, local_cols, total_elements_per_col, format,
                                                      rank);
-  cout << " rank " << rank << " distributed variance completed " << variance[0] << endl;
+//  cout << " rank " << rank << " distributed variance completed " << variance[0] << endl;
   VALUE_TYPE *medians = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
 
   int std1 = 4, std2 = 2, std3 = 1;
@@ -356,10 +312,10 @@ dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_r
         {
           freqarray[k] = frequency[k - i * dist_length];
           local_total[0] += freqarray[k];
-          if (rank == 0)
-            {
-              cout << "rank local " << rank << " k" << k << " frequency" << freqarray[k] << endl;
-            }
+//          if (rank == 0)
+//            {
+//              cout << "rank local " << rank << " k" << k << " frequency" << freqarray[k] << endl;
+//            }
           gfrequency[k] = 0;
         }
 
@@ -370,24 +326,24 @@ dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_r
   MPI_Allreduce (local_total, global_total, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   MPI_Allreduce (freqarray, gfrequency, distribution.size (), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  cout << " rank " << rank << "  local_total " << local_total[0] << " global total " << global_total[0] << endl;
+//  cout << " rank " << rank << "  local_total " << local_total[0] << " global total " << global_total[0] << endl;
 
   for (int i = 0; i < local_cols; i++)
     {
       VALUE_TYPE cfreq = 0;
       VALUE_TYPE cper = 0;
       int selected_index = -1;
-      if (rank == 0)
-        {
-          cout << "rank " << rank << " dist leanght " << dist_length << endl;
-        }
+//      if (rank == 0)
+//        {
+//          cout << "rank " << rank << " dist leanght " << dist_length << endl;
+//        }
       for (int k = i * dist_length; k < dist_length + i * dist_length; k++)
         {
           cfreq += gfrequency[k];
-          if (rank == 0)
-            {
-              cout << "rank " << rank << " k " << k << " gfrequency k " << gfrequency[k] << " cfreq" << cfreq << endl;
-            }
+//          if (rank == 0)
+//            {
+//              cout << "rank " << rank << " k " << k << " gfrequency k " << gfrequency[k] << " cfreq" << cfreq << endl;
+//            }
 //              cper += (gfrequency[k] * 100) / total_elements_per_col[i];
           VALUE_TYPE val = 50 * total_elements_per_col[i] / 100;
           if (cfreq >= val)
@@ -402,10 +358,10 @@ dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_r
 //            }
         }
 
-      if (selected_index <= 0 and rank == 0)
-        {
-          cout << "rank " << rank << " selected index is invalid" << selected_index << endl;
-        }
+//      if (selected_index <= 0 and rank == 0)
+//        {
+//          cout << "rank " << rank << " selected index is invalid" << selected_index << endl;
+//        }
 
       double count = gfrequency[selected_index];
 //        if(count <0){

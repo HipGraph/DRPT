@@ -188,18 +188,6 @@ int main (int argc, char *argv[])
   cout << " size " << imagedatas.size () << " *" << imagedatas[0].size () << endl;
 
 
-
-
-  for(int i=0;i<imagedatas.size();i++){
-    for(int j=0;j<imagedatas[i].size();j++){
-        fout2<<' '<<imagedatas[i][j];
-    }
-      fout2<<' '<<endl;
-  }
-
-
-
-
   auto stop_io_index = high_resolution_clock::now ();
   auto io_time = duration_cast<microseconds> (stop_io_index - start_io_index);
 

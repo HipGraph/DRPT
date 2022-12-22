@@ -22,3 +22,5 @@ class Timer {
 };
 
 }
+
+#endif //DISTRIBUTED_DRPT_TIMER_H

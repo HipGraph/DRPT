@@ -1,19 +1,18 @@
 #ifndef DISTRIBUTED_MRPT_DRPT_GLOBAL_H
 #define DISTRIBUTED_MRPT_DRPT_GLOBAL_H
 
-#include <cblas.h>
-#include <vector>
-#include "drpt.hpp"
 #include "../math/matrix_multiply.hpp"
-#include <mpi.h>
-#include <string>
-#include <omp.h>
+#include "drpt.hpp"
+#include <cblas.h>
 #include <map>
-#include <unordered_map>
+#include <mpi.h>
+#include <omp.h>
 #include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-namespace dmrpt
-{
+namespace dmrpt {
 
 struct PriorityMap {
   int leaf_index;
@@ -22,7 +21,7 @@ struct PriorityMap {
 
 class DRPTGlobal {
 
- private:
+private:
   int tree_depth;
   VALUE_TYPE *projected_matrix;
   VALUE_TYPE *projection_matrix;
@@ -34,42 +33,40 @@ class DRPTGlobal {
   int total_data_set_size;
   int data_dimension;
 
-  //multiple trees
-  vector <vector<vector < dmrpt::DataPoint>>>
-  trees_data;
-  vector <vector<VALUE_TYPE>> trees_splits;
-  vector <vector<vector < DataPoint>>>
-  trees_leaf_first_indices_all;
-  vector <vector<vector < DataPoint>>>
-  trees_leaf_first_indices;
+  // multiple trees
+  vector<vector<vector<dmrpt::DataPoint>>> trees_data;
+  vector<vector<VALUE_TYPE>> trees_splits;
+  vector<vector<vector<DataPoint>>> trees_leaf_first_indices_all;
+  vector<vector<vector<DataPoint>>> trees_leaf_first_indices;
 
-  vector <vector<VALUE_TYPE>> data_points;
+  vector<vector<VALUE_TYPE>> data_points;
 
-  vector <vector<int>> index_to_tree_leaf_mapper;
+  vector<vector<int>> index_to_tree_leaf_mapper;
 
-  vector <vector<vector < DataPoint> >> trees_leaf_first_indices_rearrange;
+  vector<vector<vector<DataPoint>>> trees_leaf_first_indices_rearrange;
 
   string input_path;
   string output_path;
 
- public:
+public:
+  DRPTGlobal();
 
-  DRPTGlobal ();
+  DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
+             int no_of_data_points, int dimension, int tree_depth, int ntrees,
+             int starting_index, int total_data_set_size, int rank,
+             int world_size, string output_path);
 
-  DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int dimension, int tree_depth, int ntrees,
-              int starting_index, int total_data_set_size,
-              int rank, int world_size, string output_path);
+  void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points);
 
-  void grow_global_tree (vector <vector<VALUE_TYPE>> &data_points);
+  void grow_global_subtree(vector<vector<DataPoint>> &child_data_tracker,
+                           vector<int> &total_size_vector, int depth, int tree);
 
-  void
-  grow_global_subtree (vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector, int depth, int tree);
+  void calculate_tree_leaf_correlation(string outpath);
 
-  void calculate_tree_leaf_correlation (string outpath);
-
-  vector <vector<DataPoint>> collect_similar_data_points (int tree, bool use_data_locality_optimization, vector<set<int>> &index_distribution);
-
+  vector<vector<DataPoint>>
+  collect_similar_data_points(int tree, bool use_data_locality_optimization,
+                              vector<set<int>> &index_distribution);
 };
-}
+} // namespace dmrpt
 
-#endif //DISTRIBUTED_MRPT_DRPT_GLOBAL_H
+#endif // DISTRIBUTED_MRPT_DRPT_GLOBAL_H

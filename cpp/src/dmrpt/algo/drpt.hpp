@@ -9,8 +9,7 @@
 #include <string>
 #include <omp.h>
 
-namespace dmrpt
-{
+namespace dmrpt {
 struct DataPoint {
   int src_index;
   int index;
@@ -50,24 +49,24 @@ class DRPT {
   vector <vector<VALUE_TYPE>> original_data;
 
  public:
-  DRPT ();
+  DRPT();
 
-  DRPT (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
-        vector <vector<VALUE_TYPE>> original_data, int ntrees,
-        int starting_index, int rank, int world_size);
+  DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
+	   vector <vector<VALUE_TYPE>> original_data, int ntrees,
+	   int starting_index, int rank, int world_size);
 
-  void grow_local_tree ();
+  void grow_local_tree();
 
-  void grow_local_subtree (std::vector<int>::iterator begin, std::vector<int>::iterator end,
-                           int depth, int i, int tree);
+  void grow_local_subtree(std::vector<int>::iterator begin, std::vector<int>::iterator end,
+						  int depth, int i, int tree);
 
-  vector <vector<int>> get_all_leaf_node_indices (int tree);
+  vector <vector<int>> get_all_leaf_node_indices(int tree);
 
-  void count_leaf_sizes (int datasize, int level, int depth, std::vector<int> &out_leaf_sizes);
+  void count_leaf_sizes(int datasize, int level, int depth, std::vector<int> &out_leaf_sizes);
 
-  void count_first_leaf_indices (std::vector<int> &indices, int datasize, int depth);
+  void count_first_leaf_indices(std::vector<int> &indices, int datasize, int depth);
 
-  void count_first_leaf_indices_all (std::vector <std::vector<int>> &indices, int datasize, int depth_max);
+  void count_first_leaf_indices_all(std::vector <std::vector<int>> &indices, int datasize, int depth_max);
 
 };
 }

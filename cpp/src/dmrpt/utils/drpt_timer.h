@@ -8,18 +8,18 @@ using namespace std::chrono;
 
 namespace dmrpt
 {
-template <class T>
+template <class T, class Y>
 class Timer {
  private:
   T start_timestamp;
   T stop_timestamp ;
-  T timelapse;
+  Y timelapse;
 
  public:
   void record_start_time ();
   void record_end_time ();
-  T get_timelapse_in_seconds ();
-  T get_timelapse_in_milliseconds ();
+  Y get_timelapse_in_seconds ();
+  Y get_timelapse_in_milliseconds ();
 };
 
 }

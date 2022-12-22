@@ -61,7 +61,7 @@ void dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float
   int rows = original_data[0].size (); // Calculating D
   int cols = original_data.size (); // Calculating N
 
-  auto start_conversion_index = high_resolution_clock::now ();
+  dmrpt::Timer<>
   dmrpt::MathOp mathOp;
   VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format (original_data);
 

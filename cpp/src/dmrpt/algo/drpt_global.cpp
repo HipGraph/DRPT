@@ -212,6 +212,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 
     }
 
+// storing projected data
 #pragma  omp parallel for
   for (int j = 0; j < this->intial_no_of_data_points; j++)
     {
@@ -265,6 +266,9 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 //            fout << " level " << i << " " << exeuction_times_global[i] / world_size;
 //        }
 //        fout << " init time " << exeuction_times_global[this->tree_depth] / this->world_size << " " << endl;
+
+      this->trees_data.clear();
+      this->trees_data.shrink_to_fit();
     }
 }
 
@@ -326,8 +330,13 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
       total_data_count_prev += data_vector.size ();
     }
 
+    // calculation of bins
     int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+
+
   auto start_distribtuion_time_index = high_resolution_clock::now ();
+
+  //calculation of distributed median
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes, total_data_row_count, 28,
                                                   dmrpt::StorageFormat::RAW, this->rank);
   auto stop_distribtuion_time_index = high_resolution_clock::now ();
@@ -425,9 +434,9 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
       disps[i] = (i > 0) ? (disps[i - 1] + 2 * current_nodes) : 0;
     }
 
-  int *total_counts = new int[2 * this->world_size * current_nodes];
+  int *total_counts = new int[2 * this->world_size * current_nodes]();
 
-  int *process_counts = new int[this->world_size];
+  int *process_counts = new int[this->world_size]();
 
   for (int k = 0; k < this->world_size; k++)
     {
@@ -494,10 +503,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
 
   int sum_per_node = 0;
   int process = 0;
-  int *send_indices_count = new int[this->world_size];
-  int *disps_indices_count = new int[this->world_size];
-  int *send_values_count = new int[this->world_size];
-  int *disps_values_count = new int[this->world_size];
+  int *send_indices_count = new int[this->world_size]();
+  int *disps_indices_count = new int[this->world_size]();
+  int *send_values_count = new int[this->world_size]();
+  int *disps_values_count = new int[this->world_size]();
 
   int my_total = 0;
   for (int i = 0; i < total_leaf_size; i++)
@@ -523,11 +532,11 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
   MPI_Alltoall (send_counts, leafs_per_node, MPI_INT, recv_counts, leafs_per_node,
                 MPI_INT, MPI_COMM_WORLD);
 
-  int *total_leaf_count = new int[leafs_per_node];
-  int *recev_indices_count = new int[this->world_size];
-  int *recev_values_count = new int[this->world_size];
-  int *recev_disps_count = new int[this->world_size];
-  int *recev_disps_values_count = new int[this->world_size];
+  int *total_leaf_count = new int[leafs_per_node]();
+  int *recev_indices_count = new int[this->world_size]();
+  int *recev_values_count = new int[this->world_size]();
+  int *recev_disps_count = new int[this->world_size]();
+  int *recev_disps_values_count = new int[this->world_size]();
 
   int total_sum = 0;
   for (int j = 0; j < leafs_per_node; j++)
@@ -561,10 +570,10 @@ dmrpt::DRPTGlobal::collect_similar_data_points (int tree, bool use_data_locality
       recev_disps_values_count[i] = (i > 0) ? (recev_disps_values_count[i - 1] + recev_values_count[i - 1]) : 0;
     }
 
-  int *receive_indices = new int[total_sum];
-  VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * this->data_dimension];
-  int *send_indices = new int[my_total];
-  VALUE_TYPE *send_values = new VALUE_TYPE[my_total * this->data_dimension];
+  int *receive_indices = new int[total_sum]();
+  VALUE_TYPE *receive_values = new VALUE_TYPE[total_sum * this->data_dimension]();
+  int *send_indices = new int[my_total]();
+  VALUE_TYPE *send_values = new VALUE_TYPE[my_total * this->data_dimension]();
 
   int co = 0;
   int current_process = 0;

@@ -29,8 +29,6 @@ namespace dmrpt {
         int total_data_set_size;
         int transfer_threshold;
         dmrpt::DRPT drpt;
-        dmrpt::DRPTGlobal drpt_global;
-        int algo;
         string input_path;
         string output_path;
         vector <vector<vector < DataPoint>>>trees_leaf_all;
@@ -46,7 +44,7 @@ namespace dmrpt {
 
 
     public:
-        MDRPT(int ntrees, int algo, int tree_depth, double tree_depth_ratio, int local_tree_offset,
+        MDRPT(int ntrees, int tree_depth, double tree_depth_ratio, int local_tree_offset,
               int total_data_set_size, int dimension, int rank, int world_size, string input_path, string output_path);
 
         void grow_trees(vector <vector<VALUE_TYPE>> &original_data, float density, bool use_locality_optimization, int nn);

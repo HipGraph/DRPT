@@ -21,26 +21,20 @@ using namespace std::chrono;
 
 int main (int argc, char *argv[])
 {
-
   string input_path = "";
   string output_path = "";
-  int algo = 0;
   long data_set_size = 0;
   int dimension = 0;
   int ntrees = 10;
   int tree_depth = 0;
-  int transfer_threshold = 10;
-  int donate_per = 10;
   double density = 0;
   int nn = 0;
-  int batch_size = 1000;
   double tree_depth_ratio = 0.5;
   bool use_locality_optimization = true;
   int local_tree_offset = 3;
 
   for (int p = 0; p < argc; p++)
     {
-
       if (strcmp (argv[p], "-input") == 0)
         {
           input_path = argv[p + 1];
@@ -48,10 +42,6 @@ int main (int argc, char *argv[])
       else if (strcmp (argv[p], "-output") == 0)
         {
           output_path = argv[p + 1];
-        }
-      else if (strcmp (argv[p], "-algo") == 0)
-        {
-          algo = atoi (argv[p + 1]);
         }
       else if (strcmp (argv[p], "-data-set-size") == 0)
         {
@@ -89,7 +79,6 @@ int main (int argc, char *argv[])
         {
           local_tree_offset = atoi (argv[p + 1]);
         }
-
     }
 
   if (input_path.size () == 0)
@@ -97,11 +86,13 @@ int main (int argc, char *argv[])
       printf ("Valid input path needed!...\n");
       exit (1);
     }
+
   if (output_path.size () == 0)
     {
       printf ("Valid out path needed!...\n");
       exit (1);
     }
+
   if (data_set_size == 0)
     {
       printf ("Dataset size should be greater than 0\n");
@@ -119,6 +110,7 @@ int main (int argc, char *argv[])
       printf ("Nearest neighbours size should be greater than 0\n");
       exit (1);
     }
+
   if (density == 0)
     {
       density = 1.0 / sqrt (dimension);
@@ -204,7 +196,8 @@ int main (int argc, char *argv[])
 
   cout<<" total data set size "<<data_set_size<<endl;
 
-  MDRPT mdrpt = MDRPT (ntrees, algo, tree_depth, tree_depth_ratio, local_tree_offset,data_set_size, rows, rank, size, input_path,
+  MDRPT mdrpt = MDRPT (ntrees,  tree_depth, tree_depth_ratio, local_tree_offset,data_set_size,
+                       rows, rank, size, input_path,
                        output_path);
 
   auto start_index_buildling = high_resolution_clock::now ();
@@ -213,6 +206,7 @@ int main (int argc, char *argv[])
 
   mdrpt.grow_trees (imagedatas, density, use_locality_optimization,nn);
   cout << " completed growing trees " << rank << endl;
+
   auto stop_index_building = high_resolution_clock::now ();
 
   auto duration_index_building = duration_cast<microseconds> (stop_index_building - start_index_buildling);

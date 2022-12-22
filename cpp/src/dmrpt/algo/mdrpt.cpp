@@ -23,7 +23,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT (int ntrees, int algo, int tree_depth,
+dmrpt::MDRPT::MDRPT (int ntrees,  int tree_depth,
                      double tree_depth_ratio,int local_tree_offset,
                      int total_data_set_size, int dimension,
                      int rank, int world_size, string input_path, string output_path)
@@ -101,8 +101,9 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   auto stop_conversion_index = high_resolution_clock::now ();
 
   auto conversion_time = duration_cast<microseconds> (stop_conversion_index - start_conversion_index);
-  auto start_matrix_index = high_resolution_clock::now ();
 
+  // generate random seed at process 0 and broadcast it to multiple processes.
+  auto start_matrix_index = high_resolution_clock::now ();
   int seed = 0;
   int *receive = new int[1] ();
   if (this->rank == 0)
@@ -117,70 +118,60 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
       MPI_Bcast (receive, 1, MPI_INT, NULL, MPI_COMM_WORLD);
     }
 
+  // build global sparse random project matrix for all trees
   VALUE_TYPE *B = mathOp.build_sparse_projection_matrix (this->rank, this->world_size, this->data_dimension,
                                                          global_tree_depth * this->ntrees, density, receive[0]);
 
+  // get the matrix projection
   // P= X.R
   VALUE_TYPE *P = mathOp.multiply_mat (imdataArr, B, this->data_dimension, global_tree_depth * this->ntrees, cols,
                                        1.0);
-
-
-  char projected[500];
-//    char hostname[HOST_NAME_MAX];
-//    int host = gethostname(hostname, HOST_NAME_MAX);
-  string file_path_stat_pro = output_path + "projected.txt.";
-   std::strcpy (projected, file_path_stat_pro.c_str ());
-//    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-
-  ofstream fout3 (projected, std::ios_base::app);
-
-//  for(int i=0;i<cols;i++){
-//    for(int j=0;j<global_tree_depth;j++){
-//        fout3<<' '<<(*P[i][j]);
-//    }
-//      fout3<<' '<<endl;
-//  }
-
   auto stop_matrix_index = high_resolution_clock::now ();
-
   auto matrix_time = duration_cast<microseconds> (stop_matrix_index - start_matrix_index);
+
+
+
 
   auto start_grow_index = high_resolution_clock::now ();
 
   int starting_index = (this->total_data_set_size / world_size) * this->rank;
   this->starting_data_index = starting_index;
 
-  this->drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
+  // creating DRPTGlobal class
+  drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
                                          starting_index,
                                          this->total_data_set_size, this->rank, this->world_size, this->output_path);
 
   cout << " rank " << rank << " starting growing trees" << endl;
-  this->drpt_global.grow_global_tree (this->original_data);
+
+  // start growing global tree
+  drpt_global.grow_global_tree (this->original_data);
   auto stop_grow_index = high_resolution_clock::now ();
   auto index_time = duration_cast<microseconds> (stop_grow_index - start_grow_index);
-
   cout << " rank " << rank << " completing growing trees" << endl;
 
   cout << " rank " << rank << " start tree leaf correlation " << endl;
   auto start_calculate_tree_leaf_corr = high_resolution_clock::now ();
+
+  //calculate locality optimization to improve data locality
   if (use_locality_optimization)
     {
-      this->drpt_global.calculate_tree_leaf_correlation (this->output_path);
+      drpt_global.calculate_tree_leaf_correlation (this->output_path);
     }
   auto stop_calculate_tree_leaf_corr = high_resolution_clock::now ();
   auto tree_leaf_corr_time = duration_cast<microseconds> (
       stop_calculate_tree_leaf_corr - start_calculate_tree_leaf_corr);
 
+
+
   cout << " rank " << rank << " running  datapoint collection " << endl;
   auto start_collect = high_resolution_clock::now ();
-
   vector < vector < vector < DataPoint>>> leaf_nodes_of_trees (ntrees);
-//  int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-
+  // running the similar datapoint collection
   for (int i = 0; i < ntrees; i++)
     {
-      leaf_nodes_of_trees[i] = this->drpt_global.collect_similar_data_points (i, use_locality_optimization,this->index_distribution);
+      leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points (i, use_locality_optimization,this->index_distribution);
     }
 
   cout << " rank " << rank << " similar datapoint collection completed" << endl;
@@ -253,6 +244,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 
   int *receive_ntrees = new int[this->ntrees] ();
 
+  // random seed generation for all local trees
   if (this->rank == 0)
     {
       for (int i = 0; i < this->ntrees; i++)
@@ -271,7 +263,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   for (int i = 0; i < ntrees; i++)
     {
       vector <vector<DataPoint>> leafs = leaf_nodes_of_trees[i];
-      this->trees_leaf_all[i] = vector < vector < dmrpt::DataPoint >> (total_leaf_size);
+      this->trees_leaf_all[i] = vector<vector<dmrpt::DataPoint>>(total_leaf_size);
 
       VALUE_TYPE *C = mathOp.build_sparse_projection_matrix (this->rank, this->world_size, this->data_dimension,
                                                              local_tree_depth, density, receive_ntrees[i]);

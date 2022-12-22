@@ -196,7 +196,7 @@ int main (int argc, char *argv[])
 
   cout<<" total data set size "<<data_set_size<<endl;
 
-  MDRPT mdrpt = MDRPT(ntrees,  tree_depth, tree_depth_ratio, local_tree_offset,data_set_size,
+  MDRPT mdrpt = MDRPT(ntrees,  tree_depth, tree_depth_ratio, local_tree_offset,data_set_size,cols,
                        rows, rank, size, input_path,
                        output_path);
 

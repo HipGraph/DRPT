@@ -25,11 +25,12 @@ using namespace std::chrono;
 
 dmrpt::MDRPT::MDRPT (int ntrees,  int tree_depth,
                      double tree_depth_ratio,int local_tree_offset,
-                     int total_data_set_size, int dimension,
+                     int total_data_set_size,int local_data_set_size, int dimension,
                      int rank, int world_size, string input_path, string output_path) {
   this->data_dimension = dimension;
   this->tree_depth = tree_depth;
-  this->total_data_set_size = total_data_set_size;
+  this->global_data_set_size = total_data_set_size;
+  this->local_data_set_size = local_data_set_size;
   this->rank = rank;
   this->world_size = world_size;
   this->ntrees = ntrees;
@@ -57,12 +58,12 @@ void dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float
                                bool use_locality_optimization, int nn, ofstream &fout)
 {
   //original data comes as a matrix, N*D dimensions
-  int rows = this->original_data[0].size (); // Calculating D
-  int cols = this->original_data.size (); // Calculating N
+  int rows = original_data[0].size (); // Calculating D
+  int cols = original_data.size (); // Calculating N
 
   auto start_conversion_index = high_resolution_clock::now ();
   dmrpt::MathOp mathOp;
-  VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format (this->original_data);
+  VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format (original_data);
 
   int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
   int local_tree_depth = this->tree_depth - global_tree_depth;
@@ -102,18 +103,18 @@ void dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float
 
   auto start_grow_index = high_resolution_clock::now ();
 
-  int starting_index = (this->total_data_set_size / world_size) * this->rank;
+  int starting_index = (this->global_data_set_size / world_size) * this->rank;
   this->starting_data_index = starting_index;
 
   // creating DRPTGlobal class
   dmrpt::DRPTGlobal drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
                                          starting_index,
-                                         this->total_data_set_size, this->rank, this->world_size, this->output_path);
+                                         this->global_data_set_size, this->rank, this->world_size, this->output_path);
 
   cout << " rank " << rank << " starting growing trees" << endl;
 
   // start growing global tree
-  drpt_global.grow_global_tree (this->original_data);
+  drpt_global.grow_global_tree (original_data);
   auto stop_grow_index = high_resolution_clock::now ();
   auto index_time = duration_cast<microseconds> (stop_grow_index - start_grow_index);
   cout << " rank " << rank << " completing growing trees" << endl;
@@ -526,9 +527,9 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
  vector<vector<index_distance_pair>> final_sent_indices_allocation (this->world_size);
 
- vector<index_distance_pair> final_sent_indices_to_rank_map (this->original_data.size());
+ vector<index_distance_pair> final_sent_indices_to_rank_map (this->local_data_set_size);
 
-  int my_end_index = this->starting_data_index + this->original_data.size();
+  int my_end_index = this->starting_data_index + this->local_data_set_size;
 
 #pragma omp parallel for
   for(int i=this->starting_data_index;i<my_end_index;i++) {
@@ -564,7 +565,7 @@ cout << " rank " << rank << " structure creation completed" << endl;
 
    cout << " rank " << rank << " global distance calculation completed" << endl;
 
-   index_distance_pair selected_indices_owner_dst[this->original_data.size()];
+   index_distance_pair selected_indices_owner_dst[this->local_data_set_size];
 
    int *sending_selected_indices_ow_co = new int[this->world_size]();
    int *disps_sending_selected_indices_ow_co = new int[this->world_size]();
@@ -945,9 +946,9 @@ dmrpt::MDRPT::gather_nns (int nn, ofstream  &fout)
 
   auto start_distance = high_resolution_clock::now ();
 
-  int chunk_size = this->total_data_set_size / this->world_size;
+  int chunk_size = this->global_data_set_size / this->world_size;
 
-  int last_chunk_size = this->total_data_set_size - chunk_size * (this->world_size - 1);
+  int last_chunk_size = this->global_data_set_size - chunk_size * (this->world_size - 1);
 
   int my_chunk_size = chunk_size;
   int my_starting_index = this->rank * chunk_size;
@@ -959,7 +960,7 @@ dmrpt::MDRPT::gather_nns (int nn, ofstream  &fout)
     }
   else
     {
-      my_end_index = this->total_data_set_size;
+      my_end_index = this->global_data_set_size;
       my_chunk_size = last_chunk_size;
     }
 

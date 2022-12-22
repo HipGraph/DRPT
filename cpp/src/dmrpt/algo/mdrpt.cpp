@@ -61,13 +61,13 @@ void dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float
   int rows = original_data[0].size (); // Calculating D
   int cols = original_data.size (); // Calculating N
 
-  dmrpt::Timer<time_point<>,long long>
+  dmrpt::Timer<time_point<steady_clock,duration<long long,ratio<1,1000000000>>>,long long>
   dmrpt::MathOp mathOp;
   VALUE_TYPE *imdataArr = mathOp.convert_to_row_major_format (original_data);
 
   int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
   int local_tree_depth = this->tree_depth - global_tree_depth;
-  auto stop_conversion_index = high_resolution_clock::now ();
+  auto stop_conversion_index = high_resolution_clock::now ()
 
   auto conversion_time = duration_cast<microseconds> (stop_conversion_index - start_conversion_index);
 

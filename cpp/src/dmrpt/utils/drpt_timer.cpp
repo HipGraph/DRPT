@@ -4,13 +4,13 @@ using namespace std;
 using namespace std::chrono;
 
 template<typename T>
-auto dmrpt::Timer<T>::get_timelapse_in_milliseconds()
+T dmrpt::Timer<T>::get_timelapse_in_milliseconds()
 {
   return this->timelapse;
 }
 
 template<typename T>
- auto dmrpt::Timer<T>::get_timelapse_in_seconds()
+ T dmrpt::Timer<T>::get_timelapse_in_seconds()
 {
   return this->timelapse/1000;
 }

@@ -204,7 +204,7 @@ int main (int argc, char *argv[])
 
   cout << " start growing trees " << rank << endl;
 
-  mdrpt.grow_trees (imagedatas, density, use_locality_optimization,nn);
+  mdrpt.grow_trees (imagedatas, density, use_locality_optimization,nn,fout);
   cout << " completed growing trees " << rank << endl;
 
   auto stop_index_building = high_resolution_clock::now ();
@@ -215,7 +215,7 @@ int main (int argc, char *argv[])
 
   auto start_query = high_resolution_clock::now ();
 
-  map<int, vector<DataPoint>> data_points = mdrpt.gather_nns (nn);
+  map<int, vector<DataPoint>> data_points = mdrpt.gather_nns (nn,fout);
 
   auto stop_query = high_resolution_clock::now ();
   auto duration_query = duration_cast<microseconds> (stop_query - start_query);

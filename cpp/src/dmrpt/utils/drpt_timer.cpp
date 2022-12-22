@@ -3,7 +3,7 @@
 using namespace std;
 using namespace std::chrono;
 
-auto dmrpt::Timer<>::get_timelapse_in_milliseconds()
+auto dmrpt::Timer::get_timelapse_in_milliseconds()
 {
   return this->timelapse;
 }

@@ -10,9 +10,9 @@ namespace dmrpt
 {
 class Timer {
  private:
-  auto start_timestamp;
-  auto stop_timestamp;
-  auto timelapse;
+  auto start_timestamp =0;
+  auto stop_timestamp = 0;
+  auto timelapse = 0;
 
  public:
   void record_start_time ();

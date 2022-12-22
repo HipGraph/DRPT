@@ -262,7 +262,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 	}
 }
 
-std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>& local_nns,
+std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>> &local_nns,
 		set<int>& keys,
 		int nn
 )

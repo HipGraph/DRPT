@@ -3,7 +3,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::Timer::Timer ()
+dmrpt::Timer::Timer()
 {
 }
 

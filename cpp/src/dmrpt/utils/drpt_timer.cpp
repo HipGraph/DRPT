@@ -3,16 +3,12 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::Timer::Timer()
-{
-}
-
 auto dmrpt::Timer::get_timelapse_in_milliseconds()
 {
   return this->timelapse;
 }
 
- dmrpt::Timer::get_timelapse_in_seconds()
+ auto dmrpt::Timer::get_timelapse_in_seconds()
 {
   return this->timelapse/1000;
 }

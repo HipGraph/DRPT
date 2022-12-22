@@ -55,38 +55,15 @@ dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *project
   this->output_path = output_path;
 }
 
-template<typename T> vector <T> slice (vector < T >
-const &v,
-int m,
-int n
-) {
-auto first = v.cbegin () + m;
-auto last = v.cbegin () + n + 1;
-std::vector <T> vec (first, last);
-return
-vec;
-}
+template<typename T> vector <T> slice (vector < T > const &v, int m, int n) {
+     auto first = v.cbegin () + m;
+     auto last = v.cbegin () + n + 1;
+     std::vector <T> vec (first, last);
+     return vec;
+  }
 
-//template<typename T> bool allEqual (std::vector < T >
-//const &v) {
-//return
-//std::adjacent_find(v
-//.
-//
-//begin (), v
-//
-//.
-//
-//end (), std::not_equal_to<T> ()
-//
-//) == v.
-//
-//end ();
-//
-//}
 
-template<class T, class X>
-void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
+template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> &vec, int world_size)
 {
   std::unordered_map <T, size_t> count;
 

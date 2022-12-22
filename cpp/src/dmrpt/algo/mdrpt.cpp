@@ -26,11 +26,9 @@ using namespace std::chrono;
 dmrpt::MDRPT::MDRPT (int ntrees,  int tree_depth,
                      double tree_depth_ratio,int local_tree_offset,
                      int total_data_set_size, int dimension,
-                     int rank, int world_size, string input_path, string output_path)
-{
+                     int rank, int world_size, string input_path, string output_path) {
   this->data_dimension = dimension;
   this->tree_depth = tree_depth;
-//    this->original_data = original_data;
   this->total_data_set_size = total_data_set_size;
   this->rank = rank;
   this->world_size = world_size;
@@ -43,53 +41,24 @@ dmrpt::MDRPT::MDRPT (int ntrees,  int tree_depth,
   this->local_tree_offset =local_tree_offset;
 }
 
-template<typename T> vector <T> slice (vector < T >
-const &v,
-int m,
-int n
-) {
-auto first = v.cbegin () + m;
-auto last = v.cbegin () + n + 1;
+template<typename T> vector <T> slice (vector < T > const &v, int m, int n) {
+   auto first = v.cbegin () + m;
+   auto last = v.cbegin () + n + 1;
 
-std::vector <T> vec (first, last);
-return
-vec;
-}
+    std::vector <T> vec (first, last);
+    return vec;
+   }
 
-template<typename T> bool allEqual (std::vector < T >
-const &v) {
-return
-std::adjacent_find(v
-.
+template<typename T> bool allEqual (std::vector < T > const &v) {
+   return std::adjacent_find(v.begin (), v.end (), std::not_equal_to<T> ()) == v.end ();
+  }
 
-begin (), v
-
-.
-
-end (), std::not_equal_to<T> ()
-
-) == v.
-
-end ();
-
-}
-
-void
-dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float density, bool use_locality_optimization, int nn)
+void dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float density,
+                               bool use_locality_optimization, int nn, ofstream &fout)
 {
-
-  char results[500];
-//    char hostname[HOST_NAME_MAX];
-//    int host = gethostname(hostname, HOST_NAME_MAX);
-  string file_path_stat = output_path + "stats_divided.txt.";
-  std::strcpy (results, file_path_stat.c_str ());
-//    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-
-  ofstream fout (results, std::ios_base::app);
-
-  this->original_data = original_data;
-  int rows = this->original_data[0].size ();
-  int cols = this->original_data.size ();
+  //original data comes as a matrix, N*D dimensions
+  int rows = this->original_data[0].size (); // Calculating D
+  int cols = this->original_data.size (); // Calculating N
 
   auto start_conversion_index = high_resolution_clock::now ();
   dmrpt::MathOp mathOp;
@@ -165,7 +134,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
 
   cout << " rank " << rank << " running  datapoint collection " << endl;
   auto start_collect = high_resolution_clock::now ();
-  vector < vector < vector < DataPoint>>> leaf_nodes_of_trees (ntrees);
+  vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);
 
   // running the similar datapoint collection
   for (int i = 0; i < ntrees; i++)
@@ -195,8 +164,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   minimum_arry[0] = my_minimum_count;
   int *minimum_arry_recev = new int[this->world_size] ();
 
-  MPI_Allgather (minimum_arry, 1, MPI_INT,
-                 minimum_arry_recev, 1, MPI_INT, MPI_COMM_WORLD);
+  MPI_Allgather(minimum_arry, 1, MPI_INT,minimum_arry_recev, 1, MPI_INT, MPI_COMM_WORLD);
 
   int global_minimum = INT32_MAX;
 
@@ -970,20 +938,10 @@ cout << " rank " << rank << " third MPI completed receiving count from my rank"<
 
 std::map<int, vector < dmrpt::DataPoint>>
 
-dmrpt::MDRPT::gather_nns (int nn)
+dmrpt::MDRPT::gather_nns (int nn, ofstream  &fout)
 {
 
   cout << " rank " << rank << "gathering started " << endl;
-  char results[500];
-
-//    char hostname[HOST_NAME_MAX];
-
-//    gethostname(hostname, HOST_NAME_MAX);
-  string file_path_stat = output_path + "stats_divided.txt.";
-  std::strcpy (results, file_path_stat.c_str ());
-//    std::strcpy(results + strlen(file_path_stat.c_str()), hostname);
-
-  ofstream fout (results, std::ios_base::app);
 
   auto start_distance = high_resolution_clock::now ();
 

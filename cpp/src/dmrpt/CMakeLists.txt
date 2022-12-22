@@ -9,6 +9,7 @@ add_library(
         algo/drpt.cpp
         algo/mdrpt.cpp
         algo/drpt_global.cpp
+        utils/drpt_timer.cpp
 )
 target_link_libraries(dmrpt ${OpenCV_LIBS})
 target_link_libraries(dmrpt ${OpenBLAS_CXX_LIBRARIES})

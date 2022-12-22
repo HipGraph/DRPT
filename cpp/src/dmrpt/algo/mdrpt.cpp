@@ -1027,7 +1027,7 @@ int dmrpt::MDRPT::get_global_minimum_leaf_size(vector<vector < vector < DataPoin
 	return global_minimum;
 }
 
-void dmrpt::MDRPT::grow_local_tree(vector<vector < vector < DataPoint>>> &leaf_nodes_of_trees, int global_minimum,int nn,
+void dmrpt::MDRPT::grow_local_trees(vector<vector < vector < DataPoint>>> &leaf_nodes_of_trees, int global_minimum,int nn,
 		int global_tree_depth)
 {
 	dmrpt::MathOp mathOp;

@@ -36,7 +36,7 @@ dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *project
   this->intial_no_of_data_points = no_of_data_points;
   this->projected_matrix = projected_matrix;
   this->projection_matrix = projection_matrix;
-  this->global_data_set_size = total_data_set_size;
+  this->total_data_set_size = total_data_set_size;
   this->data_dimension = dimension;
 
   this->ntrees = ntrees;
@@ -219,7 +219,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
       vector <vector<DataPoint>> child_data_tracker (total_split_size);
       vector<int> total_size_vector (total_split_size);
       child_data_tracker[0] = this->trees_data[k][0];
-      total_size_vector[0] = this->global_data_set_size;
+      total_size_vector[0] = this->total_data_set_size;
       cout<<" total size vector"<<total_size_vector[0]<<endl;
       double *execution_times = new double[this->tree_depth + 1];
       double *exeuction_times_global = new double[this->tree_depth + 1];

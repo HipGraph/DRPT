@@ -267,8 +267,8 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 //        }
 //        fout << " init time " << exeuction_times_global[this->tree_depth] / this->world_size << " " << endl;
 
-      this->trees_data.clear();
-      this->trees_data.shrink_to_fit();
+//      this->trees_data.clear();
+//      this->trees_data.shrink_to_fit();
     }
 }
 

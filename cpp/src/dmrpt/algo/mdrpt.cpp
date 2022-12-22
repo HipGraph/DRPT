@@ -35,7 +35,6 @@ dmrpt::MDRPT::MDRPT (int ntrees,  int tree_depth,
   this->rank = rank;
   this->world_size = world_size;
   this->ntrees = ntrees;
-  this->algo = algo;
   this->input_path = input_path;
   this->output_path = output_path;
   this->tree_depth_ratio = tree_depth_ratio;
@@ -138,7 +137,7 @@ dmrpt::MDRPT::grow_trees (vector <vector<VALUE_TYPE>> &original_data, float dens
   this->starting_data_index = starting_index;
 
   // creating DRPTGlobal class
-  drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
+  dmrpt::DRPTGlobal drpt_global = dmrpt::DRPTGlobal (P, B, cols, this->data_dimension, global_tree_depth, this->ntrees,
                                          starting_index,
                                          this->total_data_set_size, this->rank, this->world_size, this->output_path);
 

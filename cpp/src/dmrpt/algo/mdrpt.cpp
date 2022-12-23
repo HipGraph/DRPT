@@ -982,14 +982,14 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	double* execution_times = new double[2];
 
-	double* execution_times_global = new double[2];
-	execution_times[0] = distance_time.count() / 1000;
-	execution_times[1] = query_time.count() / 1000;
-
-	MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-	fout << " distance calculation " << (execution_times_global[0] / this->world_size) << " communication time "
-		 << (execution_times_global[1] / this->world_size) << endl;
+//	double* execution_times_global = new double[2];
+//	execution_times[0] = distance_time.count() / 1000;
+//	execution_times[1] = query_time.count() / 1000;
+//
+//	MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//
+//	fout << " distance calculation " << (execution_times_global[0] / this->world_size) << " communication time "
+//		 << (execution_times_global[1] / this->world_size) << endl;
 
 	return final_map;
 }

@@ -48,7 +48,7 @@ namespace dmrpt
 		int get_global_minimum_leaf_size(vector<vector<vector < DataPoint>>> &leaf_nodes_of_trees);
 
 		void grow_local_trees(vector<vector< vector < DataPoint>>> &leaf_nodes_of_trees,
-				int global_minimum,int nn,int global_tree_depth);
+				int global_minimum,int nn,int global_tree_depth, int density);
 
 		template<typename T>
 		vector<T> slice(vector < T >const &v, int m, int n)

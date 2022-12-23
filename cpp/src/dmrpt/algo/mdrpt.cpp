@@ -109,7 +109,7 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 
 	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
-	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth);
+	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
 //	auto end_collect_local = high_resolution_clock::now();
 //	auto collect_time_local = duration_cast<microseconds>(end_collect_local - start_collect_local);
@@ -1027,8 +1027,8 @@ int dmrpt::MDRPT::get_global_minimum_leaf_size(vector<vector < vector < DataPoin
 	return global_minimum;
 }
 
-void dmrpt::MDRPT::grow_local_trees(vector<vector < vector < DataPoint>>> &leaf_nodes_of_trees, int global_minimum,int nn,
-		int global_tree_depth)
+void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_nodes_of_trees, int global_minimum,int nn,
+		int global_tree_depth, int density)
 {
 	dmrpt::MathOp mathOp;
 	int local_tree_depth = log2(global_minimum) - (log2(nn) + this->local_tree_offset);

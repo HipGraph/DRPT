@@ -43,9 +43,8 @@ dmrpt::MDRPT::MDRPT(int ntrees, int tree_depth,
 	this->local_tree_offset = local_tree_offset;
 }
 
-void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float density,
-		bool use_locality_optimization, int nn, ofstream& fout)
-{
+void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float density, bool use_locality_optimization,
+		int nn, ofstream& fout) {
 
 //  dmrpt::Timer<time_point<steady_clock,duration<long long,ratio<1,1000000000>>>,long long> timer
 
@@ -53,7 +52,6 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	VALUE_TYPE* row_data_array = mathOp.convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
 
 	int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
-	int local_tree_depth = this->tree_depth - global_tree_depth;
 
 	// generate random seed at process 0 and broadcast it to multiple processes.
 	int* receive = this->receive_random_seeds(1);
@@ -97,7 +95,7 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 		drpt_global.calculate_tree_leaf_correlation(this->output_path);
 	}
 
-	vector < vector < vector < DataPoint>>> leaf_nodes_of_trees(ntrees);
+	vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);
 
 	// running the similar datapoint collection
 	for (int i = 0; i < ntrees; i++)
@@ -107,8 +105,10 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 		cout << " rank " << rank << " similar datapoint collection completed for tree " << i << endl;
 	}
 
+	// get the global minimum value of a leaf
 	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
+	//grow local trees for each leaf
 	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
 //	auto end_collect_local = high_resolution_clock::now();
@@ -262,11 +262,8 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 	}
 }
 
-std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector < dmrpt::DataPoint>> &local_nns,
-		set<int>& keys,
-		int nn
-)
-{
+std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns,
+		set<int>& keys,int nn) {
 
 	char results[500];
 //    char hostname[HOST_NAME_MAX];
@@ -943,25 +940,24 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << "gathering started " << endl;
 
-	auto start_distance = high_resolution_clock::now();
 
-	int chunk_size = this->global_data_set_size / this->world_size;
+//	int chunk_size = this->global_data_set_size / this->world_size;
+//
+//	int last_chunk_size = this->global_data_set_size - chunk_size * (this->world_size - 1);
 
-	int last_chunk_size = this->global_data_set_size - chunk_size * (this->world_size - 1);
+	int my_chunk_size = local_data_set_size;
+	int my_starting_index = this->starting_data_index;
 
-	int my_chunk_size = chunk_size;
-	int my_starting_index = this->rank * chunk_size;
-
-	int my_end_index = 0;
-	if (this->rank < this->world_size - 1)
-	{
-		my_end_index = (this->rank + 1) * chunk_size;
-	}
-	else
-	{
-		my_end_index = this->global_data_set_size;
-		my_chunk_size = last_chunk_size;
-	}
+	int my_end_index = my_starting_index + local_data_set_size;
+//	if (this->rank < this->world_size - 1)
+//	{
+//		my_end_index = (this->rank + 1) * chunk_size;
+//	}
+//	else
+//	{
+//		my_end_index = this->global_data_set_size;
+//		my_chunk_size = last_chunk_size;
+//	}
 
 	std::map<int, vector<DataPoint>> local_nn_map;
 

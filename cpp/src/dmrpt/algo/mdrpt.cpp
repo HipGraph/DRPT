@@ -316,11 +316,11 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 
 			for (int k = offset;k < (offset + amount); k++)
 			{
-				if (search_index == out_index_dis[k]->index)
+				if (search_index == out_index_dis[k].index)
 				{
-					if (minium_distance > out_index_dis[k]->distance)
+					if (minium_distance > out_index_dis[k].distance)
 					{
-						minium_distance = out_index_dis[k]->distance;
+						minium_distance = out_index_dis[k].distance;
 						selected_rank = j;
 					}
 					break;
@@ -346,10 +346,10 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 #pragma omp parallel for
 	for (int i = 0;i < total_receving;i++)
 	{
-		minimal_index_distance[i].index = out_index_dis[i]->index;
+		minimal_index_distance[i].index = out_index_dis[i].index;
 		minimal_index_distance[i].
-				distance = final_sent_indices_to_rank_map[out_index_dis[i]->index - this->starting_data_index].distance;
-		minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i]->index - this->starting_data_index].
+				distance = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].distance;
+		minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].
 				index; //TODO: replace
 	}
 

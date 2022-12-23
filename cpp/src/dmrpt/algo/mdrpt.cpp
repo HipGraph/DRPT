@@ -897,8 +897,8 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 		set<int> process_se_indexes = this->index_distribution[i];
 		for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
 		{
-			in_index_dis[co_process]->index = (*it);
-			in_index_dis[co_process]->distance = local_nns[(*it)][nn - 1].distance;
+			in_index_dis[co_process].index = (*it);
+			in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;
 			co_process++;
 		}
 	}

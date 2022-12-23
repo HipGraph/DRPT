@@ -51,7 +51,7 @@ namespace dmrpt
 				int global_minimum,int nn,int global_tree_depth);
 
 		template<typename T>
-		vector<T> slice(int m, int n)
+		vector<T> slice(vector < T >const &v, int m, int n)
 		{
 			auto first = v.cbegin() + m;
 			auto last = v.cbegin() + n + 1;

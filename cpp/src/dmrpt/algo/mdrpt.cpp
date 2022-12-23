@@ -316,11 +316,11 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 
 			for (int k = offset;k < (offset + amount); k++)
 			{
-				if (search_index == out_index_dis[k].index)
+				if (search_index == out_index_dis[k]->index)
 				{
-					if (minium_distance > out_index_dis[k].distance)
+					if (minium_distance > out_index_dis[k]->distance)
 					{
-						minium_distance = out_index_dis[k].distance;
+						minium_distance = out_index_dis[k]->distance;
 						selected_rank = j;
 					}
 					break;
@@ -346,10 +346,10 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 #pragma omp parallel for
 	for (int i = 0;i < total_receving;i++)
 	{
-		minimal_index_distance[i].index = out_index_dis[i].index;
+		minimal_index_distance[i].index = out_index_dis[i]->index;
 		minimal_index_distance[i].
-				distance = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].distance;
-		minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].
+				distance = final_sent_indices_to_rank_map[out_index_dis[i]->index - this->starting_data_index].distance;
+		minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i]->index - this->starting_data_index].
 				index; //TODO: replace
 	}
 
@@ -889,15 +889,16 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 		disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
 	}
 
-	index_distance_pair in_index_dis[send_count], out_index_dis[total_receiving];
+	index_distance_pair *in_index_dis = new index_distance_pair[send_count];
+	index_distance_pair *out_index_dis =  new index_distance_pair[total_receiving];
 	int co_process = 0;
 	for (int i = 0;i < this->world_size;i++)
 	{
 		set<int> process_se_indexes = this->index_distribution[i];
 		for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
 		{
-			in_index_dis[co_process].index = (*it);
-			in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;
+			in_index_dis[co_process]->index = (*it);
+			in_index_dis[co_process]->distance = local_nns[(*it)][nn - 1].distance;
 			co_process++;
 		}
 	}
@@ -905,8 +906,7 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 	//distribute minimum maximum distance threshold (for k=nn)
 	MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
 			receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
-	index_distance_pair *ptr = out_index_dis;
-	return ptr;
+	return out_index_dis;
 }
 
 

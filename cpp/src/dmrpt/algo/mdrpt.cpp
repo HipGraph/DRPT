@@ -906,6 +906,9 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 	//distribute minimum maximum distance threshold (for k=nn)
 	MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
 			receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
+
+	delete [] sending_indices_count;
+	delete [] disps_sending_indices;
 	return out_index_dis;
 }
 

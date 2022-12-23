@@ -282,7 +282,8 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 
 	cout << " rank " << rank << " allocation completed" <<endl;
 
-	this->send_nns(sending_selected_indices_count,receiving_selected_indices_count,final_nn_map);
+	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
 
 //	int total_receiving_count = 0;
 //
@@ -473,30 +474,30 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 			receiving_selected_indices_count;
 	delete[]
 			receiving_selected_indices_nn_count;
-	delete[]
-			sending_selected_indices;
-	delete[]
-			sending_selected_nn_count_for_each_index;
+//	delete[]
+//			sending_selected_indices;
+//	delete[]
+//			sending_selected_nn_count_for_each_index;
 //  delete[]
 //      sending_selected_nn_indices;
 //  delete[]
 //      sending_selected_nn_dst;
-	delete[]
-			disps_receiving_selected_indices;
-	delete[]
-			disps_sending_selected_indices;
-	delete[]
-			disps_sending_selected_nn_indices;
-	delete[]
-			disps_receiving_selected_nn_indices;
-	delete[]
-			receiving_selected_indices;
+//	delete[]
+//			disps_receiving_selected_indices;
+//	delete[]
+//			disps_sending_selected_indices;
+//	delete[]
+//			disps_sending_selected_nn_indices;
+//	delete[]
+////			disps_receiving_selected_nn_indices;
+//	delete[]
+//			receiving_selected_indices;
 //  delete[]
 //      receiving_selected_nn_indices;
 //  delete[]
-//      receiving_selected_nn_dst;
-	delete[]
-			receiving_selected_nn_indices_count_process;
+////      receiving_selected_nn_dst;
+//	delete[]
+//			receiving_selected_nn_indices_count_process;
 	return final_nn_map;
 }
 
@@ -884,8 +885,9 @@ void dmrpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair
 
 }
 
-void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count, int *receiving_selected_indices_count,
-		std::map<int, vector<DataPoint>> &final_nn_map) {
+void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count, int *receiving_selected_indices_count,
+		std::map<int, vector<DataPoint>> &final_nn_map,std::map<int, vector<DataPoint>> &final_nn_sending_map,
+		vector<vector<index_distance_pair>> &final_indices_allocation) {
 
 	int total_receiving_count = 0;
 
@@ -904,6 +906,9 @@ void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count, int *receiving_
 	MPI_Alltoall(sending_selected_indices_count,
 			1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
 
+    int total_selected_indices_count=0;
+
+	int total_selected_indices_nn_count=0;
 
 	for (int i = 0;i < this->world_size;i++)
 	{
@@ -970,8 +975,6 @@ void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count, int *receiving_
 			receiving_selected_indices,
 			receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
 	);
-
-	int total_receiving_nn_count = 0;
 
 	int* receiving_selected_nn_indices_count_process = new int[this->world_size]();
 

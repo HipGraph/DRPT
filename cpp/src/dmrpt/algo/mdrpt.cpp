@@ -1110,21 +1110,17 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 	}
 }
 
-int* dmrpt::MDRPT::receive_random_seeds(int size)
-{
+int* dmrpt::MDRPT::receive_random_seeds(int size) {
 	int* receive = new int[size]();
-	if (this->rank == 0)
-	{
+	if (this->rank == 0) {
 		for (int i = 0; i < size; i++)
 		{
 			std::random_device rd;
-			seed = rd();
+			int seed = rd();
 			receive[i] = seed;
 		}
 		MPI_Bcast(receive, size, MPI_INT, this->rank, MPI_COMM_WORLD);
-	}
-	else
-	{
+	} else {
 		MPI_Bcast(receive, size, MPI_INT, NULL, MPI_COMM_WORLD);
 	}
 	return receive

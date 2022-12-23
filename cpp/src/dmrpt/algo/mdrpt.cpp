@@ -970,8 +970,8 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << " distance calculation completed " << endl;
 
-	auto stop_distance = high_resolution_clock::now();
-	auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
+//	auto stop_distance = high_resolution_clock::now();
+//	auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
 
 	auto start_query = high_resolution_clock::now();
 

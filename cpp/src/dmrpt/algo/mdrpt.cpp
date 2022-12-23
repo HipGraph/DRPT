@@ -256,97 +256,12 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 	//finalize data owners based on data owner having minimum distance threshold.
 	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 
-
-
+	//announce the selected dataowner to all interesting data holders
 	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
 			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 
-//	int* minimal_selected_rank_sending = new int[total_receving]();
-//	index_distance_pair minimal_index_distance[total_receving];
-//
-//#pragma omp parallel for
-//	for (int i = 0;i < total_receving;i++)
-//	{
-//		minimal_index_distance[i].index = out_index_dis[i].index;
-//		minimal_index_distance[i].
-//				distance = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].distance;
-//		minimal_selected_rank_sending[i] = final_sent_indices_to_rank_map[out_index_dis[i].index - this->starting_data_index].
-//				index; //TODO: replace
-//	}
-//
-//	int* receiving_indices_count_back = new int[this->world_size]();
-//	int* disps_receiving_indices_count_back = new int[this->world_size]();
-//
-//	// we recalculate how much we are receiving for minimal dst distribution
-//	MPI_Alltoall(receiving_indices_count,
-//			1, MPI_INT, receiving_indices_count_back, 1, MPI_INT, MPI_COMM_WORLD);
-//
-//	int total_receivce_back = 0;
-//	for (int i = 0;i < this->world_size;i++)
-//	{
-//		total_receivce_back += receiving_indices_count_back[i];
-//		disps_receiving_indices_count_back[i] = (i > 0) ?
-//				(disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
-//	}
-//
-//	int* minimal_selected_rank_reciving = new int[total_receivce_back]();
-//	index_distance_pair minimal_index_distance_receiv[total_receivce_back];
-//
-//	MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
-//			minimal_index_distance_receiv,
-//			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD
-//	);
-//
-//	MPI_Alltoallv(minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
-//			minimal_selected_rank_reciving,
-//			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD
-//	);
-//
-//	vector<vector<index_distance_pair>> final_indices_allocation(this->world_size);
-//
-//#pragma omp parallel
-//	{
-//		vector<vector<index_distance_pair>> final_indices_allocation_local(this->world_size);
-//
-//#pragma omp  for nowait
-//		for (int i = 0;i < total_receivce_back;i++)
-//		{
-//			index_distance_pair distance_pair;
-//			distance_pair.
-//					index = minimal_index_distance_receiv[i].index;
-//			distance_pair.
-//					distance = minimal_index_distance_receiv[i].distance;
-//			final_indices_allocation_local[minimal_selected_rank_reciving[i]].
-//					push_back(distance_pair);
-//
-//		}
-//
-//#pragma omp critical
-//		{
-//			for (int i = 0;i < this->world_size;i++)
-//			{
-//				final_indices_allocation[i].insert(final_indices_allocation[i].end(),
-//						final_indices_allocation_local[i].begin(),
-//						final_indices_allocation_local[i].end());
-//			}
-//		}
-//	}
-
-
-	cout << " final indices size for my rank " << rank << " size " << final_indices_allocation[this->rank].
-			size()
-		 <<
-		 endl;
-
-
-
-	int* sending_indices = new int[send_count]();
-	VALUE_TYPE* sending_max_dist_thresholds = new VALUE_TYPE[send_count]();
-	index_distance_pair selected_indices_owner_dst[this->local_data_set_size];
-
 
 	std::map<int, vector<DataPoint>>final_nn_sending_map;
-
 	std::map<int, vector<DataPoint>>final_nn_map;
 
 	int* sending_selected_indices_count = new int[this->world_size]();
@@ -358,54 +273,60 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 	int total_selected_indices_count = 0;
 	int total_selected_indices_nn_count = 0;
 
-	for (int i = 0;i < this->world_size;i++)
-	{
-		int count = 0;
-		int nn_count = 0;
+	this->select_final_forwarding_nns(final_indices_allocation,
+			local_nns,
+			final_nn_sending_map,final_nn_map,
+			sending_selected_indices_count,
+			sending_selected_indices_nn_count)
 
-#pragma omp parallel for
-		for (int j = 0;j < final_indices_allocation[i].size();j++)
-		{
-			index_distance_pair in_dis = final_indices_allocation[i][j];
-			int selected_index = in_dis.index;
-			float dst_th = in_dis.distance;
-			if (i != this->rank)
-			{
-				if (local_nns.find(selected_index)!= local_nns.end())
-				{
-					vector<dmrpt::DataPoint> target;
-					std::copy_if(local_nns[selected_index].begin(),
-							local_nns[selected_index].end(),
-							std::back_inserter(target),
-							[dst_th](
-									dmrpt::DataPoint dataPoint
-							)
-							{
-							  return dataPoint.distance < dst_th;
-							});
-					if (target.size()> 0)
-					{
-#pragma omp critical
-						{
-							if (final_nn_sending_map.find(selected_index)== final_nn_sending_map.end())
-							{
-								final_nn_sending_map.insert(pair < int, vector < DataPoint >>
-																			  (selected_index, target));
-								sending_selected_indices_nn_count[i] += target.size();
-								sending_selected_indices_count[i] += 1;
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-#pragma omp critical
-				final_nn_map.insert(pair < int, vector < DataPoint >>(selected_index,
-						local_nns[selected_index]));
-			}
-		}
-	}
+//	for (int i = 0;i < this->world_size;i++)
+//	{
+//		int count = 0;
+//		int nn_count = 0;
+//
+//#pragma omp parallel for
+//		for (int j = 0;j < final_indices_allocation[i].size();j++)
+//		{
+//			index_distance_pair in_dis = final_indices_allocation[i][j];
+//			int selected_index = in_dis.index;
+//			float dst_th = in_dis.distance;
+//			if (i != this->rank)
+//			{
+//				if (local_nns.find(selected_index)!= local_nns.end())
+//				{
+//					vector<dmrpt::DataPoint> target;
+//					std::copy_if(local_nns[selected_index].begin(),
+//							local_nns[selected_index].end(),
+//							std::back_inserter(target),
+//							[dst_th](
+//									dmrpt::DataPoint dataPoint
+//							)
+//							{
+//							  return dataPoint.distance < dst_th;
+//							});
+//					if (target.size()> 0)
+//					{
+//#pragma omp critical
+//						{
+//							if (final_nn_sending_map.find(selected_index)== final_nn_sending_map.end())
+//							{
+//								final_nn_sending_map.insert(pair < int, vector < DataPoint >>
+//																			  (selected_index, target));
+//								sending_selected_indices_nn_count[i] += target.size();
+//								sending_selected_indices_count[i] += 1;
+//							}
+//						}
+//					}
+//				}
+//			}
+//			else
+//			{
+//#pragma omp critical
+//				final_nn_map.insert(pair < int, vector < DataPoint >>(selected_index,
+//						local_nns[selected_index]));
+//			}
+//		}
+//	}
 
 	cout << " rank " << rank << " allocation completed" <<
 		 endl;
@@ -585,10 +506,7 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 			disps_receiving_indices;
 //	delete[]
 //			disps_sending_indices;
-	delete[]
-			sending_indices;
-	delete[]
-			sending_max_dist_thresholds;
+
 //  delete[]
 //      receiving_indices;
 //  delete[]
@@ -953,6 +871,62 @@ vector<vector<dmrpt::MDRPT::index_distance_pair>> dmrpt::MDRPT::announce_final_d
 	}
 
 	return final_indices_allocation;
+
+}
+
+void dmrpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
+		map<int,vector<dmrpt::DataPoint>>& local_nns,
+		map<int, vector<DataPoint>> &final_nn_sending_map,
+		map<int, vector<DataPoint>>  &final_nn_map,
+		int* sending_selected_indices_count,
+		int* sending_selected_indices_nn_count){
+
+	for (int i = 0;i < this->world_size;i++)
+	{
+
+#pragma omp parallel for
+		for (int j = 0;j < final_indices_allocation[i].size();j++)
+		{
+			index_distance_pair in_dis = final_indices_allocation[i][j];
+			int selected_index = in_dis.index;
+			float dst_th = in_dis.distance;
+			if (i != this->rank)
+			{
+				if (local_nns.find(selected_index)!= local_nns.end())
+				{
+					vector<dmrpt::DataPoint> target;
+					std::copy_if(local_nns[selected_index].begin(),
+							local_nns[selected_index].end(),
+							std::back_inserter(target),
+							[dst_th](
+									dmrpt::DataPoint dataPoint
+							)
+							{
+							  return dataPoint.distance < dst_th;
+							});
+					if (target.size()> 0)
+					{
+#pragma omp critical
+						{
+							if (final_nn_sending_map.find(selected_index)== final_nn_sending_map.end())
+							{
+								final_nn_sending_map.insert(pair < int, vector < DataPoint >>
+																						   (selected_index, target));
+								sending_selected_indices_nn_count[i] += target.size();
+								sending_selected_indices_count[i] += 1;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+#pragma omp critical
+				final_nn_map.insert(pair < int, vector < DataPoint >>(selected_index,
+						local_nns[selected_index]));
+			}
+		}
+	}
 
 }
 

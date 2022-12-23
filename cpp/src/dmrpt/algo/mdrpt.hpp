@@ -68,7 +68,7 @@ namespace dmrpt
 		void finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
 				index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map);
 
-		vector<vector<index_distance_pair>> announce_final_dataowner(int total_receving, int receiving_indices_count, int *disps_receiving_indices,
+		vector<vector<index_distance_pair>> announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
 				index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map);
 
 		void send_nns();

@@ -34,6 +34,10 @@ namespace dmrpt
 		trees_leaf_all;
 		vector<set<int>> index_distribution;
 		int local_tree_offset;
+		int total_leaf_size;
+		int leafs_per_node;
+		int my_leaf_start_index;
+		int my_leaf_end_index;
 
 	 private:
 		std::map<int, vector<dmrpt::DataPoint>>

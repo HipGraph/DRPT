@@ -144,28 +144,28 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 
 	dmrpt::MathOp mathOp;
 
-	int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+//	int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+//
+//	int leafs_per_node = total_leaf_size / this->world_size;
+//
+//	int my_start_count = 0;
+//	int end_count = 0;
 
-	int leafs_per_node = total_leaf_size / this->world_size;
+//	//large trees
+//	if (total_leaf_size >= this->world_size)
+//	{
+//		my_start_count =  * this->rank;
+//		if (this->rank < this->world_size - 1)
+//		{
+//			end_count = leafs_per_node * (this->rank + 1);
+//		}
+//		else
+//		{
+//			end_count = total_leaf_size;
+//		}
+//	}
 
-	int my_start_count = 0;
-	int end_count = 0;
-
-	//large trees
-	if (total_leaf_size >= this->world_size)
-	{
-		my_start_count = leafs_per_node * this->rank;
-		if (this->rank < this->world_size - 1)
-		{
-			end_count = leafs_per_node * (this->rank + 1);
-		}
-		else
-		{
-			end_count = total_leaf_size;
-		}
-	}
-
-	for (int i = my_start_count; i < end_count; i++)
+	for (int i = this->my_leaf_start_index; i < this->my_leaf_end_index; i++)
 	{
 
 		if (!this->trees_leaf_all[tree][i].empty())
@@ -940,31 +940,13 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << "gathering started " << endl;
 
-
-//	int chunk_size = this->global_data_set_size / this->world_size;
-//
-//	int last_chunk_size = this->global_data_set_size - chunk_size * (this->world_size - 1);
-
-	int my_chunk_size = local_data_set_size;
-	int my_starting_index = this->starting_data_index;
-
-	int my_end_index = my_starting_index + local_data_set_size;
-//	if (this->rank < this->world_size - 1)
-//	{
-//		my_end_index = (this->rank + 1) * chunk_size;
-//	}
-//	else
-//	{
-//		my_end_index = this->global_data_set_size;
-//		my_chunk_size = last_chunk_size;
-//	}
-
 	std::map<int, vector<DataPoint>> local_nn_map;
 
 	set<int> keys;
 
 	for (int i = 0; i < ntrees; i++)
 	{
+		// calculate nearest neighbours
 		this->calculate_nns(local_nn_map, keys, i, 2 * nn);
 	}
 
@@ -973,14 +955,15 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 //	auto stop_distance = high_resolution_clock::now();
 //	auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
 
-	auto start_query = high_resolution_clock::now();
+//	auto start_query = high_resolution_clock::now();
 
+    // communicate nearest neighbours and collect nearest neighbours
 	std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
 
-	auto stop_query = high_resolution_clock::now();
-	auto query_time = duration_cast<microseconds>(stop_query - start_query);
-
-	double* execution_times = new double[2];
+//	auto stop_query = high_resolution_clock::now();
+//	auto query_time = duration_cast<microseconds>(stop_query - start_query);
+//
+//	double* execution_times = new double[2];
 
 //	double* execution_times_global = new double[2];
 //	execution_times[0] = distance_time.count() / 1000;
@@ -1034,15 +1017,15 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 		 << global_tree_depth <<
 		 endl;
 
-	int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
+	 this->total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
-	int leafs_per_node = total_leaf_size / this->world_size;
+	 this->leafs_per_node = total_leaf_size / this->world_size;
 
-	int my_start_count = leafs_per_node * this->rank;
-	int my_end_count = leafs_per_node * (this->rank + 1);
+	this->my_leaf_start_index  = leafs_per_node * this->rank;
+	 this->my_leaf_end_index  = leafs_per_node * (this->rank + 1);
 	if (this->rank == this->world_size - 1)
 	{
-		my_end_count = total_leaf_size;
+        this->my_leaf_end_index = total_leaf_size;
 	}
 
 // random seed generation for all local trees
@@ -1094,7 +1077,7 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 					data_vec.push_back(leaf_nodes_of_trees[i][j][index]);
 				}
 
-				int id = my_start_count + (data_nodes_count_per_process % leafs_per_node);
+				int id = this->my_leaf_start_index + (data_nodes_count_per_process % leafs_per_node);
 				this->trees_leaf_all[i][id] =data_vec;
 				data_nodes_count_per_process++;
 			}

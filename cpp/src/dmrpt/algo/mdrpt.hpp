@@ -40,6 +40,13 @@ namespace dmrpt
 		int my_leaf_end_index;
 
 	 private:
+
+		struct index_distance_pair
+		{
+			float distance;
+			int index;
+		};
+
 		std::map<int, vector<dmrpt::DataPoint>>
 		communicate_nns(std::map<int, vector<dmrpt::DataPoint>>& local_nns,
 				set<int>& keys, int nn);
@@ -53,6 +60,16 @@ namespace dmrpt
 
 		void grow_local_trees(vector<vector< vector < DataPoint>>> &leaf_nodes_of_trees,
 				int global_minimum,int nn,int global_tree_depth, int density);
+
+		index_distance_pair* send_min_max_distance_to_data_owner(int* receiving_indices_count,int* disps_receiving_indices,
+				int &send_count,int &total_receving);
+
+		void finalize_final_dataowner();
+
+		void announce_final_dataowner();
+
+		void send_nns();
+
 
 		template<typename T>
 		vector<T> slice(vector < T >const &v, int m, int n)

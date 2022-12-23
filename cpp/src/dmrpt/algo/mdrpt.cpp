@@ -241,99 +241,55 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns,
 		set<int>& keys,int nn) {
 
-//	int* sending_indices_count = new int[this->world_size]();
 	int* receiving_indices_count = new int[this->world_size]();
 	int* disps_receiving_indices = new int[this->world_size]();
-//	int* disps_sending_indices = new int[this->world_size]();
 	int send_count = 0;
 	int total_receving = 0;
 
+	//send distance threshold to original data owner
 	index_distance_pair *out_index_dis = this->send_min_max_distance_to_data_owner(local_nns,
 			receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
-
-//	for (int i = 0;i < this->world_size;i++)
-//	{
-//		sending_indices_count[i] = this->index_distribution[i].size();
-//		send_count += sending_indices_count[i];
-//		disps_sending_indices[i] = (i > 0) ? (disps_sending_indices[i - 1] + sending_indices_count[i - 1]) : 0;
-//	}
-//
-//	//sending back received data during collect similar data points to original process
-//	MPI_Alltoall(sending_indices_count,1, MPI_INT, receiving_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
-//
-//	for (int i = 0;i < this->world_size;i++)
-//	{
-//		total_receving += receiving_indices_count[i];
-//		disps_receiving_indices[i] = (i > 0) ? (disps_receiving_indices[i - 1] + receiving_indices_count[i - 1]) : 0;
-//	}
-
 
 	int* sending_indices = new int[send_count]();
 	VALUE_TYPE* sending_max_dist_thresholds = new VALUE_TYPE[send_count]();
 
-	// data structure to send minimum maximum distance to original data owner to select delegated owner
-//	struct index_distance_pair
-//	{
-//		float distance;
-//		int index;
-//	} in_index_dis[send_count], out_index_dis[total_receving];
-//
-//	int co_process = 0;
-//	for (int i = 0;i < this->world_size;i++)
-//	{
-//		set<int> process_se_indexes = this->index_distribution[i];
-//		for (set<int>::iterator it = process_se_indexes.begin();it != process_se_indexes.end();it++)
-//		{
-//			in_index_dis[co_process].index = (*it);
-//			in_index_dis[co_process].distance = local_nns[(*it)][nn - 1].distance;
-//			co_process++;
-//		}
-//	}
-//
-//	//distribute minimum maximum distance threshold (for k=nn)
-//	MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
-//			receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
-//
-//	this->
-
-	vector<vector<index_distance_pair>> final_sent_indices_allocation(this->world_size);
-
 	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
 
-	int my_end_index = this->starting_data_index + this->local_data_set_size;
+	//finalize data owners based on data owner having minimum distance threshold.
+	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 
-#pragma omp parallel for
-	for (int i = this->starting_data_index;i < my_end_index;i++)
-	{
-		int selected_rank = -1;
-		int search_index = i;
-		float minium_distance = std::numeric_limits<float>::max();
-
-		for (int j = 0;j < this->world_size;j++)
-		{
-			int amount = receiving_indices_count[j];
-			int offset = disps_receiving_indices[j];
-
-			for (int k = offset;k < (offset + amount); k++)
-			{
-				if (search_index == out_index_dis[k].index)
-				{
-					if (minium_distance > out_index_dis[k].distance)
-					{
-						minium_distance = out_index_dis[k].distance;
-						selected_rank = j;
-					}
-					break;
-				}
-			}
-		}
-		index_distance_pair rank_distance;
-		rank_distance.index = selected_rank;  //TODO: replace with rank
-		rank_distance.distance = minium_distance;
-		final_sent_indices_to_rank_map[search_index - this->starting_data_index] = rank_distance;
-	}
-
-	cout<<"happend at outdistance access "<<endl;
+//	int my_end_index = this->starting_data_index + this->local_data_set_size;
+//
+//#pragma omp parallel for
+//	for (int i = this->starting_data_index;i < my_end_index;i++)
+//	{
+//		int selected_rank = -1;
+//		int search_index = i;
+//		float minium_distance = std::numeric_limits<float>::max();
+//
+//		for (int j = 0;j < this->world_size;j++)
+//		{
+//			int amount = receiving_indices_count[j];
+//			int offset = disps_receiving_indices[j];
+//
+//			for (int k = offset;k < (offset + amount); k++)
+//			{
+//				if (search_index == out_index_dis[k].index)
+//				{
+//					if (minium_distance > out_index_dis[k].distance)
+//					{
+//						minium_distance = out_index_dis[k].distance;
+//						selected_rank = j;
+//					}
+//					break;
+//				}
+//			}
+//		}
+//		index_distance_pair rank_distance;
+//		rank_distance.index = selected_rank;  //TODO: replace with rank
+//		rank_distance.distance = minium_distance;
+//		final_sent_indices_to_rank_map[search_index - this->starting_data_index] = rank_distance;
+//	}
 
 	index_distance_pair selected_indices_owner_dst[this->local_data_set_size];
 
@@ -364,7 +320,8 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 	for (int i = 0;i < this->world_size;i++)
 	{
 		total_receivce_back += receiving_indices_count_back[i];
-		disps_receiving_indices_count_back[i] = (i > 0) ? (disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
+		disps_receiving_indices_count_back[i] = (i > 0) ?
+				(disps_receiving_indices_count_back[i - 1] + receiving_indices_count_back[i - 1]) : 0;
 	}
 
 	int* minimal_selected_rank_reciving = new int[total_receivce_back]();
@@ -913,8 +870,41 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 }
 
 
-void dmrpt::MDRPT::finalize_final_dataowner() {
+void dmrpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
+		index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map) {
 
+	int my_end_index = this->starting_data_index + this->local_data_set_size;
+
+#pragma omp parallel for
+	for (int i = this->starting_data_index;i < my_end_index;i++)
+	{
+		int selected_rank = -1;
+		int search_index = i;
+		float minium_distance = std::numeric_limits<float>::max();
+
+		for (int j = 0;j < this->world_size;j++)
+		{
+			int amount = receiving_indices_count[j];
+			int offset = disps_receiving_indices[j];
+
+			for (int k = offset;k < (offset + amount); k++)
+			{
+				if (search_index == out_index_dis[k].index)
+				{
+					if (minium_distance > out_index_dis[k].distance)
+					{
+						minium_distance = out_index_dis[k].distance;
+						selected_rank = j;
+					}
+					break;
+				}
+			}
+		}
+		index_distance_pair rank_distance;
+		rank_distance.index = selected_rank;  //TODO: replace with rank
+		rank_distance.distance = minium_distance;
+		final_sent_indices_to_rank_map[search_index - this->starting_data_index] = rank_distance;
+	}
 }
 
 void dmrpt::MDRPT::announce_final_dataowner() {

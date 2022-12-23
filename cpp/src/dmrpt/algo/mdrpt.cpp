@@ -904,6 +904,7 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 	MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
 			receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
 
+	cout<<"all are good upto this point "<<rank<<endl;
 	index_distance_pair *ptr = out_index_dis;
 	return ptr;
 }

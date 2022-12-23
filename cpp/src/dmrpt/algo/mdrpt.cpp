@@ -878,7 +878,7 @@ void dmrpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *di
 	}
 }
 
-vector<vector<index_distance_pair>> dmrpt::MDRPT::announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
+vector<vector<dmrpt::MDRPT::index_distance_pair>> dmrpt::MDRPT::announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
 		dmrpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map) {
 
 	int* minimal_selected_rank_sending = new int[total_receving]();

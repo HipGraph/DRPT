@@ -63,7 +63,7 @@ namespace dmrpt
 
 		dmrpt::MDRPT::index_distance_pair* send_min_max_distance_to_data_owner(map<int, vector<dmrpt::DataPoint>>& local_nns,
 				int* receiving_indices_count,int* disps_receiving_indices,
-				int &send_count,int &total_receving);
+				int &send_count,int &total_receving, int nn);
 
 		void finalize_final_dataowner();
 

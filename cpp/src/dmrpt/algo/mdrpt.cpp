@@ -249,7 +249,7 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 	int total_receving = 0;
 
 	index_distance_pair *out_index_dis = this->send_min_max_distance_to_data_owner(local_nns,
-			receiving_indices_count,disps_receiving_indices,send_count,total_receving);
+			receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
 
 //	for (int i = 0;i < this->world_size;i++)
 //	{
@@ -867,7 +867,7 @@ int* dmrpt::MDRPT::receive_random_seeds(int size) {
 
 dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_owner(map<int, vector<dmrpt::DataPoint>>& local_nns,
 		int* receiving_indices_count,int* disps_receiving_indices,
-		int &send_count,int &total_receiving) {
+		int &send_count,int &total_receiving, int nn) {
 	int* sending_indices_count = new int[this->world_size]();
 	int* disps_sending_indices = new int[this->world_size]();
 

@@ -61,7 +61,8 @@ namespace dmrpt
 		void grow_local_trees(vector<vector< vector < DataPoint>>> &leaf_nodes_of_trees,
 				int global_minimum,int nn,int global_tree_depth, int density);
 
-		index_distance_pair* send_min_max_distance_to_data_owner(int* receiving_indices_count,int* disps_receiving_indices,
+		dmrpt::MDRPT::index_distance_pair* send_min_max_distance_to_data_owner(map<int, vector<dmrpt::DataPoint>>& local_nns,
+				int* receiving_indices_count,int* disps_receiving_indices,
 				int &send_count,int &total_receving);
 
 		void finalize_final_dataowner();

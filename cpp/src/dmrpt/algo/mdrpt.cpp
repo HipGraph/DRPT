@@ -1123,7 +1123,7 @@ int* dmrpt::MDRPT::receive_random_seeds(int size) {
 	} else {
 		MPI_Bcast(receive, size, MPI_INT, NULL, MPI_COMM_WORLD);
 	}
-	return receive
+	return receive;
 }
 
 

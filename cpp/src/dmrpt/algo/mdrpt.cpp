@@ -277,7 +277,7 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 			local_nns,
 			final_nn_sending_map,final_nn_map,
 			sending_selected_indices_count,
-			sending_selected_indices_nn_count)
+			sending_selected_indices_nn_count);
 
 //	for (int i = 0;i < this->world_size;i++)
 //	{
@@ -328,8 +328,7 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 //		}
 //	}
 
-	cout << " rank " << rank << " allocation completed" <<
-		 endl;
+	cout << " rank " << rank << " allocation completed" <<endl;
 
 	MPI_Alltoall(sending_selected_indices_count,
 			1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);

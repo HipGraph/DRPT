@@ -333,6 +333,8 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 		final_sent_indices_to_rank_map[search_index - this->starting_data_index] = rank_distance;
 	}
 
+	cout<<"happend at outdistance access "<<endl;
+
 	index_distance_pair selected_indices_owner_dst[this->local_data_set_size];
 
 	int* sending_selected_indices_ow_co = new int[this->world_size]();
@@ -903,8 +905,6 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 	//distribute minimum maximum distance threshold (for k=nn)
 	MPI_Alltoallv(in_index_dis, sending_indices_count, disps_sending_indices, MPI_FLOAT_INT,out_index_dis,
 			receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT, MPI_COMM_WORLD);
-
-	cout<<"all are good upto this point "<<rank<<endl;
 	index_distance_pair *ptr = out_index_dis;
 	return ptr;
 }

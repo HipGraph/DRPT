@@ -218,7 +218,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				vector<DataPoint> sub_vec;
 				if (vec.size() > nn)
 				{
-					sub_vec = this->slice(vec[k], 0, nn - 1);
+					sub_vec = slice(vec[k], 0, nn - 1);
 				}
 				else
 				{

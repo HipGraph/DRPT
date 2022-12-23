@@ -78,7 +78,8 @@ namespace dmrpt
 				int* sending_selected_indices_count,
 				int* sending_selected_indices_nn_count);
 
-		void send_nns();
+		void send_nns(int *sending_selected_indices_count, int *receiving_selected_indices_count,
+				std::map<int, vector<DataPoint>> &final_nn_map);
 
 
 		template<typename T>

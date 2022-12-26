@@ -515,7 +515,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
         {
           send_indices[co] = all_points[j].index;
 
-//#pragma omp parallel for
+#pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
             {
 //              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];

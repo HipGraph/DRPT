@@ -27,7 +27,7 @@ dmrpt::DRPTGlobal::DRPTGlobal ()
 
 }
 
-dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, map<int,
+dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
 		                       int no_of_data_points,
                                int dimension,
                                int tree_depth, int ntrees, int starting_index, int global_dataset_size,

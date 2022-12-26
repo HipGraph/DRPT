@@ -33,13 +33,14 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat (VALUE_TYPE *A, VALUE_TYPE *B, int A_row
 //                0.0,
 //                resultCast, B_cols);
 //#elifdef FLOAT_VALUE_TYPE
-  float *AcastFloat = reinterpret_cast<float *>(A);
-  float *BcastFloat = reinterpret_cast<float *>(B);
-  float *resultCastFloat = reinterpret_cast<float *>(result);
+//  float *AcastFloat = reinterpret_cast<float *>(A);
+//  float *BcastFloat = reinterpret_cast<float *>(B);
+//  float *resultCastFloat = reinterpret_cast<float *>(result);
 
-  cblas_sgemm (CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, AcastFloat, A_cols,
-               BcastFloat, B_cols, 0.0,
-               resultCastFloat, B_cols);
+  cblas_sgemm (CblasRowMajor, CblasTrans, CblasNoTrans, A_cols, B_cols, A_rows, alpha, A, A_cols,
+               B, B_cols, 0.0,
+		  result, B_cols);
+
 //#endif
   return result;
 }
@@ -59,12 +60,14 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix (int rows, int cols,
     {
       for (int i = 0; i < cols; ++i)
         {
+		  // take value at uniformly at random and check value is greater than density.If so make that entry empty.
           if (uni_dist (gen) > density)
             {
               A[i + j * cols] = 0.0;
             }
           else
             {
+			  // normal distribution for generate projection matrix.
               A[i + j * cols] = (VALUE_TYPE) norm_dist (gen);
             }
         }
@@ -75,9 +78,6 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix (int rows, int cols,
 VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix (int rank, int world_size, int total_dimension, int levels,
                                                            float density, int seed)
 {
-
-  VALUE_TYPE *global_project_matrix;
-
   VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix (total_dimension, levels, density, seed);
 
   return local_sparse_matrix;

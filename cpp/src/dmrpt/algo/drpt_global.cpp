@@ -519,7 +519,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
           for (int k = 0; k < this->data_dimension; k++)
             {
 //              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];
-               int local_index  = all_points[j].index = this->starting_data_index;
+               int local_index  = all_points[j].index - this->starting_data_index;
 			  send_values[co * this->data_dimension + k] = this->data_points[local_index][k];
             }
           co++;

@@ -197,7 +197,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
         }
     }
 
-  cout << " rank " << rank << " completed intital tree growing" << endl;
+  cout << " rank " << rank << " completed image data storing for all trees" << endl;
 
 
   for (int k = 0; k < this->ntrees; k++)
@@ -222,7 +222,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 		int depth, int tree) {
 
   int current_nodes = (1 << (depth));
-  int number_of_childs = (1 << (depth + 1));
   int split_starting_index = (1 << (depth)) - 1;
   int next_split = (1 << (depth + 1)) - 1;
 

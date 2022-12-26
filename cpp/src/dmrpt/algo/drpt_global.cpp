@@ -248,12 +248,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
           minimum_vector_size = data_vector.size ();
       }
       global_data_row_count[i] = global_size_vector[split_starting_index + i];
-//      if(rank==0)
-//        {
-//          cout << " rank " << rank << " level " << depth << " child " << i << " data_vec_size "
-//               << local_data_row_count[i]
-//               << "total data count " << global_data_row_count[i] << endl;
-//        }
+
 #pragma omp parallel for
       for (int j = 0; j < data_vector.size (); j++)
         {
@@ -336,11 +331,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
         }
       }
 
-//      auto end_loop_compute_index = high_resolution_clock::now ();
-//
-//      auto loop_compute_time_index = duration_cast<microseconds> (end_loop_compute_index - start_loop_compute_index);
-//      total_time_loop_compute += loop_compute_time_index.count () / 1000;
-
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == this->tree_depth - 2) {
@@ -356,51 +346,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 
   this->derive_global_datavector_sizes(child_data_tracker,global_size_vector,current_nodes,next_split);
 
-//// Displacements in the receive buffer for MPI_GATHERV
-//  int *disps = new int[this->world_size];
-//
-//// Displacement for the first chunk of data - 0
-//  for (int i = 0; i < this->world_size; i++)
-//    {
-//      disps[i] = (i > 0) ? (disps[i - 1] + 2 * current_nodes) : 0;
-//    }
-//
-//  int *total_counts = new int[2 * this->world_size * current_nodes]();
-//
-//  int *process_counts = new int[this->world_size]();
-//
-//  for (int k = 0; k < this->world_size; k++)
-//    {
-//      process_counts[k] = 2 * current_nodes;
-//    }
-//  for (int j = 0; j < current_nodes; j++)
-//    {
-//      int id = (next_split + 2 * j);
-//      total_counts[2 * j + this->rank * current_nodes * 2] = child_data_tracker[id].size ();
-//      total_counts[2 * j + 1 + this->rank * current_nodes * 2] = child_data_tracker[id + 1].size ();
-//    }
-//
-//  MPI_Allgatherv (MPI_IN_PLACE, 0, MPI_INT, total_counts, process_counts, disps, MPI_INT, MPI_COMM_WORLD);
-//
-//  for (int j = 0; j < current_nodes; j++)
-//    {
-//      int left_totol = 0;
-//      int right_total = 0;
-//      int id = (next_split + 2 * j);
-//      for (int k = 0; k < this->world_size; k++)
-//        {
-//
-//          left_totol = left_totol + total_counts[2 * j + k * current_nodes * 2];
-//          right_total = right_total + total_counts[2 * j + 1 + k * current_nodes * 2];
-//        }
-//
-//      global_size_vector[id] = left_totol;
-//      global_size_vector[id + 1] = right_total;
-//    }
-//
-//  free (process_counts);
-//  free (total_counts);
-//  free (disps);
   free (result);
 
 }
@@ -505,7 +450,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
 
-      cout<<" rank "<<rank <<"tree"<< tree<<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
+
       if (i > 0 && i % leafs_per_node == 0)
         {
           current_process++;
@@ -621,8 +566,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
 void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 {
 
-//  auto start_tree_leaf_corr_high = high_resolution_clock::now ();
-
   vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
       vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
 
@@ -701,16 +644,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-//  auto stop_tree_leaf_corr_high = high_resolution_clock::now ();
-//
-//  auto tree_leaf_corr_time_high = duration_cast<microseconds> (stop_tree_leaf_corr_high - start_tree_leaf_corr_high);
-
-  cout << " rank " << rank << " mpi gathering started" << endl;
   MPI_Allgatherv (my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
-  cout << " rank " << rank << " mpi gathering stopped" << endl;
-
-  auto start_tree_leaf_corr_low = high_resolution_clock::now ();
 
   for (int j = 0; j < this->ntrees; j++)
     {
@@ -750,13 +685,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
-
-  cout << " rank " << rank << " major concerned  ok " <<
-       endl;
-//  auto stop_tree_leaf_corr_low = high_resolution_clock::now ();
-//
-//  auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
-
 #pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
     {
@@ -769,10 +697,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-  cout << " rank " << rank << " select next candidate ok " << endl;
-
-  auto stop_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
-
   for (int i = 0; i < this->ntrees; i++)
     {
 #pragma  omp parallel for
@@ -784,31 +708,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
         }
     }
-
-//  auto tree_leaf_corr_time_low = duration_cast<microseconds> (stop_tree_leaf_corr_low - start_tree_leaf_corr_low);
-//
-//  auto tree_leaf_corr_time_low_can = duration_cast<microseconds> (
-//      stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
-//
-//  double *execution_times = new double[3] ();
-//
-//  double *execution_times_global = new double[3] ();
-//
-//  execution_times[0] = tree_leaf_corr_time_high.
-//      count ()
-//                       / 1000;
-//  execution_times[1] = tree_leaf_corr_time_low.
-//      count ()
-//                       / 1000;
-//  execution_times[2] = tree_leaf_corr_time_low_can.
-//      count ()
-//                       / 1000;
-
-//    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-//
-//    fout << rank << " low time " << execution_times_global[1] / this->world_size << " high time  "
-//         << (execution_times_global[0] / this->world_size) << " selec can"
-//         << (execution_times_global[2] / this->world_size) << endl;
 
   delete[]
       my_sending_leafs;

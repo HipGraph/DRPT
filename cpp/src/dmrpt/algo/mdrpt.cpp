@@ -421,7 +421,7 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 					local_tree_depth,
 					leaf_nodes_of_trees[i][j].size(), 1.0);
 
-			DRPT drpt_local = dmrpt::DRPT(LP, C,
+			DRPTLocal drpt_local = dmrpt::DRPTLocal(LP, C,
 					leaf_nodes_of_trees[i][j].size(), local_tree_depth, local_data,
 					1, this->starting_data_index,
 					this->rank,

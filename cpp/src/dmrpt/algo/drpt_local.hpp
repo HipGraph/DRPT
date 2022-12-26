@@ -18,7 +18,7 @@ struct DataPoint {
   vector<VALUE_TYPE> image_data;
 };
 
-class DRPT {
+class DRPTLocal {
 
  private:
   int tree_depth;
@@ -49,9 +49,9 @@ class DRPT {
   vector <vector<VALUE_TYPE>> original_data;
 
  public:
-  DRPT();
+  DRPTLocal();
 
-  DRPT(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
+  DRPTLocal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
 	   vector <vector<VALUE_TYPE>> original_data, int ntrees,
 	   int starting_index, int rank, int world_size);
 

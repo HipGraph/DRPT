@@ -100,7 +100,8 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	for (int i = 0; i < ntrees; i++)
 	{
 		cout << " rank " << rank << " running  datapoint collection  for tree " << i << endl;
-		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization, this->index_distribution);
+		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
+				this->index_distribution,this->datamap);
 		cout << " rank " << rank << " similar datapoint collection completed for tree " << i << endl;
 	}
 
@@ -166,8 +167,11 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				for (int j = 0; j < data_points.size(); j++)
 				{
 					// calculating the distance
-					VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
-							data_points[j].image_data);
+//					VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
+//							data_points[j].image_data);
+
+					VALUE_TYPE distance = mathOp.calculate_distance(this->datamap[data_points[k].index],
+							this->datamap[data_points[j].index]);
 					DataPoint dataPoint;
 					dataPoint.src_index = data_points[k].index;
 					dataPoint.index = data_points[j].index;
@@ -408,7 +412,8 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 
 			for (int k = 0;k < leaf_nodes_of_trees[i][j].size();k++)
 			{
-				local_data[k] = leaf_nodes_of_trees[i][j][k].image_data;
+//				local_data[k] = leaf_nodes_of_trees[i][j][k].image_data;
+                local_data[k] = this->datamap[leaf_nodes_of_trees[i][j][k].index];
 			}
 			VALUE_TYPE* local_data_arr = mathOp.convert_to_row_major_format(local_data);
 

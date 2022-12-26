@@ -38,6 +38,7 @@ namespace dmrpt
 		int leafs_per_node;
 		int my_leaf_start_index;
 		int my_leaf_end_index;
+		std::map<int, vector<VALUE_TYPE>> datamap;
 
 	 private:
 

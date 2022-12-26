@@ -27,7 +27,8 @@ dmrpt::DRPTGlobal::DRPTGlobal ()
 
 }
 
-dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
+dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, map<int,
+		                       int no_of_data_points,
                                int dimension,
                                int tree_depth, int ntrees, int starting_index, int global_dataset_size,
                                int rank, int world_size)
@@ -191,7 +192,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
               DataPoint dataPoint;
               dataPoint.value = this->projected_matrix[index];
               dataPoint.index = j + this->starting_data_index;
-              dataPoint.image_data = this->data_points[j];
+//              dataPoint.image_data = this->data_points[j];
               this->trees_data[k][i][j] = dataPoint;
             }
         }
@@ -405,7 +406,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 }
 
 vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points (int tree,
-		bool use_data_locality_optimization, vector <set<int>> &index_distribution)
+		bool use_data_locality_optimization, vector <set<int>> &index_distribution, std::map<int, vector<VALUE_TYPE>> &datamap)
 {
 
   dmrpt::MathOp mathOp;
@@ -517,7 +518,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
 #pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
             {
-              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];
+//              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];
+			  send_values[co * this->data_dimension + k] = this->data_points[send_indices[co]][k];
             }
           co++;
         }
@@ -578,13 +580,16 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
 
 //              }
 
-              dataPoint.image_data = vector<VALUE_TYPE> (this->data_dimension);
+              vector<VALUE_TYPE> image_values = vector<VALUE_TYPE> (this->data_dimension);
 
+#pragma omp parallel for
               for (int m = value_read_count; m < (value_read_count + this->data_dimension); m++)
                 {
                   int r = m - value_read_count;
-                  dataPoint.image_data[r] = receive_values[m];
+                  image_values[r] = receive_values[m];
                 }
+
+		      datamap.insert(pair < int, vector <VALUE_TYPE>> (dataPoint.index, image_values))
 
               datavec[testcr] = dataPoint;
               value_read_count += this->data_dimension;

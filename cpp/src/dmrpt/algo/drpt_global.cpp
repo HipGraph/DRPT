@@ -201,8 +201,8 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 
   cout << " rank " << rank << " completed intital tree growing" << endl;
 
-  auto stop_initialization_time_index = high_resolution_clock::now ();
-  auto time_index = duration_cast<microseconds> (stop_initialization_time_index - initialization_time_index);
+//  auto stop_initialization_time_index = high_resolution_clock::now ();
+//  auto time_index = duration_cast<microseconds> (stop_initialization_time_index - initialization_time_index);
 
   for (int k = 0; k < this->ntrees; k++)
     {

@@ -1,7 +1,7 @@
 #include "mdrpt.hpp"
 #include <cblas.h>
 #include <stdio.h>
-#include "drpt.hpp"
+#include "drpt_local.hpp"
 #include "../math/matrix_multiply.hpp"
 #include <vector>
 #include <random>

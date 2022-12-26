@@ -3,7 +3,7 @@
 
 #include "../math/matrix_multiply.hpp"
 #include "../utils/drpt_timer.h"
-#include "drpt.hpp"
+#include "drpt_local.hpp"
 #include "drpt_global.hpp"
 #include <cblas.h>
 #include <map>

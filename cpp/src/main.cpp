@@ -1,6 +1,6 @@
 #include "dmrpt/io/image_reader.hpp"
 #include "dmrpt/math/matrix_multiply.hpp"
-#include "dmrpt/algo/drpt.hpp"
+#include "dmrpt/algo/drpt_local.hpp"
 #include "dmrpt/algo/mdrpt.hpp"
 #include <vector>
 #include <mpi.h>

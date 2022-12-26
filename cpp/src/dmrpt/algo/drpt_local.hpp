@@ -3,7 +3,7 @@
 
 #include <cblas.h>
 #include <vector>
-#include "drpt.hpp"
+#include "drpt_local.hpp"
 #include "../math/matrix_multiply.hpp"
 #include <mpi.h>
 #include <string>

@@ -6,7 +6,7 @@ add_library(
         #        io/file_reader.cpp
         io/image_reader.cpp
         math/matrix_multiply.cpp
-        algo/drpt.cpp
+        algo/drpt_local.cpp
         algo/mdrpt.cpp
         algo/drpt_global.cpp
         utils/drpt_timer.cpp

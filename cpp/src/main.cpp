@@ -1,5 +1,5 @@
 #include "dmrpt/io/file_reader.hpp"
-#include "dmrpt/math/matrix_multiply.hpp"
+#include "dmrpt/math/math_operations.hpp"
 #include "dmrpt/algo/drpt_local.hpp"
 #include "dmrpt/algo/mdrpt.hpp"
 #include <vector>

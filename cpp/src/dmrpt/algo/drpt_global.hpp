@@ -1,7 +1,7 @@
 #ifndef DISTRIBUTED_MRPT_DRPT_GLOBAL_H
 #define DISTRIBUTED_MRPT_DRPT_GLOBAL_H
 
-#include "../math/matrix_multiply.hpp"
+#include "../math/math_operations.hpp"
 #include "drpt_local.hpp"
 #include <cblas.h>
 #include <map>

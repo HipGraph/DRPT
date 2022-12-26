@@ -1,7 +1,7 @@
 
 #ifndef DISTRIBUTED_MRPT_IMAGE_READER_H
 #define DISTRIBUTED_MRPT_IMAGE_READER_H
-#include "../math/matrix_multiply.hpp"
+#include "../math/math_operations.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>

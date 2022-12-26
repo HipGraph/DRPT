@@ -4,7 +4,7 @@
 #include <cblas.h>
 #include <vector>
 #include "drpt_local.hpp"
-#include "../math/matrix_multiply.hpp"
+#include "../math/math_operations.hpp"
 #include <mpi.h>
 #include <string>
 #include <omp.h>

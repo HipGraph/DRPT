@@ -2,7 +2,7 @@
 #include <cblas.h>
 #include <stdio.h>
 #include "drpt_local.hpp"
-#include "../math/matrix_multiply.hpp"
+#include "../math/math_operations.hpp"
 #include <vector>
 #include <random>
 #include <mpi.h>

@@ -1,6 +1,6 @@
 #include <cblas.h>
 #include <stdio.h>
-#include "matrix_multiply.hpp"
+#include "math_operations.hpp"
 #include <vector>
 #include <random>
 #include <mpi.h>

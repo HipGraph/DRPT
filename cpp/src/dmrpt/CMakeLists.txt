@@ -5,7 +5,7 @@ add_library(
         dmrpt SHARED
         #        io/file_reader.cpp
         io/file_reader.cpp
-        math/matrix_multiply.cpp
+        math/math_operations.cpp
         algo/drpt_local.cpp
         algo/mdrpt.cpp
         algo/drpt_global.cpp

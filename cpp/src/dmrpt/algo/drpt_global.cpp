@@ -505,7 +505,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
 
-//      cout<<" rank "<<rank <<"tree"<< tree<<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
+      cout<<" rank "<<rank <<"tree"<< tree<<" leaf "<<i<< " dataset size"<<all_points.size()<<endl;
       if (i > 0 && i % leafs_per_node == 0)
         {
           current_process++;
@@ -515,7 +515,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
         {
           send_indices[co] = all_points[j].index;
 
-#pragma omp parallel for
+//#pragma omp parallel for
           for (int k = 0; k < this->data_dimension; k++)
             {
 //              send_values[co * this->data_dimension + k] = all_points[j].image_data[k];

@@ -695,9 +695,9 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-  auto stop_tree_leaf_corr_high = high_resolution_clock::now ();
-
-  auto tree_leaf_corr_time_high = duration_cast<microseconds> (stop_tree_leaf_corr_high - start_tree_leaf_corr_high);
+//  auto stop_tree_leaf_corr_high = high_resolution_clock::now ();
+//
+//  auto tree_leaf_corr_time_high = duration_cast<microseconds> (stop_tree_leaf_corr_high - start_tree_leaf_corr_high);
 
   cout << " rank " << rank << " mpi gathering started" << endl;
   MPI_Allgatherv (my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,

@@ -354,7 +354,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
       return;
     }
 
-  this->derive_global_datavector_sizes(child_data_tracker,global_size_vector,current_nodes);
+  this->derive_global_datavector_sizes(child_data_tracker,global_size_vector,current_nodes,next_split);
 
 //// Displacements in the receive buffer for MPI_GATHERV
 //  int *disps = new int[this->world_size];
@@ -401,7 +401,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 //  free (process_counts);
 //  free (total_counts);
 //  free (disps);
-//  free (result);
+  free (result);
 
 }
 
@@ -850,7 +850,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
 
 void dmrpt::DRPTGlobal::derive_global_datavector_sizes(vector<vector<DataPoint>>& child_data_tracker,
 		vector<int> &global_size_vector,
-		int current_nodes) {
+		int current_nodes, int next_split) {
 
 // Displacements in the receive buffer for MPI_GATHERV
 	int *disps = new int[this->world_size];
@@ -897,8 +897,6 @@ void dmrpt::DRPTGlobal::derive_global_datavector_sizes(vector<vector<DataPoint>>
 	free (process_counts);
 	free (total_counts);
 	free (disps);
-	free (result);
-
 }
 
 

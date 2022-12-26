@@ -589,7 +589,7 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
                   image_values[r] = receive_values[m];
                 }
 
-		      datamap.insert(pair < int, vector <VALUE_TYPE>> (dataPoint.index, image_values))
+		      datamap.insert(pair < int, vector <VALUE_TYPE>> (dataPoint.index, image_values));
 
               datavec[testcr] = dataPoint;
               value_read_count += this->data_dimension;

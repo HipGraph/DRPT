@@ -417,8 +417,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
   int end_count = 0;
   int sending_rank = -1;
 
-  int *send_counts = new int[total_leaf_size];
-  int *recv_counts = new int[total_leaf_size];
+  int *send_counts = new int[total_leaf_size]();
+  int *recv_counts = new int[total_leaf_size]();
 
 
   int sum_per_node = 0;
@@ -612,15 +612,10 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
 
 }
 
-void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
+void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 {
 
-//    char results[500];
-//    string file_path_stat = output_path + "stats_divided_sub_tree_debug.txt";
-//    std::strcpy(results, file_path_stat.c_str());
-//    ofstream fout(results, std::ios_base::app);
-
-  auto start_tree_leaf_corr_high = high_resolution_clock::now ();
+//  auto start_tree_leaf_corr_high = high_resolution_clock::now ();
 
   vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
       vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
@@ -750,36 +745,11 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
     }
 
 
-//  for (int j = 0; j < this->ntrees; j++) {
-//     #pragma omp parallel for
-//      for (int k = 0; k < total_leaf_size; k++) {
-//          final_tree_leaf_mapping[k] = vector<int>(this->ntrees, -1);
-//          for (int m = 0; m < this->ntrees; m++) {
-//              candidate_mapping[j][k][m] = vector<PriorityMap>(total_leaf_size);
-//
-//                for (int n = 0; n < total_leaf_size; n++) {
-//                    PriorityMap priorityMap;
-//                    priorityMap.priority = 0;
-//                    priorityMap.leaf_index = n;
-//                    candidate_mapping[j][k][m][n]=priorityMap;
-//                }
-//
-//              vector<int> vec;
-//              for (int p = 0; p < this->world_size; p++) {
-//                  int id = p * total_sending + j * total_leaf_size * this->ntrees + k * this->ntrees + m;
-//                  int value = total_receiving_leafs[id];
-//                  vec.push_back(value);
-//                }
-//              sortByFreq(vec, candidate_mapping[j][k][m], this->world_size);
-//            }
-//        }
-//    }
-
   cout << " rank " << rank << " major concerned  ok " <<
        endl;
-  auto stop_tree_leaf_corr_low = high_resolution_clock::now ();
-
-  auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
+//  auto stop_tree_leaf_corr_low = high_resolution_clock::now ();
+//
+//  auto start_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
 #pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
@@ -793,8 +763,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
         }
     }
 
-  cout << " rank " << rank << " select next candidate ok " <<
-       endl;
+  cout << " rank " << rank << " select next candidate ok " << endl;
 
   auto stop_tree_leaf_corr_low_select_can = high_resolution_clock::now ();
 
@@ -804,28 +773,30 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation (string outpath)
       for (int k = 0; k < total_leaf_size; k++)
         {
           int leaf_index = final_tree_leaf_mapping[k][i];
+
+		  //clustered data is stored in the rearranged tree leaves.
           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
         }
     }
 
-  auto tree_leaf_corr_time_low = duration_cast<microseconds> (stop_tree_leaf_corr_low - start_tree_leaf_corr_low);
-
-  auto tree_leaf_corr_time_low_can = duration_cast<microseconds> (
-      stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
-
-  double *execution_times = new double[3] ();
-
-  double *execution_times_global = new double[3] ();
-
-  execution_times[0] = tree_leaf_corr_time_high.
-      count ()
-                       / 1000;
-  execution_times[1] = tree_leaf_corr_time_low.
-      count ()
-                       / 1000;
-  execution_times[2] = tree_leaf_corr_time_low_can.
-      count ()
-                       / 1000;
+//  auto tree_leaf_corr_time_low = duration_cast<microseconds> (stop_tree_leaf_corr_low - start_tree_leaf_corr_low);
+//
+//  auto tree_leaf_corr_time_low_can = duration_cast<microseconds> (
+//      stop_tree_leaf_corr_low_select_can - start_tree_leaf_corr_low_select_can);
+//
+//  double *execution_times = new double[3] ();
+//
+//  double *execution_times_global = new double[3] ();
+//
+//  execution_times[0] = tree_leaf_corr_time_high.
+//      count ()
+//                       / 1000;
+//  execution_times[1] = tree_leaf_corr_time_low.
+//      count ()
+//                       / 1000;
+//  execution_times[2] = tree_leaf_corr_time_low_can.
+//      count ()
+//                       / 1000;
 
 //    MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 //

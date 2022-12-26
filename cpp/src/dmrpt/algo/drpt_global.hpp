@@ -61,7 +61,7 @@ public:
   void grow_global_subtree(vector<vector<DataPoint>> &child_data_tracker,
                            vector<int> &total_size_vector, int depth, int tree);
 
-  void calculate_tree_leaf_correlation(string outpath);
+  void calculate_tree_leaf_correlation();
 
   void derive_global_datavector_sizes(vector<vector<DataPoint>> &child_data_tracker,vector<int> &global_size_vector,
 		  int current_nodes, int next_split);

@@ -1,4 +1,4 @@
-#include "dmrpt/io/image_reader.hpp"
+#include "dmrpt/io/file_reader.hpp"
 #include "dmrpt/math/matrix_multiply.hpp"
 #include "dmrpt/algo/drpt_local.hpp"
 #include "dmrpt/algo/mdrpt.hpp"

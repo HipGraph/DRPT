@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(
         dmrpt SHARED
         #        io/file_reader.cpp
-        io/image_reader.cpp
+        io/file_reader.cpp
         math/matrix_multiply.cpp
         algo/drpt_local.cpp
         algo/mdrpt.cpp

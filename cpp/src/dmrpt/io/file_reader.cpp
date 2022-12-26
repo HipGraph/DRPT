@@ -1,4 +1,4 @@
-#include "image_reader.hpp"
+#include "file_reader.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -80,8 +80,7 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 			this->ntrees, starting_index,
 			this->global_data_set_size,
 			this->rank,
-			this->world_size,
-			this->output_path);
+			this->world_size);
 
 	cout << " rank " << rank << " starting growing trees" << endl;
 	// start growing global tree

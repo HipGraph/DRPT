@@ -29,14 +29,14 @@ dmrpt::DRPTGlobal::DRPTGlobal ()
 
 dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points,
                                int dimension,
-                               int tree_depth, int ntrees, int starting_index, int total_data_set_size,
-                               int rank, int world_size, string output_path)
+                               int tree_depth, int ntrees, int starting_index, int global_dataset_size,
+                               int rank, int world_size)
 {
   this->tree_depth = tree_depth;
-  this->intial_no_of_data_points = no_of_data_points;
+  this->local_dataset_size = no_of_data_points;
   this->projected_matrix = projected_matrix;
   this->projection_matrix = projection_matrix;
-  this->total_data_set_size = total_data_set_size;
+  this->global_dataset_size = global_dataset_size;
   this->data_dimension = dimension;
 
   this->ntrees = ntrees;
@@ -51,8 +51,6 @@ dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *project
   this->rank = rank;
   this->world_size = world_size;
 
-//    this->data_points = original_data;
-  this->output_path = output_path;
 }
 
 template<typename T> vector <T> slice (vector < T > const &v, int m, int n) {
@@ -148,14 +146,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
 void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_points)
 {
 
-
-    char results[500];
-    string file_path_stat = output_path + "projected.txt";
-    std::strcpy(results, file_path_stat.c_str());
-    ofstream fout(results, std::ios_base::app);
-
-
-  if (this->tree_depth <= 0 || this->tree_depth > log2 (this->intial_no_of_data_points))
+  if (this->tree_depth <= 0 || this->tree_depth > log2 (this->local_dataset_size))
     {
       throw std::out_of_range (" depth should be in range [1,....,log2(rows)]");
     }
@@ -169,9 +160,9 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
   int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
   cout << " rank " << rank << " start intital tree growing" << endl;
-  auto initialization_time_index = high_resolution_clock::now ();
+//  auto initialization_time_index = high_resolution_clock::now ();
 
-  this->index_to_tree_leaf_mapper = vector < vector < int >> (this->intial_no_of_data_points);
+  this->index_to_tree_leaf_mapper = vector < vector < int >> (this->local_dataset_size);
 
   for (int k = 0; k < this->ntrees; k++)
     {
@@ -184,14 +175,14 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 #pragma  omp parallel for
       for (int i = 0; i < this->tree_depth; i++)
         {
-          this->trees_data[k][i] = vector<DataPoint> (this->intial_no_of_data_points);
+          this->trees_data[k][i] = vector<DataPoint> (this->local_dataset_size);
         }
 
     }
 
 // storing projected data
 #pragma  omp parallel for
-  for (int j = 0; j < this->intial_no_of_data_points; j++)
+  for (int j = 0; j < this->local_dataset_size; j++)
     {
       this->index_to_tree_leaf_mapper[j] = vector<int> (this->ntrees);
       for (int k = 0; k < this->ntrees; k++)
@@ -219,7 +210,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
       vector <vector<DataPoint>> child_data_tracker (total_split_size);
       vector<int> total_size_vector (total_split_size);
       child_data_tracker[0] = this->trees_data[k][0];
-      total_size_vector[0] = this->total_data_set_size;
+      total_size_vector[0] = this->global_dataset_size;
       cout<<" total size vector"<<total_size_vector[0]<<endl;
       double *execution_times = new double[this->tree_depth + 1];
       double *exeuction_times_global = new double[this->tree_depth + 1];
@@ -231,9 +222,9 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
           this->grow_global_subtree (child_data_tracker, total_size_vector, i, k);
           auto stop_level_time_index = high_resolution_clock::now ();
           auto time_level_index = duration_cast<microseconds> (stop_level_time_index - start_level_time_index);
-          execution_times[i] = time_level_index.count () / 1000;
+//          execution_times[i] = time_level_index.count () / 1000;
         }
-      execution_times[this->tree_depth] = time_index.count () / 1000;
+//      execution_times[this->tree_depth] = time_index.count () / 1000;
 
       int count = this->tree_depth + 1;
 //        MPI_Allreduce(execution_times, exeuction_times_global, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -253,14 +244,10 @@ void
 dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_tracker, vector<int> &total_size_vector,
                                         int depth, int tree)
 {
-
 //    char results[500];
 //    string file_path_stat = output_path + "stats_divided_sub_tree_debug.txt";
 //    std::strcpy(results, file_path_stat.c_str());
 //    ofstream fout(results, std::ios_base::app);
-
-
-
 
   int current_nodes = (1 << (depth));
   int number_of_childs = (1 << (depth + 1));
@@ -276,9 +263,8 @@ dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_t
   double total_time_loop_compute = 0;
   MathOp mathOp;
 
-
-//    VALUE_TYPE *data = new VALUE_TYPE[this->intial_no_of_data_points];
-  vector<VALUE_TYPE> data (this->intial_no_of_data_points);
+//    VALUE_TYPE *data = new VALUE_TYPE[this->local_dataset_size];
+  vector<VALUE_TYPE> data (this->local_dataset_size);
   int total_data_count_prev = 0;
   vector<int> local_data_row_count (current_nodes);
   vector<int> total_data_row_count (current_nodes);

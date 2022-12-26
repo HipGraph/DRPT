@@ -25,12 +25,12 @@ private:
   int tree_depth;
   VALUE_TYPE *projected_matrix;
   VALUE_TYPE *projection_matrix;
-  int intial_no_of_data_points;
+  int local_dataset_size;
   int ntrees;
   int starting_data_index;
   int rank;
   int world_size;
-  int total_data_set_size;
+  int global_dataset_size;
   int data_dimension;
 
   // multiple trees
@@ -53,8 +53,8 @@ public:
 
   DRPTGlobal(VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
              int no_of_data_points, int dimension, int tree_depth, int ntrees,
-             int starting_index, int total_data_set_size, int rank,
-             int world_size, string output_path);
+             int starting_index, int global_dataset_size, int rank,
+             int world_size);
 
   void grow_global_tree(vector<vector<VALUE_TYPE>> &data_points);
 

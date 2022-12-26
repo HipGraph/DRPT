@@ -63,6 +63,9 @@ public:
 
   void calculate_tree_leaf_correlation(string outpath);
 
+  void derive_global_datavector_sizes(vector<vector<DataPoint>> &child_data_tracker,vector<int> &global_size_vector,
+		  int current_nodes);
+
   vector<vector<DataPoint>>
   collect_similar_data_points(int tree, bool use_data_locality_optimization,
                               vector<set<int>> &index_distribution);

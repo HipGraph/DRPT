@@ -111,32 +111,6 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	//grow local trees for each leaf
 	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
-//	auto end_collect_local = high_resolution_clock::now();
-//	auto collect_time_local = duration_cast<microseconds>(end_collect_local - start_collect_local);
-//
-//	double* execution_times = new double[6]();
-//
-//	double* execution_times_global = new double[6]();
-//	execution_times[0] = matrix_time.count() / 1000;
-//	execution_times[1] = index_time.count() / 1000;
-//	execution_times[2] = tree_leaf_corr_time.count() / 1000;
-//	execution_times[3] = collect_time.count() / 1000;
-//	execution_times[4] = collect_time_local.count() / 1000;
-//	execution_times[4] = collect_time_local.count() / 1000;
-//	execution_times[5] = conversion_time.count() / 1000;
-//
-//	MPI_Allreduce(execution_times, execution_times_global, 6, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-//
-//	fout << rank << " conversion time " << execution_times_global[5] / this->world_size << " matrix  "
-//		 << (execution_times_global[0] / this->world_size) << " global tree construction "
-//		 << (execution_times_global[1] / this->world_size) << " data correlation "
-//		 << (execution_times_global[2] / this->world_size) << " data gathering  "
-//		 << (execution_times_global[3] / this->world_size) << " local tree growing "
-//		 << (execution_times_global[4] / this->world_size) << endl;
-
-//	delete[] execution_times;
-//	delete[] execution_times_global;
-//    delete[] receive;
 }
 
 void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, set<int>& keys, int tree, int nn)
@@ -316,27 +290,8 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << " distance calculation completed " << endl;
 
-//	auto stop_distance = high_resolution_clock::now();
-//	auto distance_time = duration_cast<microseconds>(stop_distance - start_distance);
-
-//	auto start_query = high_resolution_clock::now();
-
-    // communicate nearest neighbours and collect nearest neighbours
 	std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
 
-//	auto stop_query = high_resolution_clock::now();
-//	auto query_time = duration_cast<microseconds>(stop_query - start_query);
-//
-//	double* execution_times = new double[2];
-
-//	double* execution_times_global = new double[2];
-//	execution_times[0] = distance_time.count() / 1000;
-//	execution_times[1] = query_time.count() / 1000;
-//
-//	MPI_Allreduce(execution_times, execution_times_global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-//
-//	fout << " distance calculation " << (execution_times_global[0] / this->world_size) << " communication time "
-//		 << (execution_times_global[1] / this->world_size) << endl;
 
 	return final_map;
 }

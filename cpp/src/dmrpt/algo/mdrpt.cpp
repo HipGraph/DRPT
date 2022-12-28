@@ -146,9 +146,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 //					VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
 //							data_points[j].image_data);
 
-					if (this->datamap.find(data_points[k].index) != this->datamap.end() and
-							this->datamap.find(data_points[j].index) != this->datamap.end()){
-
 					VALUE_TYPE distance = mathOp.calculate_distance(this->datamap[data_points[k].index],
 							this->datamap[data_points[j].index]);
 					DataPoint dataPoint;
@@ -156,12 +153,11 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					dataPoint.index = data_points[j].index;
 					dataPoint.distance = distance;
 					vec[k][j] = dataPoint;
-				 } else {
-					cout<<" ########error in rank "<<rank<<"for tree"<<tree<<"index"
-					<< data_points[k].index<< " and "<<data_points[j].index<<endl;
-					}
+				 }
 			}
 			}
+
+		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" distance completed "<<endl;
 
 #pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
@@ -220,6 +216,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					}
 				}
 			}
+		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" rest completed "<<endl;
 		}
 	}
 }

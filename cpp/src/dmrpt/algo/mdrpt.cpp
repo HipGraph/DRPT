@@ -121,11 +121,8 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 	// only process belonging indices
 	for (int i = this->my_leaf_start_index; i < this->my_leaf_end_index; i++)
 	{
-
-		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<endl;
 		if (!this->trees_leaf_all[tree][i].empty())
 		{
-			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" accessed "<<endl;
 			vector<DataPoint> data_points = this->trees_leaf_all[tree][i];
 
 			// vector to store source datapoint  and it's nns (kind of linked list data structure)
@@ -151,7 +148,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					vec[k][j] = dataPoint;
 			}
 			}
-			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" distance completed "<<endl;
+
 
 //#pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
@@ -207,9 +204,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					}
 //				}
 			}
-			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" rest completed "<<endl;
 		}
-		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" all completed "<<endl;
 	}
 }
 

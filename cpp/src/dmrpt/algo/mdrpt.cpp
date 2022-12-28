@@ -290,6 +290,10 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << " distance calculation completed " << endl;
 
+	MPI_Barrier (MPI_COMM_WORLD);
+
+	cout << " rank " << rank << " all processes distance calculation completed " << endl;
+
 	std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
 
 

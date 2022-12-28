@@ -216,6 +216,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 			}
 			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" rest completed "<<endl;
 		}
+		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" all completed "<<endl;
 	}
 }
 

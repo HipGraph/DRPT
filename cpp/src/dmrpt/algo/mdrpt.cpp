@@ -137,7 +137,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				vec[k] = vector<DataPoint>(data_points.size());
 			}
 
-#pragma omp parallel for
+//#pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
 			{
 				for (int j = 0; j < data_points.size(); j++)

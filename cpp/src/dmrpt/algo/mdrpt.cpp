@@ -296,6 +296,7 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 		// calculate nearest neighbours
 		cout << " rank " << rank << " starting distance calculation for tree "<<i << endl;
 		this->calculate_nns(local_nn_map, keys, i, 2 * nn);
+		cout << " rank " << rank << " completed distance calculation for tree "<<i << endl;
 	}
 
 	cout << " rank " << rank << " distance calculation completed " << endl;

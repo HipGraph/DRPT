@@ -153,11 +153,8 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					dataPoint.index = data_points[j].index;
 					dataPoint.distance = distance;
 					vec[k][j] = dataPoint;
-				 }
 			}
 			}
-
-		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" distance completed "<<endl;
 
 #pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
@@ -216,7 +213,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					}
 				}
 			}
-		cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" rest completed "<<endl;
 		}
 	}
 }

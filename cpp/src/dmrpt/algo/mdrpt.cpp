@@ -157,7 +157,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 			}
 			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" distance completed "<<endl;
 
-##pragma omp parallel for
+//#pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
 			{
 				// sort all nearest neighbours

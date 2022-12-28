@@ -142,10 +142,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 			{
 				for (int j = 0; j < data_points.size(); j++)
 				{
-					// calculating the distance
-//					VALUE_TYPE distance = mathOp.calculate_distance(data_points[k].image_data,
-//							data_points[j].image_data);
-
 					VALUE_TYPE distance = mathOp.calculate_distance(this->datamap[data_points[k].index],
 							this->datamap[data_points[j].index]);
 					DataPoint dataPoint;
@@ -157,7 +153,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 			}
 			cout<<"rank "<<rank<<"accessing tree "<<tree<<" leaf "<<i<<" distance completed "<<endl;
 
-//#pragma omp parallel for
+#pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
 			{
 				// sort all nearest neighbours
@@ -179,7 +175,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				}
 
 				int idx = sub_vec[0].src_index;
-
 				if (local_nns.find(idx) != local_nns.end())
 				{
 					std::vector<DataPoint> dst;
@@ -201,6 +196,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 					(it->second) = dst;
 
 				}
+
 				else
 				{
 #pragma omp critical

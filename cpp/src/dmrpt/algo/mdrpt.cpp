@@ -175,6 +175,8 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				}
 
 				int idx = sub_vec[0].src_index;
+#pragma omp critical
+				{
 				if (local_nns.find(idx) != local_nns.end())
 				{
 					std::vector<DataPoint> dst;
@@ -199,8 +201,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 
 				else
 				{
-#pragma omp critical
-					{
+
 						if (local_nns.find(idx) == local_nns.end())
 						{
 							//final linked list of source indices and their nearest neighbours

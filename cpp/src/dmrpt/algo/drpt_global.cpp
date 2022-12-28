@@ -22,8 +22,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::DRPTGlobal::DRPTGlobal ()
-{
+dmrpt::DRPTGlobal::DRPTGlobal () {
 
 }
 

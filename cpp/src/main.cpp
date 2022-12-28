@@ -168,7 +168,7 @@ int main (int argc, char *argv[])
 
     vector <vector<VALUE_TYPE>> imagedatas = imageReader.mpi_file_read(
             input_path, rank, size,
-            400000, data_set_size,' ',dimension);
+            400000, data_set_size,' ',8,dimension);
 
 //
 

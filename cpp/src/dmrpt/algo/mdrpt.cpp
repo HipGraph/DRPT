@@ -197,11 +197,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 							}), dst.end());
 					(it->second) = dst;
 
-				}
-
-				else
-				{
-
+				} else {
 						if (local_nns.find(idx) == local_nns.end())
 						{
 							//final linked list of source indices and their nearest neighbours

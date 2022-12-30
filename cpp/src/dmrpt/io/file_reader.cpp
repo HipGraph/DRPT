@@ -387,7 +387,8 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   filesize = filesize - offset;
 
-  long file_size_fraction = filesize/total_data_set_size;
+  long  global_nodes =      filesize/data_node_byte;
+  long file_size_fraction = global_nodes/total_data_set_size;
 
   cout<<"file size fractions"<<file_size_fraction<<endl;
 

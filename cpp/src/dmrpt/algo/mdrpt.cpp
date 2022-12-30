@@ -149,8 +149,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 			}
 			}
 
-
-//#pragma omp parallel for
 			for (int k = 0; k < data_points.size(); k++)
 			{
 				// sort all nearest neighbours
@@ -172,8 +170,6 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 				}
 
 				int idx = sub_vec[0].src_index;
-//#pragma omp critical
-//				{
 				if (local_nns.find(idx) != local_nns.end())
 				{
 					std::vector<DataPoint> dst;
@@ -278,16 +274,10 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 	for (int i = 0; i < ntrees; i++)
 	{
 		// calculate nearest neighbours
-		cout << " rank " << rank << " starting distance calculation for tree "<<i << endl;
 		this->calculate_nns(local_nn_map, keys, i, 2 * nn);
-		cout << " rank " << rank << " completed distance calculation for tree "<<i << endl;
 	}
 
 	cout << " rank " << rank << " distance calculation completed " << endl;
-
-	MPI_Barrier (MPI_COMM_WORLD);
-
-	cout << " rank " << rank << " all processes distance calculation completed " << endl;
 
 	std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
 

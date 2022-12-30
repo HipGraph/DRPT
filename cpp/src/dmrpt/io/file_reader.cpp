@@ -11,12 +11,11 @@
 using namespace std;
 
 
-template<typename T> vector <T> slice (vector < T > const &v, int m,int n
-) {
-auto first = v.cbegin () + m;
-auto last = v.cbegin () + n + 1;
-std::vector <T> vec (first, last);
-return vec;
+template<typename T> vector <T> slice (vector < T > const &v, int m,int n) {
+   auto first = v.cbegin () + m;
+   auto last = v.cbegin () + n + 1;
+   std::vector <T> vec (first, last);
+   return vec;
 }
 
 int dmrpt::ImageReader::reverse_int (int i)
@@ -29,8 +28,8 @@ int dmrpt::ImageReader::reverse_int (int i)
   return ((int) ch1 << 24) + ((int) ch2 << 16) + ((int) ch3 << 8) + ch4;
 }
 
-vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::read_MNIST (string path, int no_of_images, int dimension, int rank, int world_size)
+vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_ubyte (string path, int no_of_images,
+		int dimension, int rank, int world_size)
 {
   vector <vector<VALUE_TYPE>> arr;
 
@@ -361,9 +360,10 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 }
 
 vector <vector<float>>
-dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, long total_data_set_size,
-                                   int data_node_byte, int offset, int dimension)
+dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap,
+		long total_data_set_size, int data_type_bytes, int offset, int dimension)
 {
+	int data_node_byte = dimension *data_type_bytes;
   vector <vector<VALUE_TYPE>> final_vec;
   MPI_Offset globalstart, globalend, filesize;
   MPI_File in;
@@ -383,7 +383,10 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
 
   filesize = filesize - offset;
-  filesize = filesize/100;
+
+  int file_size_fraction = filesize/total_data_set_size;
+
+  filesize = filesize/file_size_fraction;
   long total_data_nodes = filesize / data_node_byte;
 
   cout << " rank " << rank << " total data size " << total_data_nodes << endl;
@@ -404,8 +407,6 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   long global_end = (rank + 1) * process_bytes - 1;
 
-  cout << " rank " << rank << " total data size " << total_data_nodes <<" global start"<<global_start<<" global end"<<global_end<<" process data nodes"<<process_data_nodes << endl;
-
   if (rank == world_size - 1)
     global_end = filesize - 1;
 
@@ -421,21 +422,14 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
   long index = 0;
   long current_chunk = chunk_lo;
 
-//  cout << " perpsize " << process_bytes << " global start" << global_start << " index " << index << endl;
-
   while (index < process_bytes)
     {
-
-//        cout << " rank " << rank << " globalstart " << global_start << " index " << index <<
-//             " perp_size " << process_bytes << " global_end " << global_end << endl;
 
       MPI_Offset globalstart_lo = global_start + index;
 
       MPI_File_read_at_all (in, globalstart_lo, &chunk[index], current_chunk, MPI_CHAR, MPI_STATUS_IGNORE);
 
       index = index + current_chunk;
-
-//        cout << "rank " << rank << " next index " << index << endl;
 
       if (index + chunk_lo >= process_bytes)
         current_chunk = process_bytes - index;
@@ -444,14 +438,11 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   chunk[perpsize] = '\0';
 
-//  cout << " rank " << rank << "Mpi read completed " << endl;
   long count = 0;
 
   long total_arr_size = (process_bytes) * sizeof (char);
 
-  cout << " rank " << rank << " total size " << (total_arr_size / (dimension*4)) << endl;
-
-  long co = total_arr_size / (dimension*4);
+  long co = total_arr_size / (dimension*data_type_bytes);
   long co_in = 0;
   vector <vector<VALUE_TYPE>> output (co);
 
@@ -462,17 +453,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
       for (int j = 0; j < dimension; j++)
         {
           int inner_index = 0;
-          char arr_c[4];
-          int start_index = j*4 + i * dimension*4;
-          int end_index = j*4 + i * dimension*4 + 4;
-//          for(int m=0;m<4;m++)
-//            {
-//
-//              char c = chunk[index];
-//
-//              arr_c[m]=c;
-//              inner_index++;
-//            }
+          char arr_c[data_type_bytes];
+          int start_index = j*data_type_bytes + i * dimension*data_type_bytes;
+          int end_index = j*data_type_bytes + i * dimension*data_type_bytes + data_type_bytes;
           float result;
           std::copy(reinterpret_cast<const char*>(&chunk[start_index]),
                     reinterpret_cast<const char*>(&chunk[end_index]),
@@ -487,21 +470,6 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
       output[i] = v;
     }
 
-//
-//    while (co_in < co) {
-//        char c = chunk[count];
-//        if (count > 0 and count % dimension == 0) {
-////            cout<<" rank "<<rank<<" count"<<count<<" total size "<<(total_arr_size/dimension)<<endl;
-//            output.push_back(v);
-//            v.clear();
-//            co_in++;
-//        }
-//        int x =
-//        v.push_back((float) x);
-//        count++;
-//    }
-
-//  cout << " rank " << rank << "Output size:" << output.size () << ":" << output[0].size () << endl;
   return output;
 }
 

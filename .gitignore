@@ -49,3 +49,5 @@ build/
 # Custom
 cmake-build-debug-*/*
 cpp/build/*
+cpp/CMakeFiles/*
+*.DS*

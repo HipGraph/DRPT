@@ -364,6 +364,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 		long total_data_set_size, int data_type_bytes, int offset, int dimension)
 {
 	int data_node_byte = dimension *data_type_bytes;
+
+	cout<<"data node bytes"<<data_node_byte<<endl;
+
   vector <vector<VALUE_TYPE>> final_vec;
   MPI_Offset globalstart, globalend, filesize;
   MPI_File in;
@@ -384,7 +387,9 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 
   filesize = filesize - offset;
 
-  int file_size_fraction = filesize/total_data_set_size;
+  long file_size_fraction = filesize/total_data_set_size;
+
+  cout<<"file size fractions"<<file_size_fraction<<endl;
 
   filesize = filesize/file_size_fraction;
   long total_data_nodes = filesize / data_node_byte;

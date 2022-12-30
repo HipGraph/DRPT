@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 		{
 			bytes_for_data_type = atoi(argv[p + 1]);
 		}
-		else if (strcmp(argv[p], "-data_starting_index") == 0)
+		else if (strcmp(argv[p], "-data-starting-index") == 0)
 		{
 			data_starting_index = atoi(argv[p + 1]);
 		}

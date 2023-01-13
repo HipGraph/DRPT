@@ -1,4 +1,3 @@
-
 #ifndef DISTRIBUTED_MRPT_IMAGE_READER_H
 #define DISTRIBUTED_MRPT_IMAGE_READER_H
 #include "../math/math_operations.hpp"
@@ -11,8 +10,6 @@ using namespace std;
 namespace dmrpt {
 class ImageReader {
  public:
-  //        vector<VALUE_TYPE> readImage(string path);
-  //        vector<vector<VALUE_TYPE>> readImages(vector<string> imagePaths);
   vector <vector<VALUE_TYPE>> read_ubyte(string path, int no_of_images,
 										 int dimension, int rank,
 										 int world_size);

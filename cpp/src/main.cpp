@@ -236,38 +236,38 @@ int main(int argc, char* argv[])
 
 	cout << "Time taken for total query "
 		 << duration_query.count() << " microseconds" << endl;
-
-	FileWriter<int> fileWriter;
-
-	cout << "rank "<<rank<<"file writer initialization completed" << endl;
-	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
-
-//	if (fout.is_open())
-//	{
-//		if (data_points.size() > 0)
-//		{
 //
-//			cout << " rank " << rank << data_points.size() << endl;
+//	FileWriter<int> fileWriter;
 //
-//			for (int k = 0; k < data_points.size(); k++)
-//			{
-//				if (data_points[k].size() > 0)
-//				{
-//					vector<DataPoint> vec = data_points[k];
-//					if (vec.size() > 0)
-//					{
-//						for (int l = 0; l < (vec.size() >= nn ? nn : vec.size()); l++)
-//						{
-//							if (vec[l].src_index != vec[l].index)
-//							{
-//								fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
+//	cout << "rank "<<rank<<"file writer initialization completed" << endl;
+//	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
+
+	if (fout.is_open())
+	{
+		if (data_points.size() > 0)
+		{
+
+			cout << " rank " << rank << data_points.size() << endl;
+
+			for (int k = 0; k < data_points.size(); k++)
+			{
+				if (data_points[k].size() > 0)
+				{
+					vector<DataPoint> vec = data_points[k];
+					if (vec.size() > 0)
+					{
+						for (int l = 0; l < (vec.size() >= nn ? nn : vec.size()); l++)
+						{
+							if (vec[l].src_index != vec[l].index)
+							{
+								fout1 << vec[l].src_index + 1 << ' ' << vec[l].index + 1 << endl;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	double* execution_times = new double[3];
 

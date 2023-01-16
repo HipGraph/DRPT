@@ -237,10 +237,10 @@ int main(int argc, char* argv[])
 	cout << "Time taken for total query "
 		 << duration_query.count() << " microseconds" << endl;
 
-	FileWriter<int> fileWriter;
-
-	cout << "rank "<<rank<<"file writer initialization completed" << endl;
-	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
+//	FileWriter<int> fileWriter;
+//
+//	cout << "rank "<<rank<<"file writer initialization completed" << endl;
+//	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
 
 	if (fout.is_open())
 	{

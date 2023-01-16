@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <cstring>
+#include "dmrpt/io/file_writer.hpp"
 
 using namespace std;
 using namespace dmrpt;

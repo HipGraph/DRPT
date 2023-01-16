@@ -253,8 +253,8 @@ int main(int argc, char* argv[])
 			{
 //				if (data_points[k].size() > 0)
 //				{
-					vector<DataPoint> vec = data_points[k];
-					if (vec.size() > 0)
+//					vector<DataPoint> vec = data_points[k];
+					if (rank==0)
 					{
 						cout<<"vec size "<<vec.size()<<endl;
 					}

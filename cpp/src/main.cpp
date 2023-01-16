@@ -253,12 +253,10 @@ int main(int argc, char* argv[])
 			{
 //				if (data_points[k].size() > 0)
 //				{
-//					vector<DataPoint> vec = data_points[k];
-					if (rank==0)
-					{
-						cout<<"vec size "<<vec.size()<<endl;
-					}
-						for (int l = 0; l < nn; l++)
+					vector<DataPoint> vec = data_points[k];
+//					if (vec.size() > 0)
+//					{
+						for (int l = 0; l < (vec.size() >= nn ? nn : vec.size()); l++)
 						{
 							if (vec[l].src_index != vec[l].index)
 							{

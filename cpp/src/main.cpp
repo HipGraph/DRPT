@@ -236,9 +236,9 @@ int main(int argc, char* argv[])
 	cout << "Time taken for total query "
 		 << duration_query.count() << " microseconds" << endl;
 
-	FileWriter fileWriter;
+	dmrpt::FileWriter<int> fileWriter;
 
-	fileWriter.mpi_write_edge_list<int>(data_points,file_path,nn,rank,size);
+	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
 
 //	if (fout.is_open())
 //	{

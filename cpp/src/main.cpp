@@ -3,6 +3,7 @@
 #include "dmrpt/algo/drpt_local.hpp"
 #include "dmrpt/algo/mdrpt.hpp"
 #include "dmrpt/io/file_writer.hpp"
+#include "dmrpt/io/file_writer.cpp"
 #include <vector>
 #include <mpi.h>
 #include <string>
@@ -236,7 +237,7 @@ int main(int argc, char* argv[])
 	cout << "Time taken for total query "
 		 << duration_query.count() << " microseconds" << endl;
 
-	dmrpt::FileWriter<int> fileWriter();
+	FileWriter fileWriter<int>;
 
 	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size);
 

@@ -186,7 +186,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 							[](const DataPoint& lhs,
 									const DataPoint& rhs)
 							{
-							  return lhs.index == rhs.index || lhs.index == idx;
+							  return lhs.index == rhs.index or lhs.index == idx;
 							}), dst.end());
 					(it->second) = dst;
 

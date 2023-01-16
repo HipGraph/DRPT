@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
 	FileWriter<int> fileWriter;
 
 	cout << "rank "<<rank<<"file writer initialization completed" << endl;
-	fileWriter.mpi_write_edge_list(data_points,file_path,nn,rank,size,true);
+	fileWriter.mpi_write_edge_list(data_points,file_path,nn-1,rank,size,true);
 
 //	if (fout.is_open())
 //	{

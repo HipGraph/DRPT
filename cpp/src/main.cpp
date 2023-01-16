@@ -2,6 +2,7 @@
 #include "dmrpt/math/math_operations.hpp"
 #include "dmrpt/algo/drpt_local.hpp"
 #include "dmrpt/algo/mdrpt.hpp"
+#include "dmrpt/io/file_writer.hpp"
 #include <vector>
 #include <mpi.h>
 #include <string>
@@ -14,7 +15,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <cstring>
-#include "dmrpt/io/file_writer.hpp"
+
 
 using namespace std;
 using namespace dmrpt;
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
 
 	FileWriter fileWriter;
 
-	fileWriter.mpi_write_edge_list<int>(data_points,file_path,10,rank,size);
+	fileWriter.mpi_write_edge_list<int>(data_points,file_path,nn,rank,size);
 
 //	if (fout.is_open())
 //	{

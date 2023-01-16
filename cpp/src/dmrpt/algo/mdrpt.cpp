@@ -757,13 +757,16 @@ void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sel
 		for (int j = 0;j < nn_count;j++)
 		{
 			int nn_indi = receving_selected_nn[nn_index].index;
-			VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
-			DataPoint dataPoint;
-			dataPoint.src_index = src_index;
-			dataPoint.index = nn_indi;
-			dataPoint.distance = distance;
-			vec.push_back(dataPoint);
-			nn_index++;
+			if (src_index != nn_index)
+			    {
+			      VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
+			      DataPoint dataPoint;
+			      dataPoint.src_index = src_index;
+			      dataPoint.index = nn_indi;
+			      dataPoint.distance = distance;
+			      vec.push_back(dataPoint);
+			      nn_index++;
+		       }
 		}
 
 		auto its = final_nn_map.find(src_index);

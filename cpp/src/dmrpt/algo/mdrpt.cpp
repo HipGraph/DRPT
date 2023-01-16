@@ -183,7 +183,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 							});
 					// erase duplicates
 					dst.erase(unique(dst.begin(), dst.end(),
-							[](const DataPoint& lhs,
+							[idx](const DataPoint& lhs,
 									const DataPoint& rhs)
 							{
 							  return lhs.index == rhs.index or lhs.index == idx;

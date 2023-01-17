@@ -140,14 +140,14 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
  }
 
  if (candidate){
-     cout<<"candidate leaf finall selected "<<id<<endl;
+     cout<<"rank "<<rank<<"candidate leaf finall selected "<<id<<endl;
   }
 
   if (candidate) {
-     cout<<"storing candidate leaf "<<id<<endl;
-    final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-    cout<<"returniung candidate leaf "<<can_leaf.leaf_index<<endl;
-     return can_leaf.leaf_index;
+	  cout<<"rank"<<rank<< "storing candidate leaf "<<id<<endl;
+      final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
+	  cout<<"rank"<<rank<<" returniung candidate leaf "<<can_leaf.leaf_index<<endl;
+	  return can_leaf.leaf_index;
    }
    cout<<"moiving to next iternation i "<<i<<endl;
   }

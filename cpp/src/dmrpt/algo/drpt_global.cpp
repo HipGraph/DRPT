@@ -139,6 +139,10 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
     }
  }
 
+ if (rank==0){
+     cout<<"candidate leaf "<<id<<" went wrong"<<endl;
+  }
+
   if (candidate) {
     final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
      return can_leaf.leaf_index;

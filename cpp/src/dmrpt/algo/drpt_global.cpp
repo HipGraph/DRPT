@@ -139,7 +139,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
     }
  }
 
- if (rank==0){
+ if (rank==0 and !candidate){
      cout<<"candidate leaf "<<id<<" went wrong"<<endl;
   }
 

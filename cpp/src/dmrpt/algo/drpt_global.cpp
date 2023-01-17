@@ -711,10 +711,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
+	char stats[500];
 	string file_path_stat = output_path + "stats.txt.";
 	std::strcpy(stats, file_path_stat.c_str());
 //    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
-
 
 	ofstream fout(stats, std::ios_base::app);
 

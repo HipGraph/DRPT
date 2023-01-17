@@ -653,13 +653,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
               int selected_leaf = std::max_element (correlation_matrix[tree][leaf][c].begin (),
                                                     correlation_matrix[tree][leaf][c].end ()) -
                                   correlation_matrix[tree][leaf][c].begin ();
-
-			  if (rank==0)
-			  {
-				  cout << " tree " << tree << " leaf " << leaf << " selected tree " << c << " leaf " << selected_leaf
-					   << endl;
-			  }
-
               int count = c + leaf * this->ntrees + tree * total_leaf_size * this->ntrees;
               my_sending_leafs[count] = selected_leaf;
             }
@@ -728,7 +721,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 			  {
 				  for (int h = 0; h < total_leaf_size; h++)
 				  {
-					  fout <<k<<" "<<m<<"  "<<y<<"  "<<h<<"  "<<candidate_mapping[k][m][y][h].leaf_index<<" "<<candidate_mapping[k][m][y][h].priority<<endl;
+					  cout <<k<<" "<<m<<"  "<<y<<"  "<<h<<"  "<<candidate_mapping[k][m][y][h].leaf_index<<" "<<candidate_mapping[k][m][y][h].priority<<endl;
 				  }
 			  }
 		  }

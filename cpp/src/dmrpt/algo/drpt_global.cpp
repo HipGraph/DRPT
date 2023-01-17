@@ -622,6 +622,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
+  cout<<"rank "<<rank<<"corelation matrix population completed "<<endl;
+
   for (int tree = 0; tree < this->ntrees; tree++)
     {
 //#pragma omp parallel for
@@ -643,6 +645,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
+  cout<<"rank "<<rank<<"local tree leaf correlation completed "<<endl;
+
   MPI_Allgatherv (my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
 
@@ -657,6 +661,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
             }
         }
     }
+
+	cout<<"rank "<<rank<<"final tree leaf mapping filling completed "<<endl;
 
 //#pragma omp parallel for
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
@@ -684,6 +690,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
+	cout<<"rank "<<rank<<"global sorting completed "<<endl;
+
 //#pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
     {
@@ -695,6 +703,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
                                              total_leaf_size, this->rank);
         }
     }
+
+	cout<<"rank "<<rank<<"final selection completed "<<endl;
 
   for (int i = 0; i < this->ntrees; i++)
     {
@@ -708,6 +718,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
+	cout<<"rank "<<rank<<"final storing completed "<<endl;
   delete[]
       my_sending_leafs;
   delete[]

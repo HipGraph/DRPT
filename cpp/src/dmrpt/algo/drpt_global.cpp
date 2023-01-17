@@ -711,6 +711,33 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
+	string file_path_stat = output_path + "stats.txt.";
+	std::strcpy(stats, file_path_stat.c_str());
+//    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
+
+
+	ofstream fout(stats, std::ios_base::app);
+
+  if (rank == 0)
+  {
+	  for (int k = 0; k < total_leaf_size; k++)
+	  {
+		  for (int m = 0; m < this->ntrees; m++)
+		  {
+			  for (int y = 0; y < total_leaf_size; y++)
+			  {
+				  for (int h = 0; h < this->ntrees; h++)
+				  {
+					  fout <<" leaf "<<k<<" tree "<<m<<" selecting leaf "<<y<<" tree "
+					  <<h<<" mapping "<< candidate_mapping[k][m][y][h].leaf_index <<" "
+					  <<candidate_mapping[k][m][y][h].priority <<endl;
+				  }
+			  }
+		  }
+	  }
+  }
+
+
 	cout<<"rank "<<rank<<"global sorting completed "<<endl;
 
 //#pragma  omp parallel for

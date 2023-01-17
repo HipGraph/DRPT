@@ -712,9 +712,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
           int current_tree = m == 0 ? 0 : m - 1;
           prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
                                              total_leaf_size, this->rank);
-		  if (prev_leaf == -1){
-			  cout<<"rank "<<rank<< " prev_leaf negative"<<" k "<<k<<" m "<<m <<endl;
-		  }
+			cout<<"rank "<<rank<< " prev_leaf "<<prev_leaf<<" k "<<k<<" m "<<m <<endl;
         }
     }
 

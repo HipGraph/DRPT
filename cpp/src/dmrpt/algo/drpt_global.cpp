@@ -140,7 +140,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
  }
 
  if (candidate){
-     cout<<"candidate leaf finall selected "<<id<<"endl;
+     cout<<"candidate leaf finall selected "<<id<<endl;
   }
 
   if (candidate) {

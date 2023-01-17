@@ -722,19 +722,13 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
   {
 	  for (int k = 0; k <  this->ntrees; k++)
 	  {
-		  cout<<"wrting tree"<<k<<endl;
 		  for (int m = 0; m < total_leaf_size; m++)
 		  {
-			  cout<<"access leaf "<<m<<endl;
 			  for (int y = 0; y < this->ntrees; y++)
 			  {
-				  cout<<"wrting tree"<<y<<endl;
 				  for (int h = 0; h < total_leaf_size; h++)
 				  {
-					  cout<<"access leaf"<<h<<endl;
-					  fout <<" leaf "<<k<<" tree "<<m<<" selecting leaf "<<y<<" tree "
-					  <<h<<" mapping "<< candidate_mapping[k][m][y][h].leaf_index <<" "
-					  <<candidate_mapping[k][m][y][h].priority <<endl;
+					  fout <<k<<" "<<m<<"  "<<y<<"  "<<h<<"  "<<candidate_mapping[k][m][y][h].leaf_index<<" "<<candidate_mapping[k][m][y][h].priority<<endl;
 				  }
 			  }
 		  }

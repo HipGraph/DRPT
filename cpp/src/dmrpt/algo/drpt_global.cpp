@@ -720,13 +720,13 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
   if (rank == 0)
   {
-	  for (int k = 0; k < total_leaf_size; k++)
+	  for (int k = 0; k <  this->ntrees; k++)
 	  {
-		  for (int m = 0; m < this->ntrees; m++)
+		  for (int m = 0; m < total_leaf_size; m++)
 		  {
-			  for (int y = 0; y < total_leaf_size; y++)
+			  for (int y = 0; y < this->ntrees; y++)
 			  {
-				  for (int h = 0; h < this->ntrees; h++)
+				  for (int h = 0; h < total_leaf_size; h++)
 				  {
 					  fout <<" leaf "<<k<<" tree "<<m<<" selecting leaf "<<y<<" tree "
 					  <<h<<" mapping "<< candidate_mapping[k][m][y][h].leaf_index <<" "

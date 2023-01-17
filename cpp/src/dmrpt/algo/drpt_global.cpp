@@ -124,11 +124,12 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
   }
 
    if (!candidate) {
-	   if (rank==0){
-		   cout<<"candidate leaf "<<id<<" i "<<i<<" vec_size "<< vec.size()<<endl;
-	   }
      continue;
     }
+
+ if (rank==0){
+  cout<<"candidate leaf "<<id<<" i "<<i<<" vec_size "<< vec.size()<<endl;
+ }
 
  for ( int j = 0; j<total_leaf_size; j++) {
      vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];

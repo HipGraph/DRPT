@@ -124,6 +124,9 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
   }
 
    if (!candidate) {
+	   if (rank==0){
+		   cout<<"candidate leaf "<<id<<" i "<<i<<" vec_size "<< vec.size()<<endl;
+	   }
      continue;
     }
 

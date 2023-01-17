@@ -139,17 +139,18 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
     }
  }
 
- if (candidate){
-     cout<<"rank "<<rank<<"candidate leaf finall selected "<<id<<endl;
-  }
+// if (candidate){
+//     cout<<"rank "<<rank<<"candidate leaf finall selected "<<id<<endl;
+//  }
 
   if (candidate) {
-	  cout<<"rank"<<rank<< "storing candidate leaf "<<id<<endl;
+//	  cout<<"rank"<<rank<< "storing candidate leaf "<<id<<endl;
       final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-	  cout<<"rank"<<rank<<" returniung candidate leaf "<<can_leaf.leaf_index<<endl;
+//	  cout<<"rank"<<rank<<" returniung candidate leaf "<<can_leaf.leaf_index<<endl;
 	  return can_leaf.leaf_index;
    }
-   cout<<"moiving to next iternation i "<<i<<endl;
+
+//   cout<<"moiving to next iternation i "<<i<<endl;
   }
  return -1;
 }
@@ -712,7 +713,10 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
           int current_tree = m == 0 ? 0 : m - 1;
           prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
                                              total_leaf_size, this->rank);
-			cout<<"rank "<<rank<< " prev_leaf "<<prev_leaf<<" k "<<k<<" m "<<m <<endl;
+		  if (rank==0)
+		  {
+			  cout << "rank " << rank << " prev_leaf " << prev_leaf << " k " << k << " m " << m << endl;
+		  }
         }
     }
 

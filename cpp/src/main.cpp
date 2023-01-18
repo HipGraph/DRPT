@@ -278,9 +278,9 @@ int main(int argc, char* argv[])
 
 	MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-	fout << rank << ' ' << (execution_times_global[0] / size) << ' ' << (execution_times_global[1] / size) << ' '
-		 << (execution_times_global[2] / size)
-		 << endl;
+//	fout << rank << ' ' << (execution_times_global[0] / size) << ' ' << (execution_times_global[1] / size) << ' '
+//		 << (execution_times_global[2] / size)
+//		 << endl;
 
 	delete[] execution_times;
 	delete[] execution_times_global;

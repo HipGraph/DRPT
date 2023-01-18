@@ -705,29 +705,12 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
     }
 
 	char stats[500];
-	string file_path_stat = output_path + "stats.txt.";
+	string file_path_stat = output_path + "debug.txt";
+//	string file_path_stat = output_path + "stats.txt.";
 	std::strcpy(stats, file_path_stat.c_str());
-//    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
+//     std::strcpy(stats + strlen(file_path_stat.c_str()), rank);
 
 	ofstream fout(stats, std::ios_base::app);
-
-  if (rank == 0)
-  {
-	  for (int k = 0; k <  this->ntrees; k++)
-	  {
-		  for (int m = 0; m < total_leaf_size; m++)
-		  {
-			  for (int y = 0; y < this->ntrees; y++)
-			  {
-				  for (int h = 0; h < total_leaf_size; h++)
-				  {
-					  cout <<k<<" "<<m<<"  "<<y<<"  "<<h<<"  "<<candidate_mapping[k][m][y][h].leaf_index<<" "<<candidate_mapping[k][m][y][h].priority<<endl;
-				  }
-			  }
-		  }
-	  }
-  }
-
 
 	cout<<"rank "<<rank<<"global sorting completed "<<endl;
 
@@ -755,6 +738,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       for (int k = 0; k < total_leaf_size; k++)
         {
           int leaf_index = final_tree_leaf_mapping[k][i];
+
+		  fout<< k << " "<<i<<" "<<leaf_index<<endl;
 
 		  //clustered data is stored in the rearranged tree leaves.
           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];

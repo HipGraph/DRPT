@@ -742,7 +742,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 		  fout<< k << " "<<i<<" "<<leaf_index<<endl;
 
 		  //clustered data is stored in the rearranged tree leaves.
-          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
+//          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
+			this->trees_leaf_first_indices_rearrange[i][leaf_index] = this->trees_leaf_first_indices[i][leaf_index];
         }
     }
 

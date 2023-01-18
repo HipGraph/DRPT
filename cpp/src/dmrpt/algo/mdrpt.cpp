@@ -91,7 +91,7 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	if (use_locality_optimization)
 	{
 		cout << " rank " << rank << " start tree leaf correlation " << endl;
-		drpt_global.calculate_tree_leaf_correlation();
+//		drpt_global.calculate_tree_leaf_correlation();
 	}
 
 	vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);

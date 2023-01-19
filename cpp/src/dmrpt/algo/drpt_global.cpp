@@ -395,13 +395,13 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
           sum_per_node = 0;
           process++;
         }
-//      vector <DataPoint> all_points = (use_data_locality_optimization)
-//                                      ? this->trees_leaf_first_indices_rearrange[tree][i]
-//                                      : this->trees_leaf_first_indices[tree][i];
+      vector <DataPoint> all_points = (use_data_locality_optimization)
+                                      ? this->trees_leaf_first_indices_rearrange[tree][i]
+                                      : this->trees_leaf_first_indices[tree][i];
 
-	  vector <DataPoint> all_points = (use_data_locality_optimization)
-			  ? this->trees_leaf_first_indices[tree][i]
-			  : this->trees_leaf_first_indices[tree][i];
+//	  vector <DataPoint> all_points = (use_data_locality_optimization)
+//			  ? this->trees_leaf_first_indices[tree][i]
+//			  : this->trees_leaf_first_indices[tree][i];
       send_counts[i] = all_points.size ();
       sum_per_node += send_counts[i];
       my_total += send_counts[i];
@@ -461,13 +461,13 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
   for (int i = 0; i < total_leaf_size; i++)
     {
 
-//      vector <DataPoint> all_points = (use_data_locality_optimization)
-//                                      ? this->trees_leaf_first_indices_rearrange[tree][i]
-//                                      : this->trees_leaf_first_indices[tree][i];
+      vector <DataPoint> all_points = (use_data_locality_optimization)
+                                      ? this->trees_leaf_first_indices_rearrange[tree][i]
+                                      : this->trees_leaf_first_indices[tree][i];
 
-		vector <DataPoint> all_points = (use_data_locality_optimization)
-				? this->trees_leaf_first_indices[tree][i]
-				: this->trees_leaf_first_indices[tree][i];
+//		vector <DataPoint> all_points = (use_data_locality_optimization)
+//				? this->trees_leaf_first_indices[tree][i]
+//				: this->trees_leaf_first_indices[tree][i];
 
 
       if (i > 0 && i % leafs_per_node == 0)
@@ -750,8 +750,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 		  fout<< k << " "<<i<<" "<<leaf_index<<endl;
 
 		  //clustered data is stored in the rearranged tree leaves.
-//          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
-			this->trees_leaf_first_indices_rearrange[i][leaf_index] = this->trees_leaf_first_indices[i][leaf_index];
+          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
         }
     }
 

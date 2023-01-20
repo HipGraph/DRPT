@@ -712,15 +712,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
-	char stats[500];
-	string file_path_stat = output_path + "debug.txt_"+ to_string(rank);
-//	string file_path_stat = output_path + "stats.txt.";
-	std::strcpy(stats, file_path_stat.c_str());
-//     std::strcpy(stats + strlen(file_path_stat.c_str()), rank);
-
-	ofstream fout(stats, std::ios_base::app);
-
-	cout<<"rank "<<rank<<"global sorting completed "<<endl;
 
 //#pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
@@ -731,10 +722,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
           int current_tree = m == 0 ? 0 : m - 1;
           prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
                                              total_leaf_size, this->rank);
-		  if (rank==0)
-		  {
-			  cout << "rank " << rank << " prev_leaf " << prev_leaf << " k " << k << " m " << m << endl;
-		  }
         }
     }
 
@@ -746,9 +733,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       for (int k = 0; k < total_leaf_size; k++)
         {
           int leaf_index = final_tree_leaf_mapping[k][i];
-
-		  fout<< k << " "<<i<<" "<<leaf_index<<endl;
-
 		  //clustered data is stored in the rearranged tree leaves.
           this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
         }

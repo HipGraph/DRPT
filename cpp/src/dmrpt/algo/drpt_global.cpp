@@ -108,9 +108,7 @@ int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, 
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
     sort(vec.begin(), vec.end(),
 [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
-		if (lhs.priority == rhs.priority) {
-           return  false;
-		} else if (lhs.priority > rhs.priority) {
+		 if (lhs.priority > rhs.priority) {
 			return true;
 		}else {
 			return false;

@@ -727,16 +727,16 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
 	cout<<"rank "<<rank<<"final selection completed "<<endl;
 
-//  for (int i = 0; i < this->ntrees; i++)
-//    {
-////#pragma  omp parallel for
-//      for (int k = 0; k < total_leaf_size; k++)
-//        {
-//          int leaf_index = final_tree_leaf_mapping[k][i];
-//		  //clustered data is stored in the rearranged tree leaves.
-//          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
-//        }
-//    }
+  for (int i = 0; i < this->ntrees; i++)
+    {
+//#pragma  omp parallel for
+      for (int k = 0; k < total_leaf_size; k++)
+        {
+          int leaf_index = final_tree_leaf_mapping[k][i];
+		  //clustered data is stored in the rearranged tree leaves.
+          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
+        }
+    }
 
 	cout<<"rank "<<rank<<"final storing completed "<<endl;
   delete[]

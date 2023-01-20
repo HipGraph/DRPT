@@ -714,29 +714,29 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
 
 //#pragma  omp parallel for
-  for (int k = 0; k < total_leaf_size; k++)
-    {
-      int prev_leaf = k;
-      for (int m = 0; m < this->ntrees; m++)
-        {
-          int current_tree = m == 0 ? 0 : m - 1;
-          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
-                                             total_leaf_size, this->rank);
-        }
-    }
+//  for (int k = 0; k < total_leaf_size; k++)
+//    {
+//      int prev_leaf = k;
+//      for (int m = 0; m < this->ntrees; m++)
+//        {
+//          int current_tree = m == 0 ? 0 : m - 1;
+//          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
+//                                             total_leaf_size, this->rank);
+//        }
+//    }
 
 	cout<<"rank "<<rank<<"final selection completed "<<endl;
 
-  for (int i = 0; i < this->ntrees; i++)
-    {
-//#pragma  omp parallel for
-      for (int k = 0; k < total_leaf_size; k++)
-        {
-          int leaf_index = final_tree_leaf_mapping[k][i];
-		  //clustered data is stored in the rearranged tree leaves.
-          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
-        }
-    }
+//  for (int i = 0; i < this->ntrees; i++)
+//    {
+////#pragma  omp parallel for
+//      for (int k = 0; k < total_leaf_size; k++)
+//        {
+//          int leaf_index = final_tree_leaf_mapping[k][i];
+//		  //clustered data is stored in the rearranged tree leaves.
+//          this->trees_leaf_first_indices_rearrange[i][k] = this->trees_leaf_first_indices[i][leaf_index];
+//        }
+//    }
 
 	cout<<"rank "<<rank<<"final storing completed "<<endl;
   delete[]

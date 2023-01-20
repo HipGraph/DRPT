@@ -716,8 +716,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       for (int m = 0; m < this->ntrees; m++)
         {
           int current_tree = m == 0 ? 0 : m - 1;
-          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
-                                             total_leaf_size, this->rank);
+//          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
+//                                             total_leaf_size, this->rank);
         }
     }
 

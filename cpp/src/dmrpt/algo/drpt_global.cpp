@@ -104,11 +104,12 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
 int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
                            vector < vector < int >> &final_tree_leaf_mapping, int current_tree,
 int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, int rank ) {
+
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
-    sort(vec.begin(), vec.end(),
-[](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
-      return lhs.priority > rhs.priority;
-   });
+//    sort(vec.begin(), vec.end(),
+//[](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+//      return lhs.priority > rhs.priority;
+//   });
 
    for ( int i = 0; i<vec.size (); i++) {
           dmrpt::PriorityMap can_leaf = vec[i];
@@ -716,8 +717,8 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       for (int m = 0; m < this->ntrees; m++)
         {
           int current_tree = m == 0 ? 0 : m - 1;
-//          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
-//                                             total_leaf_size, this->rank);
+          prev_leaf = select_next_candidate (candidate_mapping, final_tree_leaf_mapping, current_tree, m, k, prev_leaf,
+                                             total_leaf_size, this->rank);
         }
     }
 

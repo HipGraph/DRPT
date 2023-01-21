@@ -2,7 +2,6 @@
 #define DISTRIBUTED_MRPT_MDRPT_H
 
 #include "../math/math_operations.hpp"
-#include "../utils/drpt_timer.h"
 #include "drpt_local.hpp"
 #include "drpt_global.hpp"
 #include <cblas.h>

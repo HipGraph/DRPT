@@ -251,4 +251,6 @@ int main(int argc, char* argv[])
 	delete[] execution_times_global;
 
 	MPI_Finalize();
+
+	return 1;
 }

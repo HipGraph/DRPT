@@ -89,16 +89,16 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
   auto last = std::unique (v.begin (), v.end ());
   v.erase (last, v.end ());
 
-//  for (int i=0; i< v.size();i++)
-//    {
+  for (int i=0; i< v.size();i++)
+    {
 //      float priority = (float) count[v[i]] / world_size;
-//
-//      dmrpt::PriorityMap priorityMap;
-//      priorityMap.priority = priority;
-//      priorityMap.leaf_index = v[i];
-//      vec[v[i]] = priorityMap;
-//
-//    }
+
+      dmrpt::PriorityMap priorityMap;
+      priorityMap.priority = 0.7;
+      priorityMap.leaf_index = v[i];
+      vec[v[i]] = priorityMap;
+
+    }
 }
 
 int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,

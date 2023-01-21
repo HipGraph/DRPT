@@ -46,8 +46,6 @@ dmrpt::MDRPT::MDRPT(int ntrees, int tree_depth,
 void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float density, bool use_locality_optimization,
 		int nn, ofstream& fout) {
 
-//  dmrpt::Timer<time_point<steady_clock,duration<long long,ratio<1,1000000000>>>,long long> timer
-
 	dmrpt::MathOp mathOp; //class uses for math operations
 	VALUE_TYPE* row_data_array = mathOp.convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
 
@@ -91,19 +89,19 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	//calculate locality optimization to improve data locality
 	if (use_locality_optimization)
 	{
-		cout << " rank " << rank << " start tree leaf correlation " << endl;
+		cout << " rank " << rank << " starting tree leaf correlation " << endl;
 		drpt_global.calculate_tree_leaf_correlation();
+		cout << " rank " << rank << "  tree leaf correlation completed " << endl;
 	}
 
 	vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);
 
+	cout << " rank " << rank << " running  datapoint collection  "<< endl;
 	// running the similar datapoint collection
 	for (int i = 0; i < ntrees; i++)
 	{
-		cout << " rank " << rank << " running  datapoint collection  for tree " << i << endl;
 		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
 				this->index_distribution,this->datamap);
-		cout << " rank " << rank << " similar datapoint collection completed for tree " << i << endl;
 	}
 
 	// get the global minimum value of a leaf
@@ -265,8 +263,6 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 }
 
 std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstream& fout) {
-
-	cout << " rank " << rank << "gathering started " << endl;
 
 	std::map<int, vector<DataPoint>> local_nn_map;
 

@@ -146,23 +146,12 @@ int main(int argc, char* argv[])
 
 	ImageReader imageReader;
 
-	char hostname[HOST_NAME_MAX];
-	char stats[500];
 	char results[500];
 
-	char data[500];
-
-	int host = gethostname(hostname, HOST_NAME_MAX);
-
-	string file_path_stat = output_path + "stats.txt.";
-	std::strcpy(stats, file_path_stat.c_str());
-//    std::strcpy(stats + strlen(file_path_stat.c_str()), hostname);
-
-	string file_path = output_path + "results.txt.";
+	string file_path = output_path + "results.txt";
 	std::strcpy(results, file_path.c_str());
 	std::strcpy(results + strlen(file_path.c_str()), hostname);
 
-	ofstream fout(stats, std::ios_base::app);
 	ofstream fout1(results, std::ios_base::app);
 
 	auto start_io_index = high_resolution_clock::now();
@@ -191,13 +180,10 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	cout << " size " << imagedatas.size() << " *" << imagedatas[0].size() << endl;
-
-
 	auto stop_io_index = high_resolution_clock::now();
 	auto io_time = duration_cast<microseconds>(stop_io_index - start_io_index);
 
-	cout << "Rank " << rank << " Size of  images data " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
+	cout << "Rank " << rank << " IO reading completed " << imagedatas.size() << "*" << imagedatas[0].size() << endl;
 
 	MathOp mathOp;
 
@@ -207,8 +193,6 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	int chunk_size = data_set_size / size;
-
-	cout << " total data set size " << data_set_size << endl;
 
 	MDRPT mdrpt = MDRPT(ntrees, tree_depth, tree_depth_ratio, local_tree_offset, data_set_size, cols,
 			rows, rank, size, input_path,
@@ -234,23 +218,28 @@ int main(int argc, char* argv[])
 	auto stop_query = high_resolution_clock::now();
 	auto duration_query = duration_cast<microseconds>(stop_query - start_query);
 
-	cout << "Time taken for total query "
-		 << duration_query.count() << " microseconds" << endl;
-//
-	FileWriter<int> fileWriter;
+	cout <<"rank "<<rank<< " querying completed " << endl;
 
-	cout << "rank "<<rank<<"file writer initialization completed" << endl;
+	cout <<"rank "<<rank<< " file writing started " << endl;
+
+	auto file_writing_started = high_resolution_clock::now();
+	FileWriter<int> fileWriter;
 	fileWriter.mpi_write_edge_list(data_points,file_path,nn-1,rank,size,true);
 
+	cout <<"rank "<<rank<< " file writing end " << endl;
 
-	double* execution_times = new double[3];
+	auto file_writing_end = high_resolution_clock::now();
+	auto duration_file_writing = duration_cast<microseconds>(file_writing_end - file_writing_started);
 
-	double* execution_times_global = new double[3];
+	double* execution_times = new double[4];
+
+	double* execution_times_global = new double[4];
 	execution_times[0] = io_time.count() / 1000;
 	execution_times[1] = duration_index_building.count() / 1000;
 	execution_times[2] = duration_query.count() / 1000;
+	execution_times[3] = (io_time.count() + duration_file_writing.count()) / 1000;
 
-	MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce(execution_times, execution_times_global, 4, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 	delete[] execution_times;
 	delete[] execution_times_global;

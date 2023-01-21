@@ -150,9 +150,7 @@ int main(int argc, char* argv[])
 
 	string file_path = output_path + "results.txt";
 	std::strcpy(results, file_path.c_str());
-	std::strcpy(results + strlen(file_path.c_str()), hostname);
-
-	ofstream fout1(results, std::ios_base::app);
+	ofstream fout(results, std::ios_base::app);
 
 	auto start_io_index = high_resolution_clock::now();
 
@@ -231,15 +229,22 @@ int main(int argc, char* argv[])
 	auto file_writing_end = high_resolution_clock::now();
 	auto duration_file_writing = duration_cast<microseconds>(file_writing_end - file_writing_started);
 
-	double* execution_times = new double[4];
+	double* execution_times = new double[3];
 
-	double* execution_times_global = new double[4];
-	execution_times[0] = io_time.count() / 1000;
+	double* execution_times_global = new double[3];
+
+	execution_times[0] = (io_time.count() + duration_file_writing.count()) / 1000;
 	execution_times[1] = duration_index_building.count() / 1000;
 	execution_times[2] = duration_query.count() / 1000;
-	execution_times[3] = (io_time.count() + duration_file_writing.count()) / 1000;
 
-	MPI_Allreduce(execution_times, execution_times_global, 4, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+	MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+	if(rank==0)
+	{
+		cout << "IO Time (s)" << execution_times_global[0]/1000 << " Index building (s) "
+		<< execution_times_global[1]/1000 <<" Querying Time (s) "<< execution_times_global[2]/1000<< endl;
+	}
 
 	delete[] execution_times;
 	delete[] execution_times_global;

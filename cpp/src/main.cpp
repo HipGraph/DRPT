@@ -146,11 +146,12 @@ int main(int argc, char* argv[])
 
 	ImageReader imageReader;
 
-	char results[500];
+	char stats[500];
 
-	string file_path = output_path + "results.txt";
-	std::strcpy(results, file_path.c_str());
-	ofstream fout(results, std::ios_base::app);
+	string file_path = output_path + "stats.txt";
+	string file_path_results = output_path + "results.txt";
+	std::strcpy(stats, file_path.c_str());
+	ofstream fout(stats, std::ios_base::app);
 
 	auto start_io_index = high_resolution_clock::now();
 
@@ -222,7 +223,7 @@ int main(int argc, char* argv[])
 
 	auto file_writing_started = high_resolution_clock::now();
 	FileWriter<int> fileWriter;
-	fileWriter.mpi_write_edge_list(data_points,file_path,nn-1,rank,size,true);
+	fileWriter.mpi_write_edge_list(data_points,file_path_results,nn-1,rank,size,true);
 
 	cout <<"rank "<<rank<< " file writing end " << endl;
 

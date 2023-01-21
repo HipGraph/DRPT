@@ -242,8 +242,8 @@ int main(int argc, char* argv[])
 
 	if(rank==0)
 	{
-		cout << "IO Time (s)" << execution_times_global[0]/1000 << " Index building (s) "
-		<< execution_times_global[1]/1000 <<" Querying Time (s) "<< execution_times_global[2]/1000<< endl;
+		cout << "IO Time (s)" << execution_times_global[0]/(size*1000) << " Index building (s) "
+		<< execution_times_global[1]/(size*1000) <<" Querying Time (s) "<< execution_times_global[2]/(size*1000)<< endl;
 	}
 
 	delete[] execution_times;

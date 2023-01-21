@@ -146,11 +146,11 @@ int main(int argc, char* argv[])
 
 	ImageReader imageReader;
 
-	char results[500];
+	char stats[500];
 
-	string file_path = output_path + "results.txt";
-	std::strcpy(results, file_path.c_str());
-	ofstream fout(results, std::ios_base::app);
+	string file_path = output_path + "stats.txt";
+	std::strcpy(stats, file_path.c_str());
+	ofstream fout(stats, std::ios_base::app);
 
 	auto start_io_index = high_resolution_clock::now();
 

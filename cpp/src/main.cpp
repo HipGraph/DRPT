@@ -238,6 +238,7 @@ int main(int argc, char* argv[])
 	execution_times[1] = duration_index_building.count() / 1000;
 	execution_times[2] = duration_query.count() / 1000;
 
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	MPI_Allreduce(execution_times, execution_times_global, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 

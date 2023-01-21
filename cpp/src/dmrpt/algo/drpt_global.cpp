@@ -629,14 +629,14 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
             {
               correlation_matrix[tree][leaf][j] = vector<float> (total_leaf_size, 0);
             }
-//#pragma omp parallel for
+#pragma omp parallel for
           for (int c = 0; c < data_points.size (); c++)
             {
               int selec_index = data_points[c].index - this->starting_data_index;
               vector<int> vec = this->index_to_tree_leaf_mapper[selec_index];
               for (int j = 0; j < vec.size (); j++)
                 {
-//#pragma omp atomic
+#pragma omp atomic
                   correlation_matrix[tree][leaf][j][vec[j]] += 1;
                 }
             }
@@ -647,7 +647,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
   for (int tree = 0; tree < this->ntrees; tree++)
     {
-//#pragma omp parallel for
+#pragma omp parallel for
       for (int leaf = 0; leaf < total_leaf_size; leaf++)
         {
           for (int c = 0; c < this->ntrees; c++)
@@ -687,7 +687,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
 	cout<<"rank "<<rank<<"final tree leaf mapping filling completed "<<endl;
 
-//#pragma omp parallel for
+#pragma omp parallel for
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
     {
 
@@ -710,11 +710,11 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
           int value = total_receiving_leafs[id];
           vec.push_back (value);
         }
-//      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
+      sortByFreq (vec, candidate_mapping[j][k][m], this->world_size);
     }
 
 
-//#pragma  omp parallel for
+#pragma  omp parallel for
   for (int k = 0; k < total_leaf_size; k++)
     {
       int prev_leaf = k;
@@ -730,7 +730,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 
   for (int i = 0; i < this->ntrees; i++)
     {
-//#pragma  omp parallel for
+#pragma  omp parallel for
       for (int k = 0; k < total_leaf_size; k++)
         {
           int leaf_index = final_tree_leaf_mapping[k][i];

@@ -89,16 +89,16 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
   auto last = std::unique (v.begin (), v.end ());
   v.erase (last, v.end ());
 
-  for (int i=0; i< v.size();i++)
-    {
-      float priority = (float) count[v[i]] / world_size;
-
-      dmrpt::PriorityMap priorityMap;
-      priorityMap.priority = priority;
-      priorityMap.leaf_index = v[i];
-      vec[v[i]] = priorityMap;
-
-    }
+//  for (int i=0; i< v.size();i++)
+//    {
+//      float priority = (float) count[v[i]] / world_size;
+//
+//      dmrpt::PriorityMap priorityMap;
+//      priorityMap.priority = priority;
+//      priorityMap.leaf_index = v[i];
+//      vec[v[i]] = priorityMap;
+//
+//    }
 }
 
 int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
@@ -106,8 +106,6 @@ int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMa
 int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, int rank ) {
 
 vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
-
-
     sort(vec.begin(), vec.end(),
 [](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
 		 if (lhs.priority > rhs.priority) {

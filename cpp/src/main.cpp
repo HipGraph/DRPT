@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
 	delete[] execution_times;
 	delete[] execution_times_global;
 
-	MPI_Finalize();
+//	MPI_Finalize();
 
-	return 1;
+	return 0;
 }

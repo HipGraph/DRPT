@@ -91,10 +91,10 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
 
   for (int i=0; i< v.size();i++)
     {
-//      float priority = (float) count[v[i]] / world_size;
+      float priority = (float) count[v[i]] / world_size;
 
       dmrpt::PriorityMap priorityMap;
-      priorityMap.priority = 0.7;
+      priorityMap.priority = 0;
       priorityMap.leaf_index = v[i];
       vec[v[i]] = priorityMap;
 

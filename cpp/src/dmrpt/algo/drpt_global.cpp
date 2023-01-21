@@ -140,18 +140,12 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
     }
  }
 
-// if (candidate){
-//     cout<<"rank "<<rank<<"candidate leaf finall selected "<<id<<endl;
-//  }
-
   if (candidate) {
-//	  cout<<"rank"<<rank<< "storing candidate leaf "<<id<<endl;
+
       final_tree_leaf_mapping[selecting_leaf][selecting_tree] = can_leaf.leaf_index;
-//	  cout<<"rank"<<rank<<" returniung candidate leaf "<<can_leaf.leaf_index<<endl;
 	  return can_leaf.leaf_index;
    }
 
-//   cout<<"moiving to next iternation i "<<i<<endl;
   }
  return -1;
 }
@@ -224,7 +218,6 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
 
       for (int i = 0; i < this->tree_depth - 1; i++)
         {
-          cout << " rank " << rank << " working on tree"<<k<<"  depth" << i << endl;
           this->grow_global_subtree (child_data_tracker, global_size_vector, i, k);
 
         }
@@ -290,10 +283,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 
       VALUE_TYPE median = result[i];
 
-      if(rank == 0)
-        {
-          cout << " rank " << rank << " calculated median  " << median << " for i" << i << endl;
-        }
 
 	  //store median in tree_splits
       this->trees_splits[tree][split_starting_index + i] = median;
@@ -328,8 +317,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
                 right_childs.push_back (selected_data);
                 if (depth == this->tree_depth - 2)
                   {
-                    int se_index = selected_data.index - this->starting_data_index;
-
 					//keep track of respective leaf of selected_index
                     this->index_to_tree_leaf_mapper[selected_index][tree] = selected_leaf_right;
                   }
@@ -349,7 +336,6 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
           this->trees_leaf_first_indices[tree][selected_leaf_left] = left_childs_global;
           this->trees_leaf_first_indices[tree][selected_leaf_right] = right_childs_global;
         }
-//        cout << " rank " << rank << " node completed  depth " << depth << " for i" << i << endl;
     }
 
   if (depth == this->tree_depth - 2) {
@@ -400,9 +386,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
 
-//	  vector <DataPoint> all_points = (use_data_locality_optimization)
-//			  ? this->trees_leaf_first_indices[tree][i]
-//			  : this->trees_leaf_first_indices[tree][i];
       send_counts[i] = all_points.size ();
       sum_per_node += send_counts[i];
       my_total += send_counts[i];
@@ -465,11 +448,6 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
-
-//		vector <DataPoint> all_points = (use_data_locality_optimization)
-//				? this->trees_leaf_first_indices[tree][i]
-//				: this->trees_leaf_first_indices[tree][i];
-
 
       if (i > 0 && i % leafs_per_node == 0)
         {
@@ -541,10 +519,8 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
               DataPoint dataPoint;
               dataPoint.index = receive_indices[k];
 
-//              if (j != this->rank) {
-                index_distribution[j].insert(dataPoint.index);
+			  index_distribution[j].insert(dataPoint.index);
 
-//              }
 
               vector<VALUE_TYPE> image_values = vector<VALUE_TYPE> (this->data_dimension);
 
@@ -643,8 +619,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-  cout<<"rank "<<rank<<"corelation matrix population completed "<<endl;
-
   for (int tree = 0; tree < this->ntrees; tree++)
     {
 #pragma omp parallel for
@@ -668,8 +642,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-  cout<<"rank "<<rank<<"local tree leaf correlation completed "<<endl;
-
   MPI_Allgatherv (my_sending_leafs, total_sending, MPI_INT, total_receiving_leafs,
                   recieve_count, disps_recieve, MPI_INT, MPI_COMM_WORLD);
 
@@ -684,8 +656,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
             }
         }
     }
-
-	cout<<"rank "<<rank<<"final tree leaf mapping filling completed "<<endl;
 
 #pragma omp parallel for
   for (int l = 0; l < this->ntrees * total_leaf_size * this->ntrees; l++)
@@ -726,8 +696,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-	cout<<"rank "<<rank<<"final selection completed "<<endl;
-
   for (int i = 0; i < this->ntrees; i++)
     {
 #pragma  omp parallel for
@@ -739,7 +707,6 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
         }
     }
 
-	cout<<"rank "<<rank<<"final storing completed "<<endl;
   delete[]
       my_sending_leafs;
   delete[]

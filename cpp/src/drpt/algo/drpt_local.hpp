@@ -9,7 +9,7 @@
 #include <string>
 #include <omp.h>
 
-namespace dmrpt {
+namespace drpt {
 struct DataPoint {
   int src_index;
   int index;
@@ -31,7 +31,7 @@ class DRPTLocal {
   int world_size;
 
   //single tree
-  dmrpt::StorageFormat storageFormat;
+  drpt::StorageFormat storageFormat;
   vector <vector<VALUE_TYPE>> data;
   vector<VALUE_TYPE> splits;
   vector<int> indices;

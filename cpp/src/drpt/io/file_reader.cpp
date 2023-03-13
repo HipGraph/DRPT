@@ -18,7 +18,7 @@ template<typename T> vector <T> slice (vector < T > const &v, int m,int n) {
    return vec;
 }
 
-int dmrpt::ImageReader::reverse_int (int i)
+int drpt::ImageReader::reverse_int (int i)
 {
   unsigned char ch1, ch2, ch3, ch4;
   ch1 = i & 255;
@@ -28,7 +28,7 @@ int dmrpt::ImageReader::reverse_int (int i)
   return ((int) ch1 << 24) + ((int) ch2 << 16) + ((int) ch3 << 8) + ch4;
 }
 
-vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_ubyte (string path, int no_of_images,
+vector <vector<VALUE_TYPE>> drpt::ImageReader::read_ubyte (string path, int no_of_images,
 		int dimension, int rank, int world_size)
 {
   vector <vector<VALUE_TYPE>> arr;
@@ -85,7 +85,7 @@ vector <vector<VALUE_TYPE>> dmrpt::ImageReader::read_ubyte (string path, int no_
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::read_mnist_labels (string path, int no_of_images, int dimension, int rank, int world_size)
+drpt::ImageReader::read_mnist_labels (string path, int no_of_images, int dimension, int rank, int world_size)
 {
 
   vector <vector<VALUE_TYPE>> arr;
@@ -151,7 +151,7 @@ vector<VALUE_TYPE> load_vector (istream &in)
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::read_File (string path, int no_of_data_points, int dimension, int rank, int world_size)
+drpt::ImageReader::read_File (string path, int no_of_data_points, int dimension, int rank, int world_size)
 {
 
   vector <vector<VALUE_TYPE>> arr;
@@ -202,7 +202,7 @@ dmrpt::ImageReader::read_File (string path, int no_of_data_points, int dimension
 }
 
 vector <vector<VALUE_TYPE>>
-dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, long total_data_set_size,
+drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap, long total_data_set_size,
                                    char delim, int dimension)
 {
   MPI_Offset globalstart, globalend, filesize;
@@ -360,7 +360,7 @@ dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ov
 }
 
 vector <vector<float>>
-dmrpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap,
+drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int overlap,
 		long total_data_set_size, int data_type_bytes, int offset, int dimension)
 {
 	int data_node_byte = dimension *data_type_bytes;

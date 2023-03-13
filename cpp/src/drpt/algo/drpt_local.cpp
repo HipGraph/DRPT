@@ -15,12 +15,12 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::DRPTLocal::DRPTLocal ()
+drpt::DRPTLocal::DRPTLocal ()
 {
 
 }
 
-dmrpt::DRPTLocal::DRPTLocal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
+drpt::DRPTLocal::DRPTLocal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix, int no_of_data_points, int tree_depth,
                    vector <vector<VALUE_TYPE>> original_data, int ntrees,
                    int starting_index, int rank, int world_size)
 {
@@ -46,7 +46,7 @@ dmrpt::DRPTLocal::DRPTLocal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projectio
 
 }
 
-void dmrpt::DRPTLocal::count_leaf_sizes (int datasize, int level, int depth, std::vector<int> &out_leaf_sizes)
+void drpt::DRPTLocal::count_leaf_sizes (int datasize, int level, int depth, std::vector<int> &out_leaf_sizes)
 {
   if (level == depth)
     {
@@ -58,7 +58,7 @@ void dmrpt::DRPTLocal::count_leaf_sizes (int datasize, int level, int depth, std
   this->count_leaf_sizes (datasize / 2, level + 1, depth, out_leaf_sizes);
 }
 
-void dmrpt::DRPTLocal::count_first_leaf_indices (std::vector<int> &indices, int datasize, int depth)
+void drpt::DRPTLocal::count_first_leaf_indices (std::vector<int> &indices, int datasize, int depth)
 {
   std::vector<int> leaf_sizes;
   this->count_leaf_sizes (datasize, 0, depth, leaf_sizes);
@@ -68,7 +68,7 @@ void dmrpt::DRPTLocal::count_first_leaf_indices (std::vector<int> &indices, int 
     indices[i + 1] = indices[i] + leaf_sizes[i];
 }
 
-void dmrpt::DRPTLocal::count_first_leaf_indices_all (std::vector <std::vector<int>> &indices, int datasize, int depth_max)
+void drpt::DRPTLocal::count_first_leaf_indices_all (std::vector <std::vector<int>> &indices, int datasize, int depth_max)
 {
   for (int d = 0; d <= depth_max; ++d)
     {
@@ -78,7 +78,7 @@ void dmrpt::DRPTLocal::count_first_leaf_indices_all (std::vector <std::vector<in
     }
 }
 
-void dmrpt::DRPTLocal::grow_local_tree ()
+void drpt::DRPTLocal::grow_local_tree ()
 {
 
   if (this->tree_depth <= 0 || this->tree_depth > log2 (this->no_of_data_points))
@@ -119,7 +119,7 @@ void dmrpt::DRPTLocal::grow_local_tree ()
 
 }
 
-void dmrpt::DRPTLocal::grow_local_subtree (std::vector<int>::iterator begin, std::vector<int>::iterator end,
+void drpt::DRPTLocal::grow_local_subtree (std::vector<int>::iterator begin, std::vector<int>::iterator end,
                                       int depth, int i, const int tree)
 {
   int datasize = end - begin;
@@ -161,7 +161,7 @@ void dmrpt::DRPTLocal::grow_local_subtree (std::vector<int>::iterator begin, std
 
 }
 
-vector <vector<int>> dmrpt::DRPTLocal::get_all_leaf_node_indices (int tree)
+vector <vector<int>> drpt::DRPTLocal::get_all_leaf_node_indices (int tree)
 {
 
   int leaf_size = this->trees_leaf_first_indices[tree].size ();

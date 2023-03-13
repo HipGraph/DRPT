@@ -12,7 +12,7 @@
 
 using namespace std;
 
-VALUE_TYPE *dmrpt::MathOp::multiply_mat (VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols, int A_cols, int alpha)
+VALUE_TYPE *drpt::MathOp::multiply_mat (VALUE_TYPE *A, VALUE_TYPE *B, int A_rows, int B_cols, int A_cols, int alpha)
 {
   int result_size = A_cols * B_cols;
   VALUE_TYPE *result = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * result_size);
@@ -45,7 +45,7 @@ VALUE_TYPE *dmrpt::MathOp::multiply_mat (VALUE_TYPE *A, VALUE_TYPE *B, int A_row
   return result;
 }
 
-VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix (int rows, int cols, float density, int seed)
+VALUE_TYPE *drpt::MathOp::build_sparse_local_random_matrix (int rows, int cols, float density, int seed)
 {
   VALUE_TYPE *A;
   int size = rows * cols;
@@ -75,7 +75,7 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_local_random_matrix (int rows, int cols,
   return A;
 }
 
-VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix (int rank, int world_size, int total_dimension, int levels,
+VALUE_TYPE *drpt::MathOp::build_sparse_projection_matrix (int rank, int world_size, int total_dimension, int levels,
                                                            float density, int seed)
 {
   VALUE_TYPE *local_sparse_matrix = this->build_sparse_local_random_matrix (total_dimension, levels, density, seed);
@@ -84,7 +84,7 @@ VALUE_TYPE *dmrpt::MathOp::build_sparse_projection_matrix (int rank, int world_s
 
 }
 
-VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format (vector <vector<VALUE_TYPE>> &data)
+VALUE_TYPE *drpt::MathOp::convert_to_row_major_format (vector <vector<VALUE_TYPE>> &data)
 {
   if (data.empty ())
     {
@@ -118,9 +118,9 @@ VALUE_TYPE *dmrpt::MathOp::convert_to_row_major_format (vector <vector<VALUE_TYP
   return arr;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
+VALUE_TYPE *drpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                              vector<int> total_elements_per_col,
-                                             dmrpt::StorageFormat format, int rank)
+                                             drpt::StorageFormat format, int rank)
 {
 
   VALUE_TYPE *sums = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
@@ -129,7 +129,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<in
     {
       sums[i] = 0.0;
     }
-  if (format == dmrpt::StorageFormat::RAW)
+  if (format == drpt::StorageFormat::RAW)
     {
       int data_count_prev = 0;
       for (int i = 0; i < local_cols; i++)
@@ -167,9 +167,9 @@ VALUE_TYPE *dmrpt::MathOp::distributed_mean (vector<VALUE_TYPE> &data, vector<in
   return gsums;
 }
 
-VALUE_TYPE *dmrpt::MathOp::distributed_variance (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
+VALUE_TYPE *drpt::MathOp::distributed_variance (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                                  vector<int> total_elements_per_col,
-                                                 dmrpt::StorageFormat format, int rank)
+                                                 drpt::StorageFormat format, int rank)
 {
   VALUE_TYPE *means = this->distributed_mean (data, local_rows, local_cols, total_elements_per_col, format, rank);
   VALUE_TYPE *var = (VALUE_TYPE *) malloc (sizeof (VALUE_TYPE) * local_cols);
@@ -178,7 +178,7 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance (vector<VALUE_TYPE> &data, vecto
     {
       var[i] = 0.0;
     }
-  if (format == dmrpt::StorageFormat::RAW)
+  if (format == drpt::StorageFormat::RAW)
     {
       int data_count_prev = 0;
       for (int i = 0; i < local_cols; i++)
@@ -206,9 +206,9 @@ VALUE_TYPE *dmrpt::MathOp::distributed_variance (vector<VALUE_TYPE> &data, vecto
 }
 
 VALUE_TYPE *
-dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
+drpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_rows, int local_cols,
                                    vector<int> total_elements_per_col, int no_of_bins,
-                                   dmrpt::StorageFormat format, int rank)
+                                   drpt::StorageFormat format, int rank)
 {
 //    cout<<" rank "<<rank<<" distributed median started "<<endl;
   VALUE_TYPE *means = this->distributed_mean (data, local_rows, local_cols, total_elements_per_col, format, rank);
@@ -380,7 +380,7 @@ dmrpt::MathOp::distributed_median (vector<VALUE_TYPE> &data, vector<int> local_r
   return medians;
 }
 
-VALUE_TYPE dmrpt::MathOp::calculate_distance (vector<VALUE_TYPE> &data, vector<VALUE_TYPE> &query)
+VALUE_TYPE drpt::MathOp::calculate_distance (vector<VALUE_TYPE> &data, vector<VALUE_TYPE> &query)
 {
 
   VALUE_TYPE data_arr[data.size ()];
@@ -393,7 +393,7 @@ VALUE_TYPE dmrpt::MathOp::calculate_distance (vector<VALUE_TYPE> &data, vector<V
   return cblas_snrm2 (data.size (), query_arr, 1);
 }
 
-float dmrpt::MathOp::calculate_approx_distance (vector<float> &A, vector<float> &B, int start_index, int end_index)
+float drpt::MathOp::calculate_approx_distance (vector<float> &A, vector<float> &B, int start_index, int end_index)
 {
 
   if (end_index == start_index + 1)

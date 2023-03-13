@@ -7,7 +7,7 @@
 #include <vector>
 
 using namespace std;
-namespace dmrpt {
+namespace drpt {
 class ImageReader {
  public:
   vector <vector<VALUE_TYPE>> read_ubyte(string path, int no_of_images,
@@ -26,6 +26,6 @@ class ImageReader {
 		  long total_data_set_size, int data_type_bytes,  int offset, int dimension);
   int reverse_int(int i);
 };
-} // namespace dmrpt
+} // namespace drpt
 
 #endif // DISTRIBUTED_MRPT_IMAGE_READER_H

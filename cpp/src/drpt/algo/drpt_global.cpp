@@ -22,11 +22,11 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::DRPTGlobal::DRPTGlobal () {
+drpt::DRPTGlobal::DRPTGlobal () {
 
 }
 
-dmrpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
+drpt::DRPTGlobal::DRPTGlobal (VALUE_TYPE *projected_matrix, VALUE_TYPE *projection_matrix,
 		                       int no_of_data_points,
                                int dimension,
                                int tree_depth, int ntrees, int starting_index, int global_dataset_size,
@@ -93,7 +93,7 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
     {
       float priority = static_cast<float>(count[v[i]] / world_size);
 
-      dmrpt::PriorityMap priorityMap;
+      drpt::PriorityMap priorityMap;
       priorityMap.priority = priority;
       priorityMap.leaf_index = v[i];
       vec[v[i]] = priorityMap;
@@ -101,13 +101,13 @@ template<class T, class X> void sortByFreq (std::vector <T> &v, std::vector <X> 
     }
 }
 
-int select_next_candidate (vector < vector < vector < vector < dmrpt::PriorityMap >> >> &candidate_mapping,
+int select_next_candidate (vector < vector < vector < vector < drpt::PriorityMap >> >> &candidate_mapping,
                            vector < vector < int >> &final_tree_leaf_mapping, int current_tree,
 int selecting_tree, int selecting_leaf, int previouse_leaf,int total_leaf_size, int rank ) {
 
-vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
+vector <drpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf][selecting_tree];
     sort(vec.begin(), vec.end(),
-[](const dmrpt::PriorityMap &lhs, const dmrpt::PriorityMap &rhs) {
+[](const drpt::PriorityMap &lhs, const drpt::PriorityMap &rhs) {
 		 if (lhs.priority > rhs.priority) {
 			return true;
 		}else {
@@ -116,7 +116,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
    });
 
    for ( int i = 0; i<vec.size (); i++) {
-          dmrpt::PriorityMap can_leaf = vec[i];
+          drpt::PriorityMap can_leaf = vec[i];
           int id = can_leaf.leaf_index;
           bool candidate = true;
 
@@ -133,7 +133,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
     }
 
  for ( int j = 0; j<total_leaf_size; j++) {
-     vector <dmrpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
+     vector <drpt::PriorityMap> neighbour_vec = candidate_mapping[current_tree][j][selecting_tree];
  if (j != previouse_leaf and neighbour_vec[0].priority > can_leaf.priority and neighbour_vec[0] .leaf_index == can_leaf.leaf_index) {
       candidate = false;
      break;
@@ -150,7 +150,7 @@ vector <dmrpt::PriorityMap> vec = candidate_mapping[current_tree][previouse_leaf
  return -1;
 }
 
-void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_points) {
+void drpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_points) {
 
   if (this->tree_depth <= 0 || this->tree_depth > log2 (this->local_dataset_size))
     {
@@ -175,8 +175,8 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
       this->trees_splits[k] = vector<VALUE_TYPE> (total_split_size);
       this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
       this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
-      this->trees_leaf_first_indices_all[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
-      this->trees_leaf_first_indices_rearrange[k] = vector < vector < dmrpt::DataPoint >> (total_child_size);
+      this->trees_leaf_first_indices_all[k] = vector < vector < drpt::DataPoint >> (total_child_size);
+      this->trees_leaf_first_indices_rearrange[k] = vector < vector < drpt::DataPoint >> (total_child_size);
 
 #pragma  omp parallel for
       for (int i = 0; i < this->tree_depth; i++)
@@ -224,7 +224,7 @@ void dmrpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_poin
     }
 }
 
-void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_tracker, vector<int> &global_size_vector,
+void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_data_tracker, vector<int> &global_size_vector,
 		int depth, int tree) {
 
   int current_nodes = (1 << (depth));
@@ -270,7 +270,7 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes,
 		  global_data_row_count,
 		  28,
-                                                  dmrpt::StorageFormat::RAW, this->rank);
+                                                  drpt::StorageFormat::RAW, this->rank);
 
   for (int i = 0; i < current_nodes; i++)
     {
@@ -348,11 +348,11 @@ void dmrpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_d
 
 }
 
-vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points (int tree,
+vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (int tree,
 		bool use_data_locality_optimization, vector <set<int>> &index_distribution, std::map<int, vector<VALUE_TYPE>> &datamap)
 {
 
-  dmrpt::MathOp mathOp;
+  drpt::MathOp mathOp;
 
   int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
@@ -559,11 +559,11 @@ vector <vector<dmrpt::DataPoint>> dmrpt::DRPTGlobal::collect_similar_data_points
 
 }
 
-void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
+void drpt::DRPTGlobal::calculate_tree_leaf_correlation ()
 {
 
-  vector < vector < vector < vector < dmrpt::PriorityMap >> >> candidate_mapping =
-      vector < vector < vector < vector < dmrpt::PriorityMap >> >> (this->ntrees);
+  vector < vector < vector < vector < drpt::PriorityMap >> >> candidate_mapping =
+      vector < vector < vector < vector < drpt::PriorityMap >> >> (this->ntrees);
 
   int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
@@ -595,11 +595,11 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
   for (int tree = 0; tree < this->ntrees; tree++)
     {
       correlation_matrix[tree] = vector < vector < vector < float>>>(total_leaf_size);
-      candidate_mapping[tree] = vector < vector < vector < dmrpt::PriorityMap>>>(total_leaf_size);
+      candidate_mapping[tree] = vector < vector < vector < drpt::PriorityMap>>>(total_leaf_size);
       for (int leaf = 0; leaf < total_leaf_size; leaf++)
         {
           correlation_matrix[tree][leaf] = vector < vector < float >> (this->ntrees);
-          candidate_mapping[tree][leaf] = vector < vector < dmrpt::PriorityMap >> (this->ntrees);
+          candidate_mapping[tree][leaf] = vector < vector < drpt::PriorityMap >> (this->ntrees);
           vector <DataPoint> data_points = this->trees_leaf_first_indices[tree][leaf];
           for (int j = 0; j < this->ntrees; j++)
             {
@@ -721,7 +721,7 @@ void dmrpt::DRPTGlobal::calculate_tree_leaf_correlation ()
       disps_recieve;
 }
 
-void dmrpt::DRPTGlobal::derive_global_datavector_sizes(vector<vector<DataPoint>>& child_data_tracker,
+void drpt::DRPTGlobal::derive_global_datavector_sizes(vector<vector<DataPoint>>& child_data_tracker,
 		vector<int> &global_size_vector,
 		int current_nodes, int next_split) {
 

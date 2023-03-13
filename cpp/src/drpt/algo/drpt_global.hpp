@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace dmrpt {
+namespace drpt {
 
 struct PriorityMap {
   int leaf_index;
@@ -34,7 +34,7 @@ private:
   int data_dimension;
 
   // multiple trees
-  vector<vector<vector<dmrpt::DataPoint>>> trees_data;
+  vector<vector<vector<drpt::DataPoint>>> trees_data;
   vector<vector<VALUE_TYPE>> trees_splits;
   vector<vector<vector<DataPoint>>> trees_leaf_first_indices_all;
   vector<vector<vector<DataPoint>>> trees_leaf_first_indices;
@@ -69,6 +69,6 @@ public:
   vector<vector<DataPoint>> collect_similar_data_points(int tree, bool use_data_locality_optimization,
                               vector<set<int>> &index_distribution,std::map<int, vector<VALUE_TYPE>> &datamap);
 };
-} // namespace dmrpt
+} // namespace drpt
 
 #endif // DISTRIBUTED_MRPT_DRPT_GLOBAL_H

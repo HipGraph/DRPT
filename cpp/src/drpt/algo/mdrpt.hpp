@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace dmrpt
+namespace drpt
 {
 	class MDRPT
 	{
@@ -47,11 +47,11 @@ namespace dmrpt
 			int index;
 		};
 
-		std::map<int, vector<dmrpt::DataPoint>>
-		communicate_nns(std::map<int, vector<dmrpt::DataPoint>>& local_nns,
+		std::map<int, vector<drpt::DataPoint>>
+		communicate_nns(std::map<int, vector<drpt::DataPoint>>& local_nns,
 				set<int>& keys, int nn);
 
-		void calculate_nns(std::map<int, vector<dmrpt::DataPoint>>& local_nns,
+		void calculate_nns(std::map<int, vector<drpt::DataPoint>>& local_nns,
 				set<int>& keys, int tree, int nn);
 
 		int* receive_random_seeds(int seed);
@@ -61,7 +61,7 @@ namespace dmrpt
 		void grow_local_trees(vector<vector< vector < DataPoint>>> &leaf_nodes_of_trees,
 				int global_minimum,int nn,int global_tree_depth, int density);
 
-		dmrpt::MDRPT::index_distance_pair* send_min_max_distance_to_data_owner(map<int, vector<dmrpt::DataPoint>>& local_nns,
+		drpt::MDRPT::index_distance_pair* send_min_max_distance_to_data_owner(map<int, vector<drpt::DataPoint>>& local_nns,
 				int* receiving_indices_count,int* disps_receiving_indices,
 				int &send_count,int &total_receving, int nn);
 
@@ -69,10 +69,10 @@ namespace dmrpt
 				index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map);
 
 		vector<vector<index_distance_pair>> announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
-				dmrpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map);
+				drpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map);
 
 		void select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
-				map<int,vector<dmrpt::DataPoint>>& local_nns,
+				map<int,vector<drpt::DataPoint>>& local_nns,
 				map<int, vector<DataPoint>> &final_nn_sending_map,
 				map<int, vector<DataPoint>>  &final_nn_map,
 				int* sending_selected_indices_count,
@@ -111,6 +111,6 @@ namespace dmrpt
 
 
 	};
-} // namespace dmrpt
+} // namespace drpt
 
 #endif // DISTRIBUTED_MRPT_MDRPT_H

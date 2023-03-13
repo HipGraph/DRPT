@@ -23,7 +23,7 @@
 using namespace std;
 using namespace std::chrono;
 
-dmrpt::MDRPT::MDRPT(int ntrees, int tree_depth,
+drpt::MDRPT::MDRPT(int ntrees, int tree_depth,
 		double tree_depth_ratio, int local_tree_offset,
 		int total_data_set_size, int local_data_set_size, int dimension,
 		int rank, int world_size, string input_path, string output_path)
@@ -43,10 +43,10 @@ dmrpt::MDRPT::MDRPT(int ntrees, int tree_depth,
 	this->local_tree_offset = local_tree_offset;
 }
 
-void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float density, bool use_locality_optimization,
+void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float density, bool use_locality_optimization,
 		int nn, ofstream& fout) {
 
-	dmrpt::MathOp mathOp; //class uses for math operations
+	drpt::MathOp mathOp; //class uses for math operations
 	VALUE_TYPE* row_data_array = mathOp.convert_to_row_major_format(original_data); // this algorithm assumes row major format for operations
 
 	int global_tree_depth = this->tree_depth * this->tree_depth_ratio;
@@ -70,7 +70,7 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	this->starting_data_index = starting_index;
 
 	// creating DRPTGlobal class
-	dmrpt::DRPTGlobal drpt_global = dmrpt::DRPTGlobal(P,
+	drpt::DRPTGlobal drpt_global = drpt::DRPTGlobal(P,
 			B,
 			this->local_data_set_size,
 			this->data_dimension,
@@ -114,10 +114,10 @@ void dmrpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float d
 	delete[] receive;
 }
 
-void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, set<int>& keys, int tree, int nn)
+void drpt::MDRPT::calculate_nns(map<int, vector<drpt::DataPoint>>& local_nns, set<int>& keys, int tree, int nn)
 {
 
-	dmrpt::MathOp mathOp;
+	drpt::MathOp mathOp;
 
 	// only process belonging indices
 	for (int i = this->my_leaf_start_index; i < this->my_leaf_end_index; i++)
@@ -195,7 +195,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 						if (local_nns.find(idx) == local_nns.end())
 						{
 							//final linked list of source indices and their nearest neighbours
-							local_nns.insert(pair < int, vector < dmrpt::DataPoint >> (idx, sub_vec));
+							local_nns.insert(pair < int, vector < drpt::DataPoint >> (idx, sub_vec));
 							keys.insert(idx);
 						}
 					}
@@ -205,7 +205,7 @@ void dmrpt::MDRPT::calculate_nns(map<int, vector<dmrpt::DataPoint>>& local_nns, 
 	}
 }
 
-std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, vector<dmrpt::DataPoint>> &local_nns,
+std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vector<drpt::DataPoint>> &local_nns,
 		set<int>& keys,int nn) {
 
 	int* receiving_indices_count = new int[this->world_size]();
@@ -264,7 +264,7 @@ std::map<int,vector<dmrpt::DataPoint>> dmrpt::MDRPT::communicate_nns(map<int, ve
 	return final_nn_map;
 }
 
-std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstream& fout) {
+std::map<int, vector<drpt::DataPoint>> drpt::MDRPT::gather_nns(int nn, ofstream& fout) {
 
 	std::map<int, vector<DataPoint>> local_nn_map;
 
@@ -278,13 +278,13 @@ std::map<int, vector<dmrpt::DataPoint>> dmrpt::MDRPT::gather_nns(int nn, ofstrea
 
 	cout << " rank " << rank << " distance calculation completed " << endl;
 
-	std::map<int, vector<dmrpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
+	std::map<int, vector<drpt::DataPoint>> final_map = communicate_nns(local_nn_map, keys, nn);
 
 
 	return final_map;
 }
 
-int dmrpt::MDRPT::get_global_minimum_leaf_size(vector<vector < vector < DataPoint>>>& leaf_nodes_of_trees) {
+int drpt::MDRPT::get_global_minimum_leaf_size(vector<vector < vector < DataPoint>>>& leaf_nodes_of_trees) {
 	int my_minimum_count = INT32_MAX;
 	for (int i = 0; i < ntrees; i++)
 	{
@@ -312,9 +312,9 @@ int dmrpt::MDRPT::get_global_minimum_leaf_size(vector<vector < vector < DataPoin
 	return global_minimum;
 }
 
-void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_nodes_of_trees, int global_minimum,
+void drpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_nodes_of_trees, int global_minimum,
 		int nn,int global_tree_depth, int density) {
-	dmrpt::MathOp mathOp;
+	drpt::MathOp mathOp;
 	int local_tree_depth = log2(global_minimum) - (log2(nn) + this->local_tree_offset);
 	this->tree_depth = local_tree_depth + global_tree_depth;
 
@@ -339,7 +339,7 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 	for (int i = 0;i < this->ntrees;i++)
 	{
 		this->trees_leaf_all[i] =
-				vector < vector < dmrpt::DataPoint >> (total_leaf_size);
+				vector < vector < drpt::DataPoint >> (total_leaf_size);
 
 		VALUE_TYPE* C = mathOp.build_sparse_projection_matrix(this->rank,
 				this->world_size,
@@ -364,7 +364,7 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 					local_tree_depth,
 					leaf_nodes_of_trees[i][j].size(), 1.0);
 
-			DRPTLocal drpt_local = dmrpt::DRPTLocal(LP, C,
+			DRPTLocal drpt_local = drpt::DRPTLocal(LP, C,
 					leaf_nodes_of_trees[i][j].size(), local_tree_depth, local_data,
 					1, this->starting_data_index,
 					this->rank,
@@ -395,7 +395,7 @@ void dmrpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_node
 	}
 }
 
-int* dmrpt::MDRPT::receive_random_seeds(int size) {
+int* drpt::MDRPT::receive_random_seeds(int size) {
 	int* receive = new int[size]();
 	if (this->rank == 0) {
 		for (int i = 0; i < size; i++)
@@ -411,7 +411,7 @@ int* dmrpt::MDRPT::receive_random_seeds(int size) {
 	return receive;
 }
 
-dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_owner(map<int, vector<dmrpt::DataPoint>>& local_nns,
+drpt::MDRPT::index_distance_pair* drpt::MDRPT::send_min_max_distance_to_data_owner(map<int, vector<drpt::DataPoint>>& local_nns,
 		int* receiving_indices_count,int* disps_receiving_indices,
 		int &send_count,int &total_receiving, int nn) {
 	int* sending_indices_count = new int[this->world_size]();
@@ -457,7 +457,7 @@ dmrpt::MDRPT::index_distance_pair* dmrpt::MDRPT::send_min_max_distance_to_data_o
 }
 
 
-void dmrpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
+void drpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *disps_receiving_indices,
 		index_distance_pair *out_index_dis,vector<index_distance_pair> &final_sent_indices_to_rank_map) {
 
 	int my_end_index = this->starting_data_index + this->local_data_set_size;
@@ -494,8 +494,8 @@ void dmrpt::MDRPT::finalize_final_dataowner(int *receiving_indices_count,int *di
 	}
 }
 
-vector<vector<dmrpt::MDRPT::index_distance_pair>> dmrpt::MDRPT::announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
-		dmrpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map) {
+vector<vector<drpt::MDRPT::index_distance_pair>> drpt::MDRPT::announce_final_dataowner(int total_receving, int *receiving_indices_count, int *disps_receiving_indices,
+		drpt::MDRPT::index_distance_pair *out_index_dis, vector<index_distance_pair> &final_sent_indices_to_rank_map) {
 
 	int* minimal_selected_rank_sending = new int[total_receving]();
 	index_distance_pair minimal_index_distance[total_receving];
@@ -572,8 +572,8 @@ vector<vector<dmrpt::MDRPT::index_distance_pair>> dmrpt::MDRPT::announce_final_d
 
 }
 
-void dmrpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
-		map<int,vector<dmrpt::DataPoint>>& local_nns,
+void drpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair>> &final_indices_allocation,
+		map<int,vector<drpt::DataPoint>>& local_nns,
 		map<int, vector<DataPoint>> &final_nn_sending_map,
 		map<int, vector<DataPoint>>  &final_nn_map,
 		int* sending_selected_indices_count,
@@ -592,12 +592,12 @@ void dmrpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair
 			{
 				if (local_nns.find(selected_index)!= local_nns.end())
 				{
-					vector<dmrpt::DataPoint> target;
+					vector<drpt::DataPoint> target;
 					std::copy_if(local_nns[selected_index].begin(),
 							local_nns[selected_index].end(),
 							std::back_inserter(target),
 							[dst_th](
-									dmrpt::DataPoint dataPoint
+									drpt::DataPoint dataPoint
 							)
 							{
 							  return dataPoint.distance < dst_th;
@@ -628,7 +628,7 @@ void dmrpt::MDRPT::select_final_forwarding_nns(vector<vector<index_distance_pair
 
 }
 
-void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count, int *receiving_selected_indices_count,
+void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_selected_indices_nn_count, int *receiving_selected_indices_count,
 		std::map<int, vector<DataPoint>> &final_nn_map,std::map<int, vector<DataPoint>> &final_nn_sending_map,
 		vector<vector<index_distance_pair>> &final_indices_allocation) {
 
@@ -684,7 +684,7 @@ void dmrpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sel
 			{
 				if (final_nn_sending_map.find(final_indices[j].index) != final_nn_sending_map.end())
 				{
-					vector<dmrpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j].index];
+					vector<drpt::DataPoint> nn_sending = final_nn_sending_map[final_indices[j].index];
 					if (nn_sending.size()> 0)
 					{
 						sending_selected_indices[inc] = final_indices[j].index;

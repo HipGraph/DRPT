@@ -1,9 +1,9 @@
-#include "dmrpt/io/file_reader.hpp"
-#include "dmrpt/math/math_operations.hpp"
-#include "dmrpt/algo/drpt_local.hpp"
-#include "dmrpt/algo/mdrpt.hpp"
-#include "dmrpt/io/file_writer.hpp"
-#include "dmrpt/io/file_writer.cpp"
+#include "drpt/io/file_reader.hpp"
+#include "drpt/math/math_operations.hpp"
+#include "drpt/algo/drpt_local.hpp"
+#include "drpt/algo/mdrpt.hpp"
+#include "drpt/io/file_writer.hpp"
+#include "drpt/io/file_writer.cpp"
 #include <vector>
 #include <mpi.h>
 #include <string>
@@ -19,7 +19,7 @@
 
 
 using namespace std;
-using namespace dmrpt;
+using namespace drpt;
 using namespace std::chrono;
 
 int main(int argc, char* argv[])

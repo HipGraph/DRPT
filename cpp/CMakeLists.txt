@@ -28,7 +28,7 @@ include_directories(src/drpt/io)
 
 set(SOURCES src/main.cpp)
 
-add_executable(mdrpt ${SOURCES})
+add_executable(drpt ${SOURCES})
 
 add_subdirectory(src/drpt)
 

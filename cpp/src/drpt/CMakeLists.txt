@@ -11,7 +11,7 @@ add_library(
         algo/drpt_global.cpp
         io/file_writer.cpp
 )
-target_link_libraries(drpt ${OpenCV_LIBS})
-target_link_libraries(drpt ${OpenBLAS_CXX_LIBRARIES})
-target_link_libraries(drpt ${MPI_CXX_LIBRARIES})
+target_link_libraries(mdrpt ${OpenCV_LIBS})
+target_link_libraries(mdrpt ${OpenBLAS_CXX_LIBRARIES})
+target_link_libraries(mdrpt ${MPI_CXX_LIBRARIES})
 

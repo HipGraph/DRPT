@@ -28,11 +28,11 @@ include_directories(src/drpt/io)
 
 set(SOURCES src/main.cpp)
 
-add_executable(drpt ${SOURCES})
+add_executable(mdrpt ${SOURCES})
 
 add_subdirectory(src/drpt)
 
-target_link_libraries(drpt drpt)
+target_link_libraries(drpt mdrpt)
 
 target_link_libraries(drpt MPI::MPI_CXX)
 target_link_libraries(drpt OpenMP::OpenMP_CXX)

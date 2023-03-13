@@ -3,7 +3,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(
         mdrpt SHARED
-        #        io/file_reader.cpp
         io/file_reader.cpp
         math/math_operations.cpp
         algo/drpt_local.cpp

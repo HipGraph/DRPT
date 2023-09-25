@@ -107,6 +107,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	// get the global minimum value of a leaf
 	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
+        cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
 	//grow local trees for each leaf
 	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 

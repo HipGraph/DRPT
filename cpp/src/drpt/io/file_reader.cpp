@@ -406,7 +406,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
 
   long global_start = rank * process_bytes;
 
-
+  cout << " rank " << rank << " process_data_nodes " << process_data_nodes << " global start "<<global_start << endl;
 
   if (rank == 0)
     global_start = offset;
@@ -451,7 +451,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
   long co = total_arr_size / (dimension*data_type_bytes);
   long co_in = 0;
   vector <vector<VALUE_TYPE>> output (co);
-
+  cout << " rank " << rank << " starting data loading " << total_data_nodes << endl;
 #pragma omp parallel for
   for (int i = 0; i < co; i++)
     {

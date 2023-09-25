@@ -356,7 +356,12 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
 
   int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
+
   int leafs_per_node = total_leaf_size / this->world_size;
+
+
+  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
+
   int my_start_count = 0;
   int end_count = 0;
   int sending_rank = -1;
@@ -448,6 +453,8 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
+
+      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
 
       if (i > 0 && i % leafs_per_node == 0)
         {

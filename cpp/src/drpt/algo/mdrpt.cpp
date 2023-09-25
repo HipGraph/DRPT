@@ -102,6 +102,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	{
 		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
 				this->index_distribution,this->datamap);
+
 	}
 
 	// get the global minimum value of a leaf

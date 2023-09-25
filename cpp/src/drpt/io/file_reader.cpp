@@ -442,7 +442,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
 
     }
     cout << " rank " << rank << " MPI_File_read_at_all completed " << total_data_nodes << endl;
-  chunk[perpsize] = '\0';
+  chunk[(process_bytes+1)] = '\0';
 
   long count = 0;
 

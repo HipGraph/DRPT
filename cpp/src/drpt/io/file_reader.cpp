@@ -9,7 +9,7 @@
 #include <cmath>
 #include <cstdlib>  // for rand() and srand()
 #include <ctime>    // for time()
-
+#include <random>
 using namespace std;
 
 

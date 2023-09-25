@@ -478,8 +478,8 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
           // Generate a random number between 0 and 255
           float randomNumber = std::rand() % 256;
 
-          v[j] = x;
-//          v[j] = randomNumber;
+//          v[j] = x;
+          v[j] = randomNumber;
           if (rank == 0) cout<<v[j]<<" ";
         }
         if (rank == 0) cout<<endl;

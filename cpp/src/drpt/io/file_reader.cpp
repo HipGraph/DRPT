@@ -452,7 +452,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
   long co_in = 0;
   vector <vector<VALUE_TYPE>> output (co);
   cout << " rank " << rank << " starting data loading " << total_data_nodes << endl;
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i = 0; i < co; i++)
     {
       vector<VALUE_TYPE> v (dimension);
@@ -472,7 +472,9 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
              x =0;
 //          float x = (float) (c);
           v[j] = x;
+          if (rank == 0) cout<<v[j]<<" "<<;
         }
+        if (rank == 0) cout<<endl;
       output[i] = v;
     }
 

@@ -269,7 +269,7 @@ void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_da
   //calculation of distributed median
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes,
 		  global_data_row_count,
-		  7,
+                                                   no_of_bins,
                                                   drpt::StorageFormat::RAW, this->rank);
 
   for (int i = 0; i < current_nodes; i++)

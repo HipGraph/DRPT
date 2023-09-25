@@ -11,7 +11,7 @@
 #include <set>
 #include <string>
 #include <vector>
-
+#include <algorithm>
 namespace drpt
 {
 	class MDRPT

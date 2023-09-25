@@ -472,7 +472,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
              x =0;
 //          float x = (float) (c);
           v[j] = x;
-          if (rank == 0) cout<<v[j]<<" "<<;
+          if (rank == 0) cout<<v[j]<<" ";
         }
         if (rank == 0) cout<<endl;
       output[i] = v;

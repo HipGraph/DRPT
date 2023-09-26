@@ -477,15 +477,15 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
           std::mt19937 gen(rd());
 
           // Define the range for the random number (0 to 255)
-          std::uniform_int_distribution<int> distribution(0, 255);
+          std::uniform_int_distribution<float> distribution(0, 255);
 
           // Generate a random number
           int randomNumber = distribution(gen);
 //          v[j] = x;
           v[j] = randomNumber;
-          if (rank == 0) cout<<v[j]<<" ";
+//          if (rank == 0) cout<<v[j]<<" ";
         }
-        if (rank == 0) cout<<endl;
+//        if (rank == 0) cout<<endl;
       output[i] = v;
     }
 

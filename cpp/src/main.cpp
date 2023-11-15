@@ -193,11 +193,13 @@ int main(int argc, char* argv[])
 
 	int chunk_size = data_set_size / size;
 
+        auto start_index_buildling = high_resolution_clock::now();
+
 	MDRPT mdrpt = MDRPT(ntrees, tree_depth, tree_depth_ratio, local_tree_offset, data_set_size, cols,
 			rows, rank, size, input_path,
 			output_path);
 
-	auto start_index_buildling = high_resolution_clock::now();
+
 
 	cout << " start growing trees " << rank << endl;
 
@@ -212,7 +214,7 @@ int main(int argc, char* argv[])
 
 	auto start_query = high_resolution_clock::now();
 
-	map<int, vector<DataPoint>> data_points = mdrpt.gather_nns(nn, fout);
+//	map<int, vector<DataPoint>> data_points = mdrpt.gather_nns(nn, fout);
 
 	auto stop_query = high_resolution_clock::now();
 	auto duration_query = duration_cast<microseconds>(stop_query - start_query);
@@ -222,8 +224,8 @@ int main(int argc, char* argv[])
 	cout <<"rank "<<rank<< " file writing started " << endl;
 
 	auto file_writing_started = high_resolution_clock::now();
-	FileWriter<int> fileWriter;
-	fileWriter.mpi_write_edge_list(data_points,file_path_results,nn-1,rank,size,true);
+//	FileWriter<int> fileWriter;
+//	fileWriter.mpi_write_edge_list(data_points,file_path_results,nn-1,rank,size,true);
 
 	cout <<"rank "<<rank<< " file writing end " << endl;
 

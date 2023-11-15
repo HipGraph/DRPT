@@ -330,7 +330,7 @@ void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_da
         }
       }
 
-      cout<<" rank "<<rank<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
+//      cout<<" rank "<<rank<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == this->tree_depth - 2) {
@@ -455,7 +455,7 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
 
-      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
+//      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
 
       if (i > 0 && i % leafs_per_node == 0)
         {

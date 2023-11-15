@@ -269,7 +269,7 @@ void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_da
   //calculation of distributed median
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes,
 		  global_data_row_count,
-		  28,
+                                                   no_of_bins,
                                                   drpt::StorageFormat::RAW, this->rank);
 
   for (int i = 0; i < current_nodes; i++)
@@ -330,6 +330,7 @@ void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_da
         }
       }
 
+      cout<<" rank "<<rank<< " left child size" <<left_childs_global.size()<<" right child size "<<right_childs_global.size()<<endl;
       child_data_tracker[left_index] = left_childs_global;
       child_data_tracker[right_index] = right_childs_global;
       if (depth == this->tree_depth - 2) {
@@ -356,7 +357,12 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
 
   int total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
+
   int leafs_per_node = total_leaf_size / this->world_size;
+
+
+  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
+
   int my_start_count = 0;
   int end_count = 0;
   int sending_rank = -1;
@@ -448,6 +454,8 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
       vector <DataPoint> all_points = (use_data_locality_optimization)
                                       ? this->trees_leaf_first_indices_rearrange[tree][i]
                                       : this->trees_leaf_first_indices[tree][i];
+
+      cout<<" rank "<<rank <<" leaf "<<i<<" leaf size "<<all_points.size()<<endl;
 
       if (i > 0 && i % leafs_per_node == 0)
         {

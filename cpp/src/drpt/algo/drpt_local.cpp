@@ -81,7 +81,8 @@ void drpt::DRPTLocal::count_first_leaf_indices_all (std::vector <std::vector<int
 void drpt::DRPTLocal::grow_local_tree ()
 {
 
-  if (this->tree_depth <= 0 || this->tree_depth > log2 (this->no_of_data_points))
+  cout<<" rank "<<this->rank << "tree depth local" <<this->tree_depth<< " data points "<<this->no_of_data_points<<" heigt "<<log2 (this->no_of_data_points)<<endl;
+      if (this->tree_depth <= 0 || this->tree_depth > log2 (this->no_of_data_points))
     {
       throw std::out_of_range (" depth should be in range [1,....,log2(rows)]");
     }

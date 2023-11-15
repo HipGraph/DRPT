@@ -7,7 +7,9 @@
 #include "mpi.h"
 #include <cstring>
 #include <cmath>
-
+#include <cstdlib>  // for rand() and srand()
+#include <ctime>    // for time()
+#include <random>
 using namespace std;
 
 
@@ -406,7 +408,7 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
 
   long global_start = rank * process_bytes;
 
-
+  cout << " rank " << rank << " process_data_nodes " << process_data_nodes << " global start "<<global_start << endl;
 
   if (rank == 0)
     global_start = offset;
@@ -441,8 +443,8 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
         current_chunk = process_bytes - index;
 
     }
-
-  chunk[perpsize] = '\0';
+    cout << " rank " << rank << " MPI_File_read_at_all completed " << total_data_nodes << endl;
+  chunk[(process_bytes+1)] = '\0';
 
   long count = 0;
 
@@ -451,8 +453,8 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
   long co = total_arr_size / (dimension*data_type_bytes);
   long co_in = 0;
   vector <vector<VALUE_TYPE>> output (co);
-
-#pragma omp parallel for
+  cout << " rank " << rank << " starting data loading " << total_data_nodes << endl;
+//#pragma omp parallel for
   for (int i = 0; i < co; i++)
     {
       vector<VALUE_TYPE> v (dimension);
@@ -470,9 +472,20 @@ drpt::ImageReader::mpi_file_read (string path, int rank, int world_size, int ove
           float  x = result;
           if (x > 1e+05)
              x =0;
-//          float x = (float) (c);
-          v[j] = x;
+
+          std::random_device rd;
+          std::mt19937 gen(rd());
+
+          // Define the range for the random number (0 to 255)
+          std::uniform_real_distribution<float> distribution(0, 255);
+
+          // Generate a random number
+          int randomNumber = distribution(gen);
+//          v[j] = x;
+          v[j] = randomNumber;
+//          if (rank == 0) cout<<v[j]<<" ";
         }
+//        if (rank == 0) cout<<endl;
       output[i] = v;
     }
 

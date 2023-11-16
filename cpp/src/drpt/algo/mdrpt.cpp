@@ -224,14 +224,14 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 			receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
 
 
-//	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
+	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
 //
 //	//finalize data owners based on data owner having minimum distance threshold.
-//	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 //
 //	//announce the selected dataowner to all interesting data holders
-//	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
-//			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
+			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 //
 //
 //	std::map<int, vector<DataPoint>>final_nn_sending_map;

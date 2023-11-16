@@ -235,7 +235,7 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 //
 //
 //	std::map<int, vector<DataPoint>>final_nn_sending_map;
-//	std::map<int, vector<DataPoint>>final_nn_map;
+	std::map<int, vector<DataPoint>>final_nn_map;
 //
 //	int* sending_selected_indices_count = new int[this->world_size]();
 //	int* sending_selected_indices_nn_count = new int[this->world_size]();

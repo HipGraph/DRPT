@@ -234,21 +234,21 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
 //
 //
-//	std::map<int, vector<DataPoint>>final_nn_sending_map;
+	std::map<int, vector<DataPoint>>final_nn_sending_map;
 	std::map<int, vector<DataPoint>>final_nn_map;
 //
-//	int* sending_selected_indices_count = new int[this->world_size]();
-//	int* sending_selected_indices_nn_count = new int[this->world_size]();
+	int* sending_selected_indices_count = new int[this->world_size]();
+	int* sending_selected_indices_nn_count = new int[this->world_size]();
 //
-//	int* receiving_selected_indices_count = new int[this->world_size]();
-//	int* receiving_selected_indices_nn_count = new int[this->world_size]();
+	int* receiving_selected_indices_count = new int[this->world_size]();
+	int* receiving_selected_indices_nn_count = new int[this->world_size]();
 //
 //	//select final nns to be forwared to dataowners
-//	this->select_final_forwarding_nns(final_indices_allocation,
-//			local_nns,
-//			final_nn_sending_map,final_nn_map,
-//			sending_selected_indices_count,
-//			sending_selected_indices_nn_count);
+	this->select_final_forwarding_nns(final_indices_allocation,
+			local_nns,
+			final_nn_sending_map,final_nn_map,
+			sending_selected_indices_count,
+			sending_selected_indices_nn_count);
 //
 //
 //	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,

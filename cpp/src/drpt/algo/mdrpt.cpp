@@ -114,7 +114,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 
         auto start_index_buildling = high_resolution_clock::now();
 	//grow local trees for each leaf
-//	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
+	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
         auto stop_index_building = high_resolution_clock::now();
 

@@ -651,10 +651,6 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 	int* disps_receiving_selected_nn_indices = new int[this->world_size]();
 
 
-
-	MPI_Alltoall(sending_selected_indices_count,
-			1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
-
     int total_selected_indices_count=0;
 
 	int total_selected_indices_nn_count=0;

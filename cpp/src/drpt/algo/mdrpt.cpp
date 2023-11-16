@@ -69,6 +69,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	int starting_index = (this->global_data_set_size / world_size) * this->rank;
 	this->starting_data_index = starting_index;
 
+
 	// creating DRPTGlobal class
 	drpt::DRPTGlobal drpt_global = drpt::DRPTGlobal(P,
 			B,
@@ -79,6 +80,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 			this->global_data_set_size,
 			this->rank,
 			this->world_size);
+
 
 	cout << " rank " << rank << " starting growing trees" << endl;
 	// start growing global tree

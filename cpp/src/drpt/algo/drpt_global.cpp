@@ -162,18 +162,19 @@ void drpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_point
       throw std::out_of_range (" no of trees should be greater than zero");
     }
 
-  this->data_points = data_points;
+  this->data_points = data_points; // convert this to pointer reference
+
   int total_split_size = 1 << (this->tree_depth + 1);
   int total_child_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
   cout << " rank " << rank << " start initial tree growing" << endl;
 
-  this->index_to_tree_leaf_mapper = vector < vector < int >> (this->local_dataset_size);
+  this->index_to_tree_leaf_mapper = vector<vector<int>>(this->local_dataset_size);
 
   for (int k = 0; k < this->ntrees; k++)
     {
       this->trees_splits[k] = vector<VALUE_TYPE> (total_split_size);
-      this->trees_data[k] = vector < vector < DataPoint >> (this->tree_depth);
+      this->trees_data[k] = vector<vector<DataPoint>>(this->tree_depth);
       this->trees_leaf_first_indices[k] = vector < vector < DataPoint >> (total_child_size);
       this->trees_leaf_first_indices_all[k] = vector < vector < drpt::DataPoint >> (total_child_size);
       this->trees_leaf_first_indices_rearrange[k] = vector < vector < drpt::DataPoint >> (total_child_size);
@@ -264,7 +265,8 @@ void drpt::DRPTGlobal::grow_global_subtree (vector <vector<DataPoint>> &child_da
     }
 
     // calculation of bins
-    int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+//    int no_of_bins = 1 + (3.322 * log2(minimum_vector_size));
+    int no_of_bins = 7;
 
   //calculation of distributed median
   VALUE_TYPE *result = mathOp.distributed_median (data, local_data_row_count, current_nodes,

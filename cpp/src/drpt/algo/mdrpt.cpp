@@ -109,9 +109,16 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
         cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
+
+        auto start_index_buildling = high_resolution_clock::now();
 	//grow local trees for each leaf
 	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
+        auto stop_index_building = high_resolution_clock::now();
+
+        auto duration_index_building = duration_cast<microseconds>(stop_index_building - start_index_buildling);
+
+        cout<<" local tree growing time: "<<duration_index_building.count()/1000000<<endl;
 
 	delete[] receive;
 }

@@ -224,49 +224,49 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 			receiving_indices_count,disps_receiving_indices,send_count,total_receving,nn);
 
 
-	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
-
-	//finalize data owners based on data owner having minimum distance threshold.
-	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-
-	//announce the selected dataowner to all interesting data holders
-	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
-			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-
-
-	std::map<int, vector<DataPoint>>final_nn_sending_map;
-	std::map<int, vector<DataPoint>>final_nn_map;
-
-	int* sending_selected_indices_count = new int[this->world_size]();
-	int* sending_selected_indices_nn_count = new int[this->world_size]();
-
-	int* receiving_selected_indices_count = new int[this->world_size]();
-	int* receiving_selected_indices_nn_count = new int[this->world_size]();
-
-	//select final nns to be forwared to dataowners
-	this->select_final_forwarding_nns(final_indices_allocation,
-			local_nns,
-			final_nn_sending_map,final_nn_map,
-			sending_selected_indices_count,
-			sending_selected_indices_nn_count);
-
-
-	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
-
-	delete[]
-			receiving_indices_count;
-	delete[]
-			disps_receiving_indices;
-
-	delete[]
-			sending_selected_indices_count;
-	delete[]
-			sending_selected_indices_nn_count;
-	delete[]
-			receiving_selected_indices_count;
-	delete[]
-			receiving_selected_indices_nn_count;
+//	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
+//
+//	//finalize data owners based on data owner having minimum distance threshold.
+//	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+//
+//	//announce the selected dataowner to all interesting data holders
+//	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
+//			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
+//
+//
+//	std::map<int, vector<DataPoint>>final_nn_sending_map;
+//	std::map<int, vector<DataPoint>>final_nn_map;
+//
+//	int* sending_selected_indices_count = new int[this->world_size]();
+//	int* sending_selected_indices_nn_count = new int[this->world_size]();
+//
+//	int* receiving_selected_indices_count = new int[this->world_size]();
+//	int* receiving_selected_indices_nn_count = new int[this->world_size]();
+//
+//	//select final nns to be forwared to dataowners
+//	this->select_final_forwarding_nns(final_indices_allocation,
+//			local_nns,
+//			final_nn_sending_map,final_nn_map,
+//			sending_selected_indices_count,
+//			sending_selected_indices_nn_count);
+//
+//
+//	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+//			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
+//
+//	delete[]
+//			receiving_indices_count;
+//	delete[]
+//			disps_receiving_indices;
+//
+//	delete[]
+//			sending_selected_indices_count;
+//	delete[]
+//			sending_selected_indices_nn_count;
+//	delete[]
+//			receiving_selected_indices_count;
+//	delete[]
+//			receiving_selected_indices_nn_count;
 	return final_nn_map;
 }
 

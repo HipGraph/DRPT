@@ -251,8 +251,8 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 			sending_selected_indices_nn_count);
 //
 //
-//	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
-//			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
+	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
+			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
 //
 //	delete[]
 //			receiving_indices_count;

@@ -186,7 +186,7 @@ void drpt::DRPTGlobal::grow_global_tree (vector <vector<VALUE_TYPE>> &data_point
     }
 
 // storing projected data
-#pragma  omp parallel for
+  #pragma  omp parallel for
   for (int j = 0; j < this->local_dataset_size; j++)
     {
       this->index_to_tree_leaf_mapper[j] = vector<int> (this->ntrees);

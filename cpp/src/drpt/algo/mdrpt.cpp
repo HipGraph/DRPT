@@ -85,28 +85,28 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	drpt_global.grow_global_tree(original_data);
 	cout << " rank " << rank << " completing growing trees" << endl;
 
-
-	//calculate locality optimization to improve data locality
-	if (use_locality_optimization)
-	{
-		cout << " rank " << rank << " starting tree leaf correlation " << endl;
-		drpt_global.calculate_tree_leaf_correlation();
-		cout << " rank " << rank << "  tree leaf correlation completed " << endl;
-	}
-
-	vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);
-
-	cout << " rank " << rank << " running  datapoint collection  "<< endl;
-	// running the similar datapoint collection
-	for (int i = 0; i < ntrees; i++)
-	{
-		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
-				this->index_distribution,this->datamap);
-
-	}
-
-	// get the global minimum value of a leaf
-	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
+//
+//	//calculate locality optimization to improve data locality
+//	if (use_locality_optimization)
+//	{
+//		cout << " rank " << rank << " starting tree leaf correlation " << endl;
+//		drpt_global.calculate_tree_leaf_correlation();
+//		cout << " rank " << rank << "  tree leaf correlation completed " << endl;
+//	}
+//
+//	vector<vector<vector<DataPoint>>> leaf_nodes_of_trees(ntrees);
+//
+//	cout << " rank " << rank << " running  datapoint collection  "<< endl;
+//	// running the similar datapoint collection
+//	for (int i = 0; i < ntrees; i++)
+//	{
+//		leaf_nodes_of_trees[i] = drpt_global.collect_similar_data_points(i, use_locality_optimization,
+//				this->index_distribution,this->datamap);
+//
+//	}
+//
+//	// get the global minimum value of a leaf
+//	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
         cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
 

@@ -94,6 +94,7 @@ void drpt::DRPTLocal::grow_local_tree ()
 
   int total_split_size = 1 << (this->tree_depth + 1);
 
+#pragma omp parallel for
   for (int k = 0; k < this->ntrees; k++)
     {
       this->count_first_leaf_indices_all (this->trees_leaf_first_indices_all[k], this->no_of_data_points,
@@ -105,7 +106,7 @@ void drpt::DRPTLocal::grow_local_tree ()
       for (int i = 0; i < this->tree_depth; i++)
         {
           this->trees_data[k][i] = vector<VALUE_TYPE> (this->no_of_data_points);
-#pragma omp parallel for
+//#pragma omp parallel for
           for (int j = 0; j < this->no_of_data_points; j++)
             {
               int index = this->tree_depth * k + i + j * this->tree_depth * this->ntrees;

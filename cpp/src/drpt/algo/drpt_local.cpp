@@ -80,7 +80,6 @@ void drpt::DRPTLocal::count_first_leaf_indices_all (std::vector <std::vector<int
 
 void drpt::DRPTLocal::grow_local_tree ()
 {
-
 //  cout<<" rank "<<this->rank << "tree depth local" <<this->tree_depth<< " data points "<<this->no_of_data_points<<" heigt "<<log2 (this->no_of_data_points)<<endl;
       if (this->tree_depth <= 0 || this->tree_depth > log2 (this->no_of_data_points))
     {
@@ -97,8 +96,7 @@ void drpt::DRPTLocal::grow_local_tree ()
 #pragma omp parallel for
   for (int k = 0; k < this->ntrees; k++)
     {
-      this->count_first_leaf_indices_all (this->trees_leaf_first_indices_all[k], this->no_of_data_points,
-                                          this->tree_depth);
+      this->count_first_leaf_indices_all (this->trees_leaf_first_indices_all[k], this->no_of_data_points,this->tree_depth);
       this->trees_leaf_first_indices[k] = this->trees_leaf_first_indices_all[k][this->tree_depth];
       this->trees_splits[k] = vector<VALUE_TYPE> (total_split_size);
       this->trees_data[k] = vector < vector < VALUE_TYPE >> (this->tree_depth);
@@ -118,7 +116,6 @@ void drpt::DRPTLocal::grow_local_tree ()
       grow_local_subtree (this->trees_indices[k].begin (), this->trees_indices[k].end (), 0, 0, k);
 
     }
-
 }
 
 void drpt::DRPTLocal::grow_local_subtree (std::vector<int>::iterator begin, std::vector<int>::iterator end,

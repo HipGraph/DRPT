@@ -773,56 +773,56 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
 			MPI_COMM_WORLD);
 
-//	int nn_index = 0;
-//	for (int i = 0;i < total_receiving_count;i++)
-//	{
-//		int src_index = receiving_selected_indices[i];
-//		int nn_count = receiving_selected_nn_indices_count[i];
-//		vector<DataPoint> vec;
-//		for (int j = 0;j < nn_count;j++)
-//		{
-//			int nn_indi = receving_selected_nn[nn_index].index;
-//			VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
-//			DataPoint dataPoint;
-//			dataPoint.src_index = src_index;
-//			dataPoint.index = nn_indi;
-//			dataPoint.distance = distance;
-//			vec.push_back(dataPoint);
-//			nn_index++;
-//		}
-//
-//		auto its = final_nn_map.find(src_index);
-//		if (its == final_nn_map.end())
-//		{
-//			final_nn_map.insert(pair < int, vector < DataPoint >>(src_index, vec));
-//		}
-//		else
-//		{
-//			vector<DataPoint> dst;
-//			vector<DataPoint> ex_vec = its->second;
-//			sort(vec.begin(), vec.end(),
-//					[](const DataPoint& lhs,const DataPoint& rhs)
-//					{
-//					  return lhs.distance < rhs.distance;
-//					});
-//			std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
-//					vec.end(), std::back_inserter(dst),
-//					[](const DataPoint& lhs,const DataPoint& rhs
-//					)
-//					{
-//					  return lhs.distance < rhs.distance;
-//					});
-//			dst.
-//					erase(unique(dst.begin(), dst.end(), [](const DataPoint& lhs,
-//							const DataPoint& rhs)
-//					{
-//					  return lhs.index == rhs.index;
-//					}),
-//					dst.end()
-//			);
-//			(its->second) =dst;
-//		}
-//	}
+	int nn_index = 0;
+	for (int i = 0;i < total_receiving_count;i++)
+	{
+		int src_index = receiving_selected_indices[i];
+		int nn_count = receiving_selected_nn_indices_count[i];
+		vector<DataPoint> vec;
+		for (int j = 0;j < nn_count;j++)
+		{
+			int nn_indi = receving_selected_nn[nn_index].index;
+			VALUE_TYPE distance = receving_selected_nn[nn_index].distance;
+			DataPoint dataPoint;
+			dataPoint.src_index = src_index;
+			dataPoint.index = nn_indi;
+			dataPoint.distance = distance;
+			vec.push_back(dataPoint);
+			nn_index++;
+		}
+
+		auto its = final_nn_map.find(src_index);
+		if (its == final_nn_map.end())
+		{
+			final_nn_map.insert(pair < int, vector < DataPoint >>(src_index, vec));
+		}
+		else
+		{
+			vector<DataPoint> dst;
+			vector<DataPoint> ex_vec = its->second;
+			sort(vec.begin(), vec.end(),
+					[](const DataPoint& lhs,const DataPoint& rhs)
+					{
+					  return lhs.distance < rhs.distance;
+					});
+			std::merge(ex_vec.begin(), ex_vec.end(), vec.begin(),
+					vec.end(), std::back_inserter(dst),
+					[](const DataPoint& lhs,const DataPoint& rhs
+					)
+					{
+					  return lhs.distance < rhs.distance;
+					});
+			dst.
+					erase(unique(dst.begin(), dst.end(), [](const DataPoint& lhs,
+							const DataPoint& rhs)
+					{
+					  return lhs.index == rhs.index;
+					}),
+					dst.end()
+			);
+			(its->second) =dst;
+		}
+	}
 }
 
 

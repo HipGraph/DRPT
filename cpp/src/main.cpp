@@ -193,11 +193,13 @@ int main(int argc, char* argv[])
 
 	int chunk_size = data_set_size / size;
 
+        auto start_index_buildling = high_resolution_clock::now();
+
 	MDRPT mdrpt = MDRPT(ntrees, tree_depth, tree_depth_ratio, local_tree_offset, data_set_size, cols,
 			rows, rank, size, input_path,
 			output_path);
 
-	auto start_index_buildling = high_resolution_clock::now();
+
 
 	cout << " start growing trees " << rank << endl;
 

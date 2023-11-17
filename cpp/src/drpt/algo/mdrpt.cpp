@@ -69,6 +69,7 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	int starting_index = (this->global_data_set_size / world_size) * this->rank;
 	this->starting_data_index = starting_index;
 
+
 	// creating DRPTGlobal class
 	drpt::DRPTGlobal drpt_global = drpt::DRPTGlobal(P,
 			B,
@@ -80,13 +81,14 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 			this->rank,
 			this->world_size);
 
+
 	cout << " rank " << rank << " starting growing trees" << endl;
 	// start growing global tree
 	drpt_global.grow_global_tree(original_data);
 	cout << " rank " << rank << " completing growing trees" << endl;
 
-
-	//calculate locality optimization to improve data locality
+//
+//	//calculate locality optimization to improve data locality
 	if (use_locality_optimization)
 	{
 		cout << " rank " << rank << " starting tree leaf correlation " << endl;
@@ -108,7 +110,9 @@ void drpt::MDRPT::grow_trees(vector<vector<VALUE_TYPE>>& original_data, float de
 	// get the global minimum value of a leaf
 	int global_minimum = this->get_global_minimum_leaf_size(leaf_nodes_of_trees);
 
-        cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
+//        cout << " rank " << rank << " global_minimum  "<<global_minimum<< endl;
+
+
 	//grow local trees for each leaf
 	this->grow_local_trees(leaf_nodes_of_trees,global_minimum,nn,global_tree_depth, density);
 
@@ -221,32 +225,32 @@ std::map<int,vector<drpt::DataPoint>> drpt::MDRPT::communicate_nns(map<int, vect
 
 
 	vector<index_distance_pair> final_sent_indices_to_rank_map(this->local_data_set_size);
-
-	//finalize data owners based on data owner having minimum distance threshold.
+//
+//	//finalize data owners based on data owner having minimum distance threshold.
 	this->finalize_final_dataowner(receiving_indices_count,disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-
-	//announce the selected dataowner to all interesting data holders
+//
+//	//announce the selected dataowner to all interesting data holders
 	vector<vector<index_distance_pair>> final_indices_allocation =  this->announce_final_dataowner(total_receving,
 			receiving_indices_count, disps_receiving_indices,out_index_dis,final_sent_indices_to_rank_map);
-
-
+//
+//
 	std::map<int, vector<DataPoint>>final_nn_sending_map;
 	std::map<int, vector<DataPoint>>final_nn_map;
-
+//
 	int* sending_selected_indices_count = new int[this->world_size]();
 	int* sending_selected_indices_nn_count = new int[this->world_size]();
-
+//
 	int* receiving_selected_indices_count = new int[this->world_size]();
 	int* receiving_selected_indices_nn_count = new int[this->world_size]();
-
-	//select final nns to be forwared to dataowners
+//
+//	//select final nns to be forwared to dataowners
 	this->select_final_forwarding_nns(final_indices_allocation,
 			local_nns,
 			final_nn_sending_map,final_nn_map,
 			sending_selected_indices_count,
 			sending_selected_indices_nn_count);
-
-
+//
+//
 	this->send_nns(sending_selected_indices_count,sending_selected_indices_nn_count,
 			receiving_selected_indices_count,final_nn_map,final_nn_sending_map,final_indices_allocation);
 
@@ -320,9 +324,7 @@ void drpt::MDRPT::grow_local_trees(vector<vector<vector<DataPoint>>> &leaf_nodes
 	int local_tree_depth = log2(global_minimum) - (log2(nn) + this->local_tree_offset);
 	this->tree_depth = local_tree_depth + global_tree_depth;
 
-	cout << "rank " << rank << " adjusted local tree height " << local_tree_depth << " adjusted global tree depth "
-		 << global_tree_depth <<
-		 endl;
+//	cout << "rank " << rank << " adjusted local tree height " << local_tree_depth << " adjusted global tree depth "<< global_tree_depth <<endl;
 
 	 this->total_leaf_size = (1 << (this->tree_depth)) - (1 << (this->tree_depth - 1));
 
@@ -530,15 +532,16 @@ vector<vector<drpt::MDRPT::index_distance_pair>> drpt::MDRPT::announce_final_dat
 	int* minimal_selected_rank_reciving = new int[total_receivce_back]();
 	index_distance_pair minimal_index_distance_receiv[total_receivce_back];
 
+
 	MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
 			minimal_index_distance_receiv,
-			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD
-	);
+			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
+
 
 	MPI_Alltoallv(minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
 			minimal_selected_rank_reciving,
-			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD
-	);
+			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
+
 
 	vector<vector<index_distance_pair>> final_indices_allocation(this->world_size);
 
@@ -647,10 +650,6 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 	int* disps_receiving_selected_nn_indices = new int[this->world_size]();
 
 
-
-	MPI_Alltoall(sending_selected_indices_count,
-			1, MPI_INT, receiving_selected_indices_count, 1, MPI_INT, MPI_COMM_WORLD);
-
     int total_selected_indices_count=0;
 
 	int total_selected_indices_nn_count=0;
@@ -672,7 +671,7 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 
 	int* sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
 
-	index_distance_pair sending_selected_nn[total_selected_indices_nn_count];
+	index_distance_pair* sending_selected_nn = new index_distance_pair[total_selected_indices_nn_count];
 
 	int inc = 0;
 	int selected_nn = 0;
@@ -727,27 +726,27 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 	{
 		int co = receiving_selected_indices_count[i];
 		int offset = disps_receiving_selected_indices[i];
-//        int per_pro_co = 0;
+
 		for (int k = offset;k < (co + offset); k++)
 		{
 			receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
 		}
 		total_receiving_nn_count += receiving_selected_nn_indices_count_process[i];
-//        receiving_selected_nn_indices_count_process[i] =per_pro_co;
+
 		disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
 				receiving_selected_nn_indices_count_process[i - 1]) : 0;
 	}
 
-	index_distance_pair receving_selected_nn[total_receiving_nn_count];
+	index_distance_pair* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
 
-//    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
+
+
 
 	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
 			MPI_FLOAT_INT,
 			receving_selected_nn,
 			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
-			MPI_COMM_WORLD
-	);
+			MPI_COMM_WORLD);
 
 	int nn_index = 0;
 	for (int i = 0;i < total_receiving_count;i++)

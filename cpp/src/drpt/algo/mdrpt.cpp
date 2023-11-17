@@ -676,7 +676,7 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 
 	int* sending_selected_nn_count_for_each_index = new int[total_selected_indices_count]();
 
-	index_distance_pair sending_selected_nn[total_selected_indices_nn_count];
+	index_distance_pair* sending_selected_nn = new index_distance_pair[total_selected_indices_nn_count];
 
 	int inc = 0;
 	int selected_nn = 0;
@@ -742,7 +742,7 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 				receiving_selected_nn_indices_count_process[i - 1]) : 0;
 	}
 
-	index_distance_pair receving_selected_nn[total_receiving_nn_count];
+	index_distance_pair* receving_selected_nn = new index_distance_pair[total_receiving_nn_count];
 
 //    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
 

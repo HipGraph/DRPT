@@ -722,34 +722,34 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 			receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
 	);
 //
-//	int* receiving_selected_nn_indices_count_process = new int[this->world_size]();
-//
-//	for (int i = 0;i < this->world_size;i++)
-//	{
-//		int co = receiving_selected_indices_count[i];
-//		int offset = disps_receiving_selected_indices[i];
-////        int per_pro_co = 0;
-//		for (int k = offset;k < (co + offset); k++)
-//		{
-//			receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
-//		}
-//		total_receiving_nn_count += receiving_selected_nn_indices_count_process[i];
-////        receiving_selected_nn_indices_count_process[i] =per_pro_co;
-//		disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
-//				receiving_selected_nn_indices_count_process[i - 1]) : 0;
-//	}
-//
-//	index_distance_pair receving_selected_nn[total_receiving_nn_count];
-//
-////    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
-//
-//	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
-//			MPI_FLOAT_INT,
-//			receving_selected_nn,
-//			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
-//			MPI_COMM_WORLD
-//	);
-//
+	int* receiving_selected_nn_indices_count_process = new int[this->world_size]();
+
+	for (int i = 0;i < this->world_size;i++)
+	{
+		int co = receiving_selected_indices_count[i];
+		int offset = disps_receiving_selected_indices[i];
+//        int per_pro_co = 0;
+		for (int k = offset;k < (co + offset); k++)
+		{
+			receiving_selected_nn_indices_count_process[i] += receiving_selected_nn_indices_count[k];
+		}
+		total_receiving_nn_count += receiving_selected_nn_indices_count_process[i];
+//        receiving_selected_nn_indices_count_process[i] =per_pro_co;
+		disps_receiving_selected_nn_indices[i] = (i > 0) ? (disps_receiving_selected_nn_indices[i - 1] +
+				receiving_selected_nn_indices_count_process[i - 1]) : 0;
+	}
+
+	index_distance_pair receving_selected_nn[total_receiving_nn_count];
+
+//    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
+
+	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+			MPI_FLOAT_INT,
+			receving_selected_nn,
+			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
+			MPI_COMM_WORLD
+	);
+
 //	int nn_index = 0;
 //	for (int i = 0;i < total_receiving_count;i++)
 //	{

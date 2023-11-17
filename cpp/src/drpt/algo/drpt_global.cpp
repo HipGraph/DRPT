@@ -363,7 +363,7 @@ vector <vector<drpt::DataPoint>> drpt::DRPTGlobal::collect_similar_data_points (
   int leafs_per_node = total_leaf_size / this->world_size;
 
 
-  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
+//  cout<<" rank "<<rank<<" total_leaf_size "<<total_leaf_size<< " leafs per node "<<leafs_per_node<<endl;
 
   int my_start_count = 0;
   int end_count = 0;

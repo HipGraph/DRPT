@@ -746,10 +746,12 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 
 //    cout << " rank " << rank << " total receiving nn indicies " << total_receiving_nn_count <<endl;
 
-        for (int i=0;this->world_size;i++){
-          cout<<" rank "<< rank<<" sending to "<<i<<" count "<<sending_selected_indices_nn_count[i]<<endl;
-          cout<<" rank "<< rank<<" receiving from "<<i<<" count "<<receiving_selected_nn_indices_count_process[i]<<endl;
-        }
+        cout<<" rank "<< rank<<"  world size "<<this->world_size<<endl;
+
+//        for (int i=0;this->world_size;i++) {
+//          cout<<" rank "<< rank<<" sending to "<<i<<" count "<<sending_selected_indices_nn_count[i]<<endl;
+//          cout<<" rank "<< rank<<" receiving from "<<i<<" count "<<receiving_selected_nn_indices_count_process[i]<<endl;
+//        }
 
 
 

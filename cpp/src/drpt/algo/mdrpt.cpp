@@ -749,24 +749,6 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
         cout<<" rank "<< rank<<"  world size "<<this->world_size<<endl;
 
 
-        int checking_sending_count = 0;
-        int checking_receving_count = 0;
-        for (int i=0;i<this->world_size;i++) {
-          cout<<" rank "<< rank<<" sending to "<<i<<" count "<<sending_selected_indices_nn_count[i]<<endl;
-          cout<<" rank "<< rank<<" sending to "<<i<<" disps sending "<<disps_sending_selected_nn_indices[i]<<endl;
-
-          checking_sending_count +=sending_selected_indices_nn_count[i];
-          checking_receving_count += receiving_selected_nn_indices_count_process[i];
-          cout<<" rank "<< rank<<" receiving from "<<i<<" count "<<receiving_selected_nn_indices_count_process[i]<<endl;
-          cout<<" rank "<< rank<<" receiving from "<<i<<" disps receving "<<disps_receiving_selected_nn_indices[i]<<endl;
-          cout<<" rank "<<"################ "<<endl;
-        }
-
-
-        cout<<" rank "<< rank<<"sending count checked "<<checking_sending_count<<" receiving count checked "<<checking_receving_count<<endl;
-        cout<<" rank "<< rank<<"sending count act "<<total_selected_indices_nn_count<<" receiving count act "<<total_receiving_nn_count<<endl;
-
-
 	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
 			MPI_FLOAT_INT,
 			receving_selected_nn,

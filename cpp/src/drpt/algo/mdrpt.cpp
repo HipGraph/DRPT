@@ -750,11 +750,11 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 
 
 
-	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
-			MPI_FLOAT_INT,
-			receving_selected_nn,
-			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
-			MPI_COMM_WORLD);
+//	MPI_Alltoallv(sending_selected_nn, sending_selected_indices_nn_count, disps_sending_selected_nn_indices,
+//			MPI_FLOAT_INT,
+//			receving_selected_nn,
+//			receiving_selected_nn_indices_count_process, disps_receiving_selected_nn_indices, MPI_FLOAT_INT,
+//			MPI_COMM_WORLD);
 
 //	int nn_index = 0;
 //	for (int i = 0;i < total_receiving_count;i++)

@@ -534,15 +534,16 @@ vector<vector<drpt::MDRPT::index_distance_pair>> drpt::MDRPT::announce_final_dat
 	int* minimal_selected_rank_reciving = new int[total_receivce_back]();
 	index_distance_pair minimal_index_distance_receiv[total_receivce_back];
 
+
 	MPI_Alltoallv(minimal_index_distance, receiving_indices_count, disps_receiving_indices, MPI_FLOAT_INT,
 			minimal_index_distance_receiv,
-			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD
-	);
+			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_FLOAT_INT, MPI_COMM_WORLD);
+
 
 	MPI_Alltoallv(minimal_selected_rank_sending, receiving_indices_count, disps_receiving_indices, MPI_INT,
 			minimal_selected_rank_reciving,
-			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD
-	);
+			receiving_indices_count_back, disps_receiving_indices_count_back, MPI_INT, MPI_COMM_WORLD);
+
 
 	vector<vector<index_distance_pair>> final_indices_allocation(this->world_size);
 
@@ -715,11 +716,11 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 			disps_sending_selected_indices, MPI_INT, receiving_selected_nn_indices_count,
 			receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
 	);
-//
-//	MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
-//			receiving_selected_indices,
-//			receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
-//	);
+
+	MPI_Alltoallv(sending_selected_indices, sending_selected_indices_count, disps_sending_selected_indices, MPI_INT,
+			receiving_selected_indices,
+			receiving_selected_indices_count, disps_receiving_selected_indices, MPI_INT, MPI_COMM_WORLD
+	);
 //
 //	int* receiving_selected_nn_indices_count_process = new int[this->world_size]();
 //

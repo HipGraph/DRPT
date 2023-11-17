@@ -639,6 +639,9 @@ void drpt::MDRPT::send_nns(int *sending_selected_indices_count,int *sending_sele
 		std::map<int, vector<DataPoint>> &final_nn_map,std::map<int, vector<DataPoint>> &final_nn_sending_map,
 		vector<vector<index_distance_pair>> &final_indices_allocation) {
 
+
+     cout<< " world size "<<this->world_size<<endl;
+
 	int total_receiving_count = 0;
 
 	int total_receiving_nn_count = 0;
